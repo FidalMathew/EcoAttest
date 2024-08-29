@@ -1,21 +1,34 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
   CHAIN_NAMESPACES,
   IProvider,
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { Web3AuthNoModal } from "@web3auth/no-modal";
-import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import { createWalletClient, createPublicClient, custom } from "viem";
-import { sepolia } from "viem/chains";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {Web3AuthNoModal} from "@web3auth/no-modal";
+import {OpenloginAdapter} from "@web3auth/openlogin-adapter";
+import {
+  createWalletClient,
+  createPublicClient,
+  custom,
+  type PublicClient,
+  WalletClient,
+} from "viem";
+import {sepolia, hedera} from "viem/chains";
 
-export const GlobalContext = createContext({
+interface PublicClientContextType {
+  publicClient: PublicClient | null;
+  walletClient: WalletClient | null;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: () => { },
-  logout: () => { },
+  login: async () => {},
+  logout: async () => {},
 });
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
@@ -32,7 +45,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3AuthNoModal({
@@ -80,7 +93,7 @@ export default function GlobalContextProvider({
           setLoggedIn(true);
         }
       } catch (error) {
-        console.error(error);
+        console.error(error, "Error initializing Web3Auth");
       }
     };
 
@@ -88,22 +101,31 @@ export default function GlobalContextProvider({
   }, []);
 
   const login = async () => {
-    const web3authProvider = await web3auth.connectTo(
-      WALLET_ADAPTERS.OPENLOGIN,
-      {
-        loginProvider: "google",
+    try {
+      const web3authProvider = await web3auth.connectTo(
+        WALLET_ADAPTERS.OPENLOGIN,
+        {
+          loginProvider: "google",
+        }
+      );
+
+      setProvider(web3authProvider);
+
+      if (web3auth.connected) {
+        setLoggedIn(true);
       }
-    );
-
-    setProvider(web3authProvider);
-
-    if (web3auth.connected) {
-      setLoggedIn(true);
+    } catch (error) {
+      console.error(error, "Error logging in");
     }
   };
 
   const getUserInfo = async () => {
-    const user = await web3auth.getUserInfo();
+    try {
+      const user = await web3auth.getUserInfo();
+      return user;
+    } catch (error) {
+      console.error(error, "Error getting user info");
+    }
   };
 
   const logout = async () => {
@@ -113,7 +135,7 @@ export default function GlobalContextProvider({
   };
 
   return (
-    <GlobalContext.Provider value={{ publicClient, walletClient, login, logout }}>
+    <GlobalContext.Provider value={{publicClient, walletClient, login, logout}}>
       {children}
     </GlobalContext.Provider>
   );

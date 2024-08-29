@@ -1,18 +1,45 @@
 import {Button} from "@/components/ui/button";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
+import {useEffect, useState} from "react";
+import {Hex} from "viem";
 
 export default function Organiser() {
-  const {walletClient, publicClient, login, logout} = useGlobalContextHook();
+  const {walletClient, login, publicClient, logout} = useGlobalContextHook();
+  const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
+  const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async function () {
+      try {
+        if (walletClient && publicClient) {
+          const [address] = await walletClient.getAddresses();
+          console.log(address, "address");
+          setLoggedInAddress(address);
+
+          const balance = await publicClient.getBalance({
+            address: address,
+          });
+
+          console.log(balance.toString(), "balance");
+          setBalanceAddress(balance.toString());
+        }
+      } catch (error) {
+        console.error(error, "Error logging in");
+      }
+    })();
+  }, [walletClient, publicClient]);
+
   return (
     <div>
-      <div>
-        {walletClient && <pre>{JSON.stringify(walletClient, null, 2)}</pre>}
-      </div>
-      <div>
-        {publicClient && <pre>{JSON.stringify(publicClient, null, 2)}</pre>}
-      </div>
+      {loggedInAddress && balanceAddress && (
+        <div>
+          <div>Logged in as: {loggedInAddress}</div>
+          <div>Balance: {balanceAddress}</div>
+        </div>
+      )}
       <div>
         <Button onClick={login}>Login</Button>
+        <Button onClick={logout}>Logout</Button>
       </div>
     </div>
   );
