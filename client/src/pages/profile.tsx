@@ -55,7 +55,7 @@ export default function Profile() {
             </TabsList>
             <TabsContent value="ongoing" className="focus-visible:ring-0">
               <div
-                className="w-full overflow-y-auto flex flex-col gap-4"
+                className="w-full overflow-y-auto flex flex-col gap-4 px-4"
                 style={{
                   height: "calc(100vh - 30vh)",
                 }}
