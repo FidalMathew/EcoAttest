@@ -1,21 +1,21 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import {
   CHAIN_NAMESPACES,
   IProvider,
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
-import {Web3AuthNoModal} from "@web3auth/no-modal";
-import {OpenloginAdapter} from "@web3auth/openlogin-adapter";
-import {createWalletClient, createPublicClient, custom} from "viem";
-import {sepolia} from "viem/chains";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { Web3AuthNoModal } from "@web3auth/no-modal";
+import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
+import { createWalletClient, createPublicClient, custom } from "viem";
+import { sepolia } from "viem/chains";
 
 export const GlobalContext = createContext({
   publicClient: null,
   walletClient: null,
-  login: () => {},
-  logout: () => {},
+  login: () => { },
+  logout: () => { },
 });
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
@@ -32,12 +32,12 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: {chainConfig},
+  config: { chainConfig },
 });
 
 const web3auth = new Web3AuthNoModal({
   clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
+  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   privateKeyProvider,
 });
 
@@ -113,7 +113,7 @@ export default function GlobalContextProvider({
   };
 
   return (
-    <GlobalContext.Provider value={{publicClient, walletClient, login, logout}}>
+    <GlobalContext.Provider value={{ publicClient, walletClient, login, logout }}>
       {children}
     </GlobalContext.Provider>
   );
