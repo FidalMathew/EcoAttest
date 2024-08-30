@@ -1,12 +1,35 @@
 import {Button} from "@/components/ui/button";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {useEffect, useState} from "react";
 import {Hex} from "viem";
 
 export default function Organiser() {
-  const {walletClient, login, publicClient, logout} = useGlobalContextHook();
+  const {
+    walletClient,
+    login,
+    publicClient,
+    logout,
+    getUserInfo,
+    provider,
+    loggedIn,
+  } = useGlobalContextHook();
   const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
   const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<
+    Partial<OpenloginUserInfo> | undefined
+  >();
+
+  const getUser = async () => {
+    if (!getUserInfo) return;
+    try {
+      const userInfo = await getUserInfo();
+      setUserInfo(userInfo);
+      console.log(userInfo, "User info");
+    } catch (error) {
+      console.error(error, "Error user info");
+    }
+  };
 
   useEffect(() => {
     (async function () {
@@ -22,12 +45,14 @@ export default function Organiser() {
 
           console.log(balance.toString(), "balance");
           setBalanceAddress(balance.toString());
+
+          getUser();
         }
       } catch (error) {
         console.error(error, "Error logging in");
       }
     })();
-  }, [walletClient, publicClient]);
+  }, [walletClient, publicClient, provider, loggedIn]);
 
   return (
     <div>

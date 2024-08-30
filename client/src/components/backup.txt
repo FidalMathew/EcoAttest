@@ -1,0 +1,18 @@
+ <div className="w-[600px] h-full pb-[50px] rounded-2xl flex items-center py-5 lg:flex-col gap-3 justify-center lg:justify-start border-2">
+          <div className="w-[200px] h-[200px] bg-green-400 rounded-full border-2 border-green-800"></div>
+          <div className="flex flex-col gap-3 text-center ">
+            <div className="w-[250px] text-4xl font-normal">
+              <p>Jaydeep Dey</p>
+            </div>
+            <div className="w-[250px] h-fit">jaydeep@mail.com</div>
+            <div className="w-[250px] h-[50px] bg-green-900 rounded-xl flex border-2 border-gray-800 items-center justify-center font-semibold gap-3 text-white">
+              <Star className="w-6 h-6 fill-yellow-500" />
+              <span>Carbon Score : 600</span>
+            </div>
+            <div className="w-[250px] h-[50px] bg-yellow-900 rounded-xl flex border-2 border-gray-800 items-center justify-center font-semibold gap-3 text-white">
+              <Gem className="w-6 h-6 fill-yellow-500" />
+
+              <span>Carbon Credits : 600</span>
+            </div>
+          </div>
+        </div>

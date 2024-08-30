@@ -660,10 +660,10 @@
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.34.tgz#10964ba0dee6ac4cd462e2795b6bebd407303433"
   integrity sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==
 
-"@types/node@^20":
-  version "20.16.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.16.2.tgz#9e388f503a5af306e8c63319334887390966a11e"
-  integrity sha512-91s/n4qUPV/wg8eE9KHYW1kouTfDk2FPGjXbBMfRWP/2vg1rCXNQL1OCabwGs0XSdukuK+MwCDXE30QpSeMUhQ==
+"@types/node@^22.5.1":
+  version "22.5.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.5.1.tgz#de01dce265f6b99ed32b295962045d10b5b99560"
+  integrity sha512-KkHsxej0j9IW1KKOOAA/XBA0z08UFSrRQHErzEfA3Vgq57eXIMYboIlHJuYIfd+lwCQjtKqUu3UnmKbtUc9yRw==
   dependencies:
     undici-types "~6.19.2"
 
@@ -697,7 +697,7 @@
     "@web3auth/base" "^8.12.4"
     json-rpc-random-id "^1.0.1"
 
-"@web3auth/base@^8.12.2", "@web3auth/base@^8.12.4":
+"@web3auth/base@^8.12.4":
   version "8.12.4"
   resolved "https://registry.yarnpkg.com/@web3auth/base/-/base-8.12.4.tgz#a82552109cae0b4a19102da39349df8ccb955f42"
   integrity sha512-RyHF3KZ0SwTglj1CSPo1tp3s9dZKqaDwvmCN48wgJsC288tAFGvZyqFTqeM10WX56OwUcLBrRl4w7oHpYJ8uXg==
@@ -711,7 +711,7 @@
     loglevel "^1.9.1"
     ts-custom-error "^3.3.1"
 
-"@web3auth/ethereum-provider@^8.12.3":
+"@web3auth/ethereum-provider@^8.12.4":
   version "8.12.4"
   resolved "https://registry.yarnpkg.com/@web3auth/ethereum-provider/-/ethereum-provider-8.12.4.tgz#c9e85fcdafe83cfb0ef752751f65ce70284484ec"
   integrity sha512-E9ChShysafJJm7JbouY4LarAsRsqCljSwHrjdPyHNR4mtKsXox5oI/fNBeb3gGJPL/rhzEQwE4+GkXQT5OafXQ==
@@ -730,16 +730,24 @@
     bn.js "^5.2.1"
     jsonschema "^1.4.1"
 
-"@web3auth/modal@^8.12.3":
-  version "8.12.6"
-  resolved "https://registry.yarnpkg.com/@web3auth/modal/-/modal-8.12.6.tgz#e69431f0add60c8c08ad34658875461e8a110e4a"
-  integrity sha512-DXN1B+V7/G+8Gws/Hy4PRtKhJxDqcZc5ESx/xQFq/kkivpvqEzu2h/EzfyRK1XxcYPep9QqH6a+6wCrnl2W/sg==
+"@web3auth/modal-react-hooks@^8.12.7":
+  version "8.12.7"
+  resolved "https://registry.yarnpkg.com/@web3auth/modal-react-hooks/-/modal-react-hooks-8.12.7.tgz#91e42bf20f3bdcf03b261c138a28bbcae768f402"
+  integrity sha512-N9l6TJTViVMqC7kRxYrZmTGiyI0iVUIDodo8/JfhagTq938T1jb7VKhdxtRmZo7IcJ4Fwt/j4A02Q68idMKWew==
+  dependencies:
+    "@web3auth/base" "^8.12.4"
+    "@web3auth/modal" "^8.12.7"
+
+"@web3auth/modal@^8.12.7":
+  version "8.12.7"
+  resolved "https://registry.yarnpkg.com/@web3auth/modal/-/modal-8.12.7.tgz#19d864dc09fb4c03e5d94c383ff7a92286f7ac25"
+  integrity sha512-/gtKVCicMU42OSy0Jle4qC8KLmCdXZR+Q2Gd98aRdAtXqZ+PLRyTwCZiba+aKavk5bqj0nItuHA0ugFK8oBa5A==
   dependencies:
     "@web3auth/base" "^8.12.4"
     "@web3auth/base-provider" "^8.12.4"
     "@web3auth/no-modal" "^8.12.4"
     "@web3auth/openlogin-adapter" "^8.12.4"
-    "@web3auth/ui" "^8.12.6"
+    "@web3auth/ui" "^8.12.7"
     lodash.clonedeep "^4.5.0"
     lodash.merge "^4.6.2"
 
@@ -767,10 +775,10 @@
     "@web3auth/base-provider" "^8.12.4"
     lodash.merge "^4.6.2"
 
-"@web3auth/ui@^8.12.6":
-  version "8.12.6"
-  resolved "https://registry.yarnpkg.com/@web3auth/ui/-/ui-8.12.6.tgz#12771f35312924501d19c5b7773b227d965104ca"
-  integrity sha512-YKpPzvOK1NX2duoBbGb0TPb/DMMKu/jws6wVvDwq4XMHmGyi0Nh8ZL/xklysX9WAzmmDaGZTL2UbivVwRrHlDg==
+"@web3auth/ui@^8.12.7":
+  version "8.12.7"
+  resolved "https://registry.yarnpkg.com/@web3auth/ui/-/ui-8.12.7.tgz#38c2c6a8a2ade9475337d4c61e7ec60b42668f4f"
+  integrity sha512-7sUX0mOJtrA4L3KukLWi4d89IiUbspP+VVngK4T5a6jA73FO+i/E/EVyRgKgjHFJ6FoqM0EpR1DtFg76TP7pcQ==
   dependencies:
     "@toruslabs/http-helpers" "^6.1.1"
     "@toruslabs/openlogin" "^8.2.1"
@@ -2035,7 +2043,16 @@ streamsearch@^1.1.0:
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-1.1.0.tgz#404dd1e2247ca94af554e841a8ef0eaa238da764"
   integrity sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==
 
-"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+string-width@^4.1.0:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -2060,7 +2077,14 @@ string_decoder@^1.3.0:
   dependencies:
     safe-buffer "~5.2.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==

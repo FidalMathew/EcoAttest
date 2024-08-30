@@ -1,12 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
-
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
 import {ArrowRight} from "lucide-react";
+import {useRouter} from "next/router";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div className="w-full lg:grid lg:grid-cols-3 lg:min-h-screen">
       <div className="hidden bg-muted lg:block">
@@ -26,8 +23,11 @@ export default function Home() {
             a sustainable future.
           </p>
         </div>
-        <div className="h-full w-full gap-6 flex flex-col items-center justify-center cursor-pointer font-sans">
-          <div className="w-[80%] mx-auto h-[200px] border-2 border-green-900 rounded-xl flex flex-col group relative justify-center items-center">
+        <div className="h-full w-full gap-6 flex flex-col items-center justify-center  font-sans">
+          <div
+            className="w-[80%] mx-auto h-[200px] border-2 border-green-900 rounded-xl flex flex-col group relative justify-center items-center cursor-pointer"
+            onClick={() => router.push(`/organiser`)}
+          >
             <img
               src="/ecosystem.png"
               alt="ecosystem"
@@ -42,7 +42,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="w-[80%] mx-auto h-[200px] border-2 border-green-900 rounded-xl flex flex-col group relative justify-center items-center">
+          <div
+            className="w-[80%] mx-auto h-[200px] border-2 border-green-900 rounded-xl flex flex-col group relative justify-center items-center cursor-pointer"
+            onClick={() => router.push(`/participant`)}
+          >
             <img
               src="/world.png"
               alt="world"
