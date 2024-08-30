@@ -1,8 +1,8 @@
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {useEffect, useState} from "react";
-import {Hex} from "viem";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { useEffect, useState } from "react";
+import { Hex } from "viem";
 
 export default function Organiser() {
   const {

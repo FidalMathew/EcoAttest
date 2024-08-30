@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import {
   CHAIN_NAMESPACES,
   EVM_ADAPTERS,
@@ -7,8 +7,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
-import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -16,9 +16,9 @@ import {
   type PublicClient,
   WalletClient,
 } from "viem";
-import {sepolia, hedera} from "viem/chains";
+import { sepolia, hederaTestnet } from "viem/chains";
 
-import {Web3Auth} from "@web3auth/modal";
+import { Web3Auth } from "@web3auth/modal";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -33,8 +33,8 @@ interface PublicClientContextType {
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  logout: async () => { },
   provider: null,
   loggedIn: false,
 });
@@ -43,8 +43,8 @@ const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0xaa36a7",
-  rpcTarget: "https://rpc.ankr.com/eth_sepolia",
+  chainId: "0x128",
+  rpcTarget: "https://testnet.hashio.io/api",
   displayName: "Ethereum Sepolia Testnet",
   blockExplorerUrl: "https://sepolia.etherscan.io",
   ticker: "ETH",
@@ -53,7 +53,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: {chainConfig},
+  config: { chainConfig },
 });
 
 const web3auth = new Web3Auth({
@@ -87,14 +87,14 @@ export default function GlobalContextProvider({
 
         if (web3auth.connected && web3auth.provider) {
           const walletClient = createWalletClient({
-            chain: sepolia,
+            chain: hederaTestnet,
             transport: custom(web3auth.provider),
           });
 
           setWalletClient(walletClient);
 
           const publicClient = createPublicClient({
-            chain: sepolia,
+            chain: hederaTestnet,
             transport: custom(web3auth.provider),
           });
 
@@ -127,6 +127,7 @@ export default function GlobalContextProvider({
   const getUserInfo = async () => {
     try {
       const user = await web3auth.getUserInfo();
+      console.log(user, "dsa")
       return user;
     } catch (error) {
       console.error(error, "Error getting user info");
@@ -138,7 +139,7 @@ export default function GlobalContextProvider({
     setProvider(null);
     setLoggedIn(false);
   };
-
+  // 0.0.4798103
   return (
     <GlobalContext.Provider
       value={{
