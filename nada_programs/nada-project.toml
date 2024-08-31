@@ -1,0 +1,8 @@
+name = "nada_programs"
+version = "0.1.0"
+authors = [""]
+
+[[programs]]
+path = "src/compute_carbon_score.py"
+name = "compute_carbon_score"
+prime_size = 128

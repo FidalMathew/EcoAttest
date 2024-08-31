@@ -1,9 +1,75 @@
 import Image from "next/image";
 import {ArrowRight} from "lucide-react";
 import {useRouter} from "next/router";
+import {useFetchValue, useStoreValue} from "@nillion/client-react-hooks";
+import useGlobalContextHook from "@/context/useGlobalContextHook";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+
+import {useEffect, useState} from "react";
+import {Button} from "@/components/ui/button";
 
 export default function Home() {
   const router = useRouter();
+
+  // web3auth -------
+  const {
+    walletClient,
+    login,
+    publicClient,
+    logout,
+    getUserInfo,
+    provider,
+    loggedIn,
+    status,
+  } = useGlobalContextHook();
+  const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
+  const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<
+    Partial<OpenloginUserInfo> | undefined
+  >();
+
+  const getUser = async () => {
+    if (!getUserInfo) return;
+    try {
+      const userInfo = await getUserInfo();
+      setUserInfo(userInfo);
+      console.log(userInfo, "User info");
+    } catch (error) {
+      console.error(error, "Error user info");
+    }
+  };
+
+  useEffect(() => {
+    (async function () {
+      try {
+        if (walletClient && publicClient) {
+          const [address] = await walletClient.getAddresses();
+          console.log(address, "address");
+          setLoggedInAddress(address);
+
+          const balance = await publicClient.getBalance({
+            address: address,
+          });
+
+          console.log(balance.toString(), "balance");
+          setBalanceAddress(balance.toString());
+
+          getUser();
+        }
+      } catch (error) {
+        console.error(error, "Error logging in");
+      }
+    })();
+  }, [walletClient, publicClient, provider, loggedIn]);
+
+  useEffect(() => {
+    if (loggedIn && status === "connected") {
+      router.push(`/feed`);
+    }
+  }, [status, loggedIn]);
+
+  // web3auth -------
+
   return (
     <div className="w-full lg:grid lg:grid-cols-3 lg:min-h-screen">
       <div className="hidden bg-muted lg:block">
@@ -23,36 +89,18 @@ export default function Home() {
             a sustainable future.
           </p>
         </div>
-        <div className="h-full w-full gap-6 flex flex-col items-center justify-center  font-sans">
+        <div className="h-full w-full gap-6 flex flex-col items-center justify-center font-sans">
           <div
             className="w-[80%] mx-auto h-[200px] border-2 border-green-900 rounded-xl flex flex-col group relative justify-center items-center cursor-pointer"
-            onClick={() => router.push(`/organiser`)}
+            onClick={login}
           >
             <img
-              src="/ecosystem.png"
-              alt="ecosystem"
-              className="w-32 h-32 absolute top-10 left-10 hidden sm:block"
+              src="/wallet.png"
+              alt="wallet"
+              className="w-24 h-24 absolute top-10 left-10 hidden sm:block"
             />
             <p className="text-2xl font-semibold sm:ml-10 text-green-950">
-              Are you a Organiser?
-            </p>
-
-            <div className="rounded-full border-0 hover:bg-white aspect-square p-0 h-10 absolute bottom-3 right-5 focus-visible:ring-0">
-              <ArrowRight className="h-7 w-7 group-hover:translate-x-1 duration-100 text-green-900" />
-            </div>
-          </div>
-
-          <div
-            className="w-[80%] mx-auto h-[200px] border-2 border-green-900 rounded-xl flex flex-col group relative justify-center items-center cursor-pointer"
-            onClick={() => router.push(`/participant`)}
-          >
-            <img
-              src="/world.png"
-              alt="world"
-              className="w-32 h-32 absolute top-10 left-10 hidden sm:block"
-            />
-            <p className="text-2xl font-semibold sm:ml-10 text-green-950">
-              Are you a Participant?
+              Connect your Wallet
             </p>
 
             <div className="rounded-full border-0 hover:bg-white aspect-square p-0 h-10 absolute bottom-3 right-5 focus-visible:ring-0">
@@ -60,6 +108,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <div>
+          {loggedInAddress && balanceAddress && (
+            <div>
+              <div>Logged in as: {loggedInAddress}</div>
+              <div>Balance: {balanceAddress}</div>
+            </div>
+          )}
+        </div>
+
+        <Button onClick={logout}>Logout</Button>
       </div>
     </div>
   );
