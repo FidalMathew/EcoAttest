@@ -14,6 +14,7 @@ import {ComputerIcon} from "lucide-react";
 // import {handleGenerateUserKey} from "@/nillion/helpers/generateUserKey";
 
 export default function Participant() {
+<<<<<<< Updated upstream
   const [userId, setUserId] = useState<any | undefined>(undefined);
   const runProgram = useRunProgram();
   // const [programID, setProgramID] = useState<ProgramId | undefined>(undefined);
@@ -108,4 +109,18 @@ export default function Participant() {
       </div>
     </div>
   );
+=======
+
+  // fetching all listed companies and its options
+
+  const requestAttestation = () => {
+    // company org address
+    // -> show qr with details and type and shit.
+
+    // should include user's address
+
+  }
+
+  return <div></div>;
+>>>>>>> Stashed changes
 }

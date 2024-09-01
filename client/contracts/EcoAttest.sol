@@ -24,6 +24,7 @@ contract EcoAttest {
     mapping(address => Organization) public organizations;
     mapping(uint256 => Event) public events;
     uint256 public eventCount;
+    address[] public organizationAddresses;
 
     event OrganizationAdded(address indexed orgAddress, string name);
     event OrganizationVerified(address indexed orgAddress);
@@ -65,6 +66,10 @@ contract EcoAttest {
         owner = msg.sender; // Set the contract deployer as the owner
     }
 
+    function getAllOrganizations() public view returns (address[] memory) {
+        return organizationAddresses;
+    }
+
     function addOrganization(string memory _name, address _orgAddress) public {
         organizations[_orgAddress] = Organization({
             verified: false, // Organizations start as unverified
@@ -73,6 +78,7 @@ contract EcoAttest {
             reputationScore: 0, // Initial reputation score
             subOrganizers: new address[](0) // Initialize empty sub-organizers list
         });
+        organizationAddresses.push(_orgAddress); // Store the organization address
 
         emit OrganizationAdded(_orgAddress, _name);
     }
