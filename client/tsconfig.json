@@ -11,6 +11,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "target": "ES2015",
+    "downlevelIteration": true,
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"]

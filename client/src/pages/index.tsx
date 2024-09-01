@@ -12,55 +12,7 @@ export default function Home() {
   const router = useRouter();
 
   // web3auth -------
-  const {
-    walletClient,
-    login,
-    publicClient,
-    logout,
-    getUserInfo,
-    provider,
-    loggedIn,
-    status,
-  } = useGlobalContextHook();
-  const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
-  const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<
-    Partial<OpenloginUserInfo> | undefined
-  >();
-
-  const getUser = async () => {
-    if (!getUserInfo) return;
-    try {
-      const userInfo = await getUserInfo();
-      setUserInfo(userInfo);
-      console.log(userInfo, "User info");
-    } catch (error) {
-      console.error(error, "Error user info");
-    }
-  };
-
-  useEffect(() => {
-    (async function () {
-      try {
-        if (walletClient && publicClient) {
-          const [address] = await walletClient.getAddresses();
-          console.log(address, "address");
-          setLoggedInAddress(address);
-
-          const balance = await publicClient.getBalance({
-            address: address,
-          });
-
-          console.log(balance.toString(), "balance");
-          setBalanceAddress(balance.toString());
-
-          getUser();
-        }
-      } catch (error) {
-        console.error(error, "Error logging in");
-      }
-    })();
-  }, [walletClient, publicClient, provider, loggedIn]);
+  const {getUserInfo, login, loggedIn, status} = useGlobalContextHook();
 
   useEffect(() => {
     if (loggedIn && status === "connected") {
@@ -108,17 +60,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        <div>
-          {loggedInAddress && balanceAddress && (
-            <div>
-              <div>Logged in as: {loggedInAddress}</div>
-              <div>Balance: {balanceAddress}</div>
-            </div>
-          )}
-        </div>
-
-        <Button onClick={logout}>Logout</Button>
       </div>
     </div>
   );

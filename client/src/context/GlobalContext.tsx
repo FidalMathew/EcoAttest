@@ -20,6 +20,7 @@ import {
 import {sepolia, hederaTestnet} from "viem/chains";
 
 import {Web3Auth} from "@web3auth/modal";
+import {useRouter} from "next/router";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -81,6 +82,8 @@ export default function GlobalContextProvider({
   const [walletClient, setWalletClient] = useState<any>(null);
   const [publicClient, setPublicClient] = useState<any>(null);
 
+  const router = useRouter();
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -139,6 +142,7 @@ export default function GlobalContextProvider({
 
   const logout = async () => {
     await web3auth.logout();
+    router.reload();
     setProvider(null);
     setLoggedIn(false);
   };

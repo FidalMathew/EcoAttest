@@ -4,9 +4,13 @@ import {Button} from "@/components/ui/button";
 import {ArrowRight, Leaf} from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
 import {useRouter} from "next/router";
+import {useEffect, useState} from "react";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import useGlobalContextHook from "@/context/useGlobalContextHook";
 
 export default function Feed() {
   const router = useRouter();
+
   return (
     <div className="min-h-screen w-full">
       <Navbar />
