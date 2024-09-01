@@ -1,0 +1,46 @@
+{
+  "name": "hedera-example-hardhat-project",
+  "version": "1.0.0",
+  "description": "This is a example hardhat project",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "local-node": "npx @hashgraph/hedera-local restart -d"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hashgraph/hedera-local": "^2.4.5",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": "^10.0.7",
+    "chai": "^4.2.0",
+    "hardhat": "^2.12.6",
+    "hardhat-gas-reporter": "^1.0.8",
+    "solidity-coverage": "^0.8.1",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.1.0",
+    "typescript": "^5.5.4"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hashgraph/hedera-hardhat-example-project.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/hashgraph/hedera-hardhat-example-project/issues"
+  },
+  "homepage": "https://github.com/hashgraph/hedera-hardhat-example-project"
+}

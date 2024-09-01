@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
-import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -17,11 +17,11 @@ import {
   type PublicClient,
   WalletClient,
 } from "viem";
-import {sepolia, hederaTestnet} from "viem/chains";
-import {getContract} from "viem";
+import { sepolia, hederaTestnet } from "viem/chains";
+import { getContract } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
-import {Web3Auth} from "@web3auth/modal";
-import {useRouter} from "next/router";
+import { Web3Auth } from "@web3auth/modal";
+import { useRouter } from "next/router";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -32,13 +32,14 @@ interface PublicClientContextType {
   provider: IProvider | null;
   loggedIn: boolean;
   status: ADAPTER_STATUS_TYPE;
+  getAllOrganizations?: () => Promise<void>;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  logout: async () => { },
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -58,7 +59,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: {chainConfig},
+  config: { chainConfig },
 });
 
 const web3auth = new Web3Auth({
@@ -149,7 +150,7 @@ export default function GlobalContextProvider({
   };
   // 0.0.4798103
 
-  const CONTRACT_ADDRESS = "0x0F5CC78D949c3cD5B6264A9Fb1a423A6075bf68A";
+  const CONTRACT_ADDRESS = "0x8934C4959c865dAAC507C1f5E1587fe5Dd7365Bf";
 
   // Create a contract instance
   const contract = getContract({
@@ -158,13 +159,21 @@ export default function GlobalContextProvider({
     // 1a. Insert a single client
     // client: publicClient,
     // // 1b. Or public and/or wallet clients
-    client: {public: publicClient, wallet: walletClient},
+    client: { public: publicClient, wallet: walletClient },
   });
 
   const getAllOrganizations = async () => {
     try {
-      // @ts-ignore
-      const organizations = await contract.read.getAllOrganizations();
+
+      console.log(contract, "contract")
+      const data = await publicClient.readContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'getAllOrganizations',
+      })
+      console.log(data, "Das");
+      // return data;
+      return data;
     } catch (error) {
       console.log(error);
     }
@@ -181,6 +190,7 @@ export default function GlobalContextProvider({
         provider,
         loggedIn,
         status: web3auth.status,
+        getAllOrganizations
       }}
     >
       {children}

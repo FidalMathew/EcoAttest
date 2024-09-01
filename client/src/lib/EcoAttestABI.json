@@ -1,59 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "_orgAddress",
-        "type": "address"
-      }
-    ],
-    "name": "addOrganization",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_subOrgAddress",
-        "type": "address"
-      }
-    ],
-    "name": "addSubOrganizer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_eventName",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxSeats",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_dateTime",
-        "type": "uint256"
-      }
-    ],
-    "name": "createEvent",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -149,12 +95,22 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
         "internalType": "address",
         "name": "_orgAddress",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_imageUrl",
+        "type": "string"
       }
     ],
-    "name": "verifyOrganization",
+    "name": "addOrganization",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -163,16 +119,34 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_orgAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_subOrgAddress",
         "type": "address"
       }
     ],
-    "name": "verifySubOrganizer",
+    "name": "addSubOrganizer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_eventName",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxSeats",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dateTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "createEvent",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -239,9 +213,41 @@
     "name": "getAllOrganizations",
     "outputs": [
       {
-        "internalType": "address[]",
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "orgAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reputationScore",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "subOrganizers",
+            "type": "address[]"
+          },
+          {
+            "internalType": "string",
+            "name": "imageUrl",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct EcoAttest.Organization[]",
         "name": "",
-        "type": "address[]"
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -255,12 +261,32 @@
         "type": "uint256"
       }
     ],
-    "name": "organizationAddresses",
+    "name": "organizationList",
     "outputs": [
       {
+        "internalType": "bool",
+        "name": "verified",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
         "internalType": "address",
-        "name": "",
+        "name": "orgAddress",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reputationScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "imageUrl",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -295,6 +321,11 @@
         "internalType": "uint256",
         "name": "reputationScore",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "imageUrl",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -311,6 +342,37 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_orgAddress",
+        "type": "address"
+      }
+    ],
+    "name": "verifyOrganization",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_orgAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_subOrgAddress",
+        "type": "address"
+      }
+    ],
+    "name": "verifySubOrganizer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
