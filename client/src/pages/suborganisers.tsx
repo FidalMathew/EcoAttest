@@ -94,10 +94,12 @@ export default function Profile() {
               </div>
             </div>
             <div className="font-sans lg:h-2/5 w-full lg:py-6 rounded-b-2xl px-6 flex flex-col gap-4 lg:relative">
-              <div className="absolute lg:top-3 lg:right-4 top-5 right-5 hover:bg-slate-100 rounded-lg cursor-pointer p-1">
+              {/* <div className="absolute lg:top-3 lg:right-4 top-5 right-5 hover:bg-slate-100 rounded-lg cursor-pointer p-1">
                 <QrCode />
-              </div>
-              <p className="text-3xl font-normal">Sub Organiser Name</p>
+              </div> */}
+              <p className="text-2xl lg:text-3xl font-normal">
+                Sub Organiser Name
+              </p>
               <p>
                 {"0x3f93B8DCAf29D8B3202347018E23F76e697D8539".slice(0, 10) +
                   "..." +

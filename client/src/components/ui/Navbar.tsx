@@ -83,7 +83,10 @@ export default function Navbar() {
         <Button variant={"outline"} onClick={logout}>
           Logout
         </Button>
-        <Button variant={"outline"} onClick={() => router.push(`organisation`)}>
+        <Button
+          variant={"outline"}
+          onClick={() => router.push(`/organisation`)}
+        >
           Organisation
         </Button>
         <Avatar

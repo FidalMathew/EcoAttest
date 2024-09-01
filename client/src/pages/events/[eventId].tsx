@@ -1,5 +1,5 @@
 import Navbar from "@/components/ui/Navbar";
-import {CircleCheck, Leaf, Star} from "lucide-react";
+import {CircleCheck, Leaf, Star, TicketCheck} from "lucide-react";
 import {useRouter} from "next/router";
 import {
   Card,
@@ -90,6 +90,11 @@ export default function Events() {
           <div className="w-[400px] h-[80px] bg-green-900 rounded-xl flex items-center px-10 border-2 border-gray-800 justify-center text-white">
             <Leaf className="h-8 w-8 mr-2" />
             <p className="font-bold font-sans text-2xl">12 CC</p>
+          </div>
+          <div className="cursor-pointer w-[400px] h-[60px] bg-orange-900 hover:bg-orange-800 rounded-xl flex items-center px-10 border-2 border-gray-800 justify-center text-white">
+            <TicketCheck className="h-6 w-6 mr-2" />
+
+            <p className="font-bold font-sans text-2xl">Join</p>
           </div>
         </div>
         <div className="w-full h-full p-6">
