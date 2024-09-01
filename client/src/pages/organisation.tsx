@@ -72,7 +72,7 @@ export default function Organisation() {
                   <Form>
                     <div className="grid grid-cols-3 grid-flow-row grid-rows-3 w-full place-items-center pt-5 gap-6">
                       {orgs.map((item: any, index: number) => (
-                        <RadioGroup defaultValue="Org1">
+                        <RadioGroup defaultValue="Org1" key={index}>
                           <RadioGroupItem
                             value={item.name}
                             id={item.name}
