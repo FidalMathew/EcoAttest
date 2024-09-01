@@ -27,101 +27,101 @@ import {
 export default function Organiser() {
   // nillion -----
 
-  const [selectedProgramCode, setSelectedProgramCode] = useState("");
-  const [programID, setProgramID] = useState<string | undefined>(undefined);
-  const [computeID, setComputeID] = useState<any | null>(null);
-  const [computeResult, setComputeResult] = useState<any | null>(null);
+  // const [selectedProgramCode, setSelectedProgramCode] = useState("");
+  // const [programID, setProgramID] = useState<string | undefined>(undefined);
+  // const [computeID, setComputeID] = useState<any | null>(null);
+  // const [computeResult, setComputeResult] = useState<any | null>(null);
 
-  const client = useNillion();
-  const storeProgram = useStoreProgram();
-  const storeValue = useStoreValue();
-  const runProgram = useRunProgram();
-  const fetchProgram = useFetchProgramOutput({
-    id: computeID,
-  });
+  // const client = useNillion();
+  // const storeProgram = useStoreProgram();
+  // const storeValue = useStoreValue();
+  // const runProgram = useRunProgram();
+  // const fetchProgram = useFetchProgramOutput({
+  //   id: computeID,
+  // });
 
-  const PROGRAM_NAME = "compute_carbon_score";
+  // const PROGRAM_NAME = "compute_carbon_score";
 
-  useEffect(() => {
-    if (client.ready) {
-      console.log(client.vm.userId, "client.vm.userId");
-    }
-  }, [client]);
-  // Fetch Nada Program Code.
-  useEffect(() => {
-    const fetchProgramCode = async () => {
-      const response = await fetch(`/programs/compute_carbon_score.py`);
-      const text = await response.text();
+  // useEffect(() => {
+  //   if (client.ready) {
+  //     console.log(client.vm.userId, "client.vm.userId");
+  //   }
+  // }, [client]);
+  // // Fetch Nada Program Code.
+  // useEffect(() => {
+  //   const fetchProgramCode = async () => {
+  //     const response = await fetch(`/programs/compute_carbon_score.py`);
+  //     const text = await response.text();
 
-      console.log("text", text);
+  //     console.log("text", text);
 
-      setSelectedProgramCode(text);
-    };
-    fetchProgramCode();
-  }, [selectedProgramCode]);
+  //     setSelectedProgramCode(text);
+  //   };
+  //   fetchProgramCode();
+  // }, [selectedProgramCode]);
 
-  const handleStoreProgram = async () => {
-    try {
-      const programBinary = await transformNadaProgramToUint8Array(
-        `/programs/${PROGRAM_NAME}.nada.bin`
-      );
+  // const handleStoreProgram = async () => {
+  //   try {
+  //     const programBinary = await transformNadaProgramToUint8Array(
+  //       `/programs/${PROGRAM_NAME}.nada.bin`
+  //     );
 
-      console.log("programBinary", programBinary);
-      const result = await storeProgram.mutateAsync({
-        name: PROGRAM_NAME,
-        program: programBinary,
-      });
-      setProgramID(result!);
-    } catch (error) {
-      console.log("error in storing program", error);
-    }
-  };
+  //     console.log("programBinary", programBinary);
+  //     const result = await storeProgram.mutateAsync({
+  //       name: PROGRAM_NAME,
+  //       program: programBinary,
+  //     });
+  //     setProgramID(result!);
+  //   } catch (error) {
+  //     console.log("error in storing program", error);
+  //   }
+  // };
 
-  // Action to store Program with Nada
+  // // Action to store Program with Nada
 
-  const registerFeedback1 = async (feedbackNumber: number) => {
-    try {
-      if (programID === undefined) throw new Error("Program ID is undefined");
+  // const registerFeedback1 = async (feedbackNumber: number) => {
+  //   try {
+  //     if (programID === undefined) throw new Error("Program ID is undefined");
 
-      const permissions = Permissions.create().allowCompute(
-        client.vm.userId,
-        programID as ProgramId
-      );
+  //     const permissions = Permissions.create().allowCompute(
+  //       client.vm.userId,
+  //       programID as ProgramId
+  //     );
 
-      const result = await storeValue.mutateAsync({
-        values: {
-          feedback: feedbackNumber,
-        },
-        ttl: 3600,
-        permissions,
-      });
+  //     const result = await storeValue.mutateAsync({
+  //       values: {
+  //         feedback: feedbackNumber,
+  //       },
+  //       ttl: 3600,
+  //       permissions,
+  //     });
 
-      // console.log("result", result);
-    } catch (error) {
-      console.error("Error storing SecretInteger:", error);
-    }
-  };
+  //     // console.log("result", result);
+  //   } catch (error) {
+  //     console.error("Error storing SecretInteger:", error);
+  //   }
+  // };
 
-  const registerFeedback2 = async (feedbackNumber: number) => {
-    try {
-      if (programID === undefined) throw new Error("Program ID is undefined");
+  // const registerFeedback2 = async (feedbackNumber: number) => {
+  //   try {
+  //     if (programID === undefined) throw new Error("Program ID is undefined");
 
-      const permissions = Permissions.create().allowCompute(
-        client.vm.userId,
-        programID as ProgramId
-      );
+  //     const permissions = Permissions.create().allowCompute(
+  //       client.vm.userId,
+  //       programID as ProgramId
+  //     );
 
-      const result = await storeValue.mutateAsync({
-        values: {
-          feedback: feedbackNumber,
-        },
-        ttl: 3600,
-        permissions,
-      });
-    } catch (error) {
-      console.error("Error storing SecretInteger:", error);
-    }
-  };
+  //     const result = await storeValue.mutateAsync({
+  //       values: {
+  //         feedback: feedbackNumber,
+  //       },
+  //       ttl: 3600,
+  //       permissions,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error storing SecretInteger:", error);
+  //   }
+  // };
 
   // const handleGenerateUserKey = async (
   //   seed: string
@@ -139,56 +139,56 @@ export default function Organiser() {
   //   }
   // };
 
-  const handleUseProgram = async () => {
-    try {
-      // Bindings
-      const bindings = ProgramBindings.create(programID!);
-      bindings.addInputParty(
-        "Party1" as PartyName,
-        client.vm.partyId as PartyId
-      );
-      bindings.addOutputParty(
-        "Party1" as PartyName,
-        client.vm.partyId as PartyId
-      );
+  // const handleUseProgram = async () => {
+  //   try {
+  //     // Bindings
+  //     const bindings = ProgramBindings.create(programID!);
+  //     bindings.addInputParty(
+  //       "Party1" as PartyName,
+  //       client.vm.partyId as PartyId
+  //     );
+  //     bindings.addOutputParty(
+  //       "Party1" as PartyName,
+  //       client.vm.partyId as PartyId
+  //     );
 
-      // const feedbackBlob = new TextEncoder().encode(JSON.stringify(myFeedback));
-      const values = NadaValues.create()
-        .insert(NamedValue.parse("feedback1"), NadaValue.createSecretInteger(7))
-        .insert(
-          NamedValue.parse("feedback2"),
-          NadaValue.createSecretInteger(4)
-        );
+  //     // const feedbackBlob = new TextEncoder().encode(JSON.stringify(myFeedback));
+  //     const values = NadaValues.create()
+  //       .insert(NamedValue.parse("feedback1"), NadaValue.createSecretInteger(7))
+  //       .insert(
+  //         NamedValue.parse("feedback2"),
+  //         NadaValue.createSecretInteger(4)
+  //       );
 
-      const res = await runProgram.mutateAsync({
-        bindings: bindings,
-        values,
-        storeIds: [],
-      });
+  //     const res = await runProgram.mutateAsync({
+  //       bindings: bindings,
+  //       values,
+  //       storeIds: [],
+  //     });
 
-      console.log("fucku", res);
+  //     console.log("fucku", res);
 
-      setComputeID(res);
-    } catch (error) {
-      console.error("Error executing program:", error);
-      throw error;
-    }
-  };
+  //     setComputeID(res);
+  //   } catch (error) {
+  //     console.error("Error executing program:", error);
+  //     throw error;
+  //   }
+  // };
 
-  useEffect(() => {
-    if (fetchProgram.data) {
-      console.log(fetchProgram.data, "fetchProgram.data");
-      // @ts-ignore
-      setComputeResult(fetchProgram.data.total_feedback.toString());
-    }
-  }, [fetchProgram.data]);
+  // useEffect(() => {
+  //   if (fetchProgram.data) {
+  //     console.log(fetchProgram.data, "fetchProgram.data");
+  //     // @ts-ignore
+  //     setComputeResult(fetchProgram.data.total_feedback.toString());
+  //   }
+  // }, [fetchProgram.data]);
 
   // nillion -----
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen w-full gap-5">
-      {/* <div>
-        {loggedInAddress && balanceAddress && (
+      <div>
+        {/* {loggedInAddress && balanceAddress && (
           <div>
             <div>Logged in as: {loggedInAddress}</div>
             <div>Balance: {balanceAddress}</div>
@@ -201,11 +201,11 @@ export default function Organiser() {
         <Button onClick={logout}>Logout</Button>
       </div> */}
 
-      {/* <div className="max-w-lg">
+        {/* <div className="max-w-lg">
         {programID && <p>Program ID: {JSON.stringify(programID, null, 2)}</p>}
       </div> */}
 
-      {computeResult && (
+        {/* {computeResult && (
         <div>
           <div>Compute Result: {computeResult}</div>
         </div>
@@ -215,11 +215,11 @@ export default function Organiser() {
           onClick={() => handleGenerateUserKey("nillion-devnet-organiser")}
         >
           Generate User ID
-        </Button> */}
+        </Button> 
         <Button onClick={handleStoreProgram}>Store Program</Button>
         <Button onClick={() => registerFeedback1(7)}>Store Feedback 1</Button>
         <Button onClick={() => registerFeedback2(4)}>Store Feedback 2</Button>
-        <Button onClick={handleUseProgram}>Compute</Button>
+        <Button onClick={handleUseProgram}>Compute</Button> */}
       </div>
     </div>
   );

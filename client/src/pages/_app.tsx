@@ -2,10 +2,10 @@ import GlobalContextProvider from "@/context/GlobalContext";
 import "@/styles/globals.css";
 import type {AppProps} from "next/app";
 import {useEffect, useState} from "react";
-import {NillionClient} from "@nillion/client-vms";
-import {NamedNetwork} from "@nillion/client-core";
-import {createSignerFromKey} from "@nillion/client-payments";
-import {NillionClientProvider} from "@nillion/client-react-hooks";
+// import {NillionClient} from "@nillion/client-vms";
+// import {NamedNetwork} from "@nillion/client-core";
+// import {createSignerFromKey} from "@nillion/client-payments";
+// import {NillionClientProvider} from "@nillion/client-react-hooks";
 
 // export const client = NillionClient.create({
 //   network: NamedNetwork.enum.Devnet,

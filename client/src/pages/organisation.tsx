@@ -13,38 +13,40 @@ import {useRouter} from "next/router";
 import {useState} from "react";
 import {Form, Formik} from "formik";
 import {Checkbox} from "@radix-ui/react-checkbox";
+import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
+import {Label} from "@/components/ui/label";
 
 const orgs = [
   {
-    name: "Org 1",
+    name: "Org1",
     logo: "org1.png",
   },
   {
-    name: "Org 2",
+    name: "Org2",
     logo: "org2.png",
   },
   {
-    name: "Org 3",
+    name: "Org3",
     logo: "org3.png",
   },
   {
-    name: "Org 4",
+    name: "Org4",
     logo: "org4.png",
   },
   {
-    name: "Org 5",
+    name: "Org5",
     logo: "org5.png",
   },
   {
-    name: "Org 6",
+    name: "Org6",
     logo: "org6.png",
   },
   {
-    name: "Org 7",
+    name: "Org7",
     logo: "org7.png",
   },
   {
-    name: "Org 8",
+    name: "Org8",
     logo: "org8.png",
   },
 ];
@@ -70,22 +72,27 @@ export default function Organisation() {
                   <Form>
                     <div className="grid grid-cols-3 grid-flow-row grid-rows-3 w-full place-items-center pt-5 gap-6">
                       {orgs.map((item: any, index: number) => (
-                        <>
-                          <Checkbox className="peer sr-only" />
-
-                          <div
-                            key={index}
-                            className="border rounded-xl p-4 flex flex-col gap-2 aspect-square h-fit items-center cursor-pointer hover:bg-muted"
-                            onClick={() => {}}
+                        <RadioGroup defaultValue="Org1">
+                          <RadioGroupItem
+                            value={item.name}
+                            id={item.name}
+                            className="peer sr-only"
+                          />
+                          <Label
+                            htmlFor={item.name}
+                            // className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                            className="border rounded-xl p-4 flex flex-col gap-2 aspect-square h-fit items-center cursor-pointer hover:bg-muted peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                           >
-                            <img
-                              src={"/man.png"}
-                              alt={"item.name"}
-                              className="h-16 w-16"
-                            />
-                            <p>Man</p>
-                          </div>
-                        </>
+                            <div key={index} onClick={() => {}}>
+                              <img
+                                src={"/man.png"}
+                                alt={"item.name"}
+                                className="h-16 w-16"
+                              />
+                              <p>Man</p>
+                            </div>
+                          </Label>
+                        </RadioGroup>
                       ))}
                     </div>
                   </Form>
