@@ -1,5 +1,6 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
+  ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
   EVM_ADAPTERS,
   IProvider,
@@ -7,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -16,9 +17,9 @@ import {
   type PublicClient,
   WalletClient,
 } from "viem";
-import { sepolia, hederaTestnet } from "viem/chains";
+import {sepolia, hederaTestnet} from "viem/chains";
 
-import { Web3Auth } from "@web3auth/modal";
+import {Web3Auth} from "@web3auth/modal";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -28,15 +29,17 @@ interface PublicClientContextType {
   getUserInfo?: () => Promise<Partial<OpenloginUserInfo> | undefined>;
   provider: IProvider | null;
   loggedIn: boolean;
+  status: ADAPTER_STATUS_TYPE;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => { },
-  logout: async () => { },
+  login: async () => {},
+  logout: async () => {},
   provider: null,
   loggedIn: false,
+  status: "not_ready",
 });
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
@@ -53,7 +56,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3Auth({
@@ -127,7 +130,7 @@ export default function GlobalContextProvider({
   const getUserInfo = async () => {
     try {
       const user = await web3auth.getUserInfo();
-      console.log(user, "dsa")
+      console.log(user, "dsa");
       return user;
     } catch (error) {
       console.error(error, "Error getting user info");
@@ -150,6 +153,7 @@ export default function GlobalContextProvider({
         getUserInfo,
         provider,
         loggedIn,
+        status: web3auth.status,
       }}
     >
       {children}

@@ -1,0 +1,10 @@
+---
+program: compute_carbon_score
+inputs:
+  feedback2:
+    SecretInteger: "3"
+  feedback1:
+    SecretInteger: "3"
+expected_outputs:
+  total_feedback:
+    SecretInteger: "3"
