@@ -7,7 +7,6 @@ import {
   useStoreProgram,
 } from "@nillion/client-react-hooks";
 import {Button} from "@/components/ui/button";
-import {client} from "./_app";
 import {useNillion} from "@nillion/client-react-hooks";
 import {transformNadaProgramToUint8Array} from "@/nillion/helpers/nadaToUint";
 import {ComputerIcon} from "lucide-react";

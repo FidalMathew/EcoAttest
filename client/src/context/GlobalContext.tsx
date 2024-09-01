@@ -18,7 +18,8 @@ import {
   WalletClient,
 } from "viem";
 import {sepolia, hederaTestnet} from "viem/chains";
-
+import {getContract} from "viem";
+import EcoAttestABI from "../lib/EcoAttestABI.json";
 import {Web3Auth} from "@web3auth/modal";
 import {useRouter} from "next/router";
 
@@ -147,6 +148,28 @@ export default function GlobalContextProvider({
     setLoggedIn(false);
   };
   // 0.0.4798103
+
+  const CONTRACT_ADDRESS = "0x0F5CC78D949c3cD5B6264A9Fb1a423A6075bf68A";
+
+  // Create a contract instance
+  const contract = getContract({
+    address: CONTRACT_ADDRESS,
+    abi: EcoAttestABI,
+    // 1a. Insert a single client
+    // client: publicClient,
+    // // 1b. Or public and/or wallet clients
+    client: {public: publicClient, wallet: walletClient},
+  });
+
+  const getAllOrganizations = async () => {
+    try {
+      // @ts-ignore
+      const organizations = await contract.read.getAllOrganizations();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <GlobalContext.Provider
       value={{
