@@ -83,7 +83,7 @@ export default function Organisation() {
                             // className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                             className="border rounded-xl p-4 flex flex-col gap-2 aspect-square h-fit items-center cursor-pointer hover:bg-muted peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                           >
-                            <div key={index} onClick={() => {}}>
+                            <div>
                               <img
                                 src={"/man.png"}
                                 alt={"item.name"}
