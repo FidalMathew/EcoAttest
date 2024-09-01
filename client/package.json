@@ -10,6 +10,7 @@
     "copy": "cp ../nada_programs/src/compute_carbon_score.py ./public/programs && cp ../nada_programs/target/compute_carbon_score.nada.bin ./public/programs"
   },
   "dependencies": {
+    "@qr-x/react": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
@@ -32,6 +33,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-qr-code": "^2.0.15",
+    "react-webcam": "^7.2.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.20.1"

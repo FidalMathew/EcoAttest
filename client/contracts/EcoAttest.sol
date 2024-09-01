@@ -4,6 +4,13 @@ pragma solidity ^0.8.20;
 contract EcoAttest {
     address public owner;
 
+    struct Participant {
+        string name;
+        address participantAddress;
+        bool isOrganiser;
+        bool isSubOrganizer;
+    }
+
     struct Organization {
         bool verified;
         string name;

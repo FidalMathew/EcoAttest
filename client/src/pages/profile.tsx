@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {useState} from "react";
+import QRX from "@qr-x/react";
 
 export default function Profile() {
   const router = useRouter();
@@ -35,7 +36,16 @@ export default function Profile() {
               </p>
 
               <div className="h-1/2 w-1/2">
-                <img src="/qr.png" alt="qr" className="h-full w-full" />
+                {/* <img src="/qr.png" alt="qr" className="h-full w-full" /> */}
+                <QRX
+                  data="https://qr-x.devtrice.dev/"
+                  color="rgb(20, 93, 20)"
+                  shapes={{
+                    body: "circle",
+                    eyeball: "circle",
+                    eyeframe: "rounded",
+                  }}
+                />
               </div>
             </DialogDescription>
           </DialogHeader>
@@ -46,20 +56,17 @@ export default function Profile() {
         style={{
           height: "calc(100% - 70px)",
         }}
-        className="flex gap-2 p-7 flex-col lg:flex-row"
+        className="flex gap-9 p-7 flex-col lg:flex-row"
       >
-        <div
-          className="w-[600px] rounded-2xl flex items-center lg:flex-col justify-center lg:justify-start border-2 border-gray-700 relative"
-          style={{
-            height: "calc(100vh - 30vh)",
-          }}
-        >
-          <div className="h-3/5 w-full bg-green-600 rounded-t-2xl flex justify-center items-center">
-            <div className="w-[250px] h-[250px] bg-white rounded-full border-2 border-green-800"></div>
+        <div className="max-w-[800px] lg:w-[600px] h-[250px] rounded-2xl flex items-center lg:flex-col justify-center lg:justify-start border-2 border-gray-700 relative lg:h-[580px]">
+          <div className="h-full rounded-l-2xl lg:rounded-l-none w-full bg-green-600 lg:rounded-t-2xl flex justify-center items-center">
+            <div className="w-full h-full flex justify-center items-center px-7">
+              <div className="bg-white rounded-full border-2 border-green-800 h-[170px] w-[170px] lg:h-[250px] lg:w-[250px]"></div>
+            </div>
           </div>
-          <div className="font-sans h-2/5 w-full rounded-b-2xl px-7 pt-6 flex flex-col gap-4 relative">
+          <div className="font-sans lg:h-2/5 w-full lg:py-6 rounded-b-2xl px-6 flex flex-col gap-4 lg:relative">
             <div
-              className="absolute top-3 right-4 hover:bg-slate-100 p-1 rounded-lg cursor-pointer"
+              className="absolute lg:top-3 lg:right-4 top-5 right-5 hover:bg-slate-100 rounded-lg cursor-pointer p-1"
               onClick={() => setOpenQr((prev) => !prev)}
             >
               <QrCode />
@@ -89,7 +96,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <footer className="rounded-b-xl absolute bottom-0 right-0 w-full h-10"></footer>
+          {/* <footer className="rounded-b-xl absolute bottom-0 right-0 w-full h-10"></footer> */}
         </div>
         <div className="h-full w-full flex flex-col gap-4">
           <p className="text-2xl">Events</p>
@@ -110,7 +117,7 @@ export default function Profile() {
             </TabsList>
             <TabsContent value="ongoing" className="focus-visible:ring-0">
               <div
-                className="w-full overflow-y-auto flex flex-col gap-4 px-4"
+                className="w-full overflow-y-auto flex flex-col gap-4"
                 style={{
                   height: "calc(100vh - 30vh)",
                 }}
