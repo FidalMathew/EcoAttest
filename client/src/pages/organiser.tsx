@@ -1,26 +1,26 @@
 import {Button} from "@/components/ui/button";
 
-import {
-  useFetchProgramOutput,
-  useNillion,
-  useRunProgram,
-  useStoreProgram,
-  useStoreValue,
-} from "@nillion/client-react-hooks";
+// import {
+//   useFetchProgramOutput,
+//   useNillion,
+//   useRunProgram,
+//   useStoreProgram,
+//   useStoreValue,
+// } from "@nillion/client-react-hooks";
 import {useEffect, useState} from "react";
 // import {handleGenerateUserKey} from "@/nillion/helpers/generateUserKey";
-import * as nillion from "@nillion/client-web";
-import {transformNadaProgramToUint8Array} from "@/nillion/helpers/nadaToUint";
-import {
-  Permissions,
-  ProgramId,
-  NadaValue,
-  NadaValues,
-  NamedValue,
-  PartyId,
-  PartyName,
-  ProgramBindings,
-} from "@nillion/client-core";
+// import * as nillion from "@nillion/client-web";
+// import {transformNadaProgramToUint8Array} from "@/nillion/helpers/nadaToUint";
+// import {
+//   Permissions,
+//   ProgramId,
+//   NadaValue,
+//   NadaValues,
+//   NamedValue,
+//   PartyId,
+//   PartyName,
+//   ProgramBindings,
+// } from "@nillion/client-core";
 
 // const myFeedback =
 

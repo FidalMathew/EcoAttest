@@ -1,7 +1,7 @@
 import Image from "next/image";
 import {ArrowRight} from "lucide-react";
 import {useRouter} from "next/router";
-import {useFetchValue, useStoreValue} from "@nillion/client-react-hooks";
+// import {useFetchValue, useStoreValue} from "@nillion/client-react-hooks";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 
