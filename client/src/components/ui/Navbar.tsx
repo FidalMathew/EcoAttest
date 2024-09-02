@@ -41,7 +41,7 @@ export default function Navbar() {
       try {
         if (walletClient && publicClient) {
           const [address] = await walletClient.getAddresses();
-          console.log(address, "address");
+          console.log(address, "dsaaddress");
           setLoggedInAddress(address);
 
           const balance = await publicClient.getBalance({
@@ -57,7 +57,13 @@ export default function Navbar() {
         console.error(error, "Error logging in");
       }
     })();
-  }, [walletClient, publicClient, provider, loggedIn]);
+  }, [walletClient, publicClient, provider, loggedIn, router.pathname, status]);
+
+  // useEffect(()=> {
+
+  // }, [status, loggedIn])
+
+  console.log(publicClient, "publicClient", walletClient, "walletClient");
 
   useEffect(() => {
     if (status === "ready" && !loggedIn) {
@@ -68,9 +74,9 @@ export default function Navbar() {
   return (
     <nav className="w-full h-[70px] flex justify-between items-center px-5 border-b">
       <div className="font-sans font-bold">EcoAttest</div>
-      <div className="w-1/3">
+      {/* <div className="w-1/3">
         <Input placeholder="Search" className="focus-visible:ring-0" />
-      </div>
+      </div> */}
       <div className="flex items-center gap-5">
         {status === "not_ready" && <div>Connecting...</div>}
         {status === "connected" && loggedInAddress && balanceAddress && (

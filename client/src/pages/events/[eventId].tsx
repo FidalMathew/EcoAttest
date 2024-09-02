@@ -32,11 +32,11 @@ export default function Events() {
   return (
     <div className="min-h-screen w-full">
       <Dialog open={openStatus} onOpenChange={setOpenStatus}>
-        <DialogContent className="h-fit w-[500px]">
+        <DialogContent className="h-fit lg:w-[500px]">
           <DialogHeader>
             <DialogTitle>Check Status</DialogTitle>
             <DialogDescription>
-              <div className="w-full h-full flex flex-col mt-5 font-sans text-black">
+              <div className="w-full h-full flex flex-col mt-5 font-sans text-black text-left">
                 <div className="w-full h-[80px] flex items-center px-4">
                   <p className="text-xl w-full">Attended</p>
                   <CircleCheck className="h-9 w-9 fill-green-700 text-white " />
@@ -85,7 +85,7 @@ export default function Events() {
         }}
         className="flex gap-2 p-7 lg:flex-row flex-col"
       >
-        <div className="w-[500px] h-full flex items-center lg:m-0 m-auto py-5 flex-col gap-3">
+        <div className="lg:w-[500px] h-full flex items-center lg:m-0 m-auto py-5 flex-col gap-3">
           <div className="w-[400px] h-[400px] bg-green-400 rounded-xl border-2 border-green-800"></div>
           <div className="w-[400px] h-[80px] bg-green-900 rounded-xl flex items-center px-10 border-2 border-gray-800 justify-center text-white">
             <Leaf className="h-8 w-8 mr-2" />

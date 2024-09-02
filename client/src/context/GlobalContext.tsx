@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -17,11 +17,11 @@ import {
   type PublicClient,
   WalletClient,
 } from "viem";
-import { sepolia, hederaTestnet } from "viem/chains";
-import { getContract } from "viem";
+import {sepolia, hederaTestnet} from "viem/chains";
+import {getContract} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
-import { Web3Auth } from "@web3auth/modal";
-import { useRouter } from "next/router";
+import {Web3Auth} from "@web3auth/modal";
+import {useRouter} from "next/router";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -38,8 +38,8 @@ interface PublicClientContextType {
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => { },
-  logout: async () => { },
+  login: async () => {},
+  logout: async () => {},
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -59,7 +59,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3Auth({
@@ -92,26 +92,6 @@ export default function GlobalContextProvider({
         await web3auth.initModal();
 
         setProvider(web3auth.provider);
-
-        if (web3auth.connected && web3auth.provider) {
-          const walletClient = createWalletClient({
-            chain: hederaTestnet,
-            transport: custom(web3auth.provider),
-          });
-
-          setWalletClient(walletClient);
-
-          const publicClient = createPublicClient({
-            chain: hederaTestnet,
-            transport: custom(web3auth.provider),
-          });
-
-          setPublicClient(publicClient);
-        }
-
-        if (web3auth.connected) {
-          setLoggedIn(true);
-        }
       } catch (error) {
         console.error(error, "Error initializing Web3Auth");
       }
@@ -119,6 +99,28 @@ export default function GlobalContextProvider({
 
     init();
   }, []);
+
+  useEffect(() => {
+    if (web3auth.connected && web3auth.provider) {
+      const walletClient = createWalletClient({
+        chain: hederaTestnet,
+        transport: custom(web3auth.provider),
+      });
+
+      setWalletClient(walletClient);
+
+      const publicClient = createPublicClient({
+        chain: hederaTestnet,
+        transport: custom(web3auth.provider),
+      });
+
+      setPublicClient(publicClient);
+    }
+
+    if (web3auth.connected) {
+      setLoggedIn(true);
+    }
+  }, [router, web3auth.connected, web3auth.provider, loggedIn]);
 
   const login = async () => {
     try {
@@ -159,18 +161,17 @@ export default function GlobalContextProvider({
     // 1a. Insert a single client
     // client: publicClient,
     // // 1b. Or public and/or wallet clients
-    client: { public: publicClient, wallet: walletClient },
+    client: {public: publicClient, wallet: walletClient},
   });
 
   const getAllOrganizations = async () => {
     try {
-
-      console.log(contract, "contract")
+      console.log(contract, "contract");
       const data = await publicClient.readContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
-        functionName: 'getAllOrganizations',
-      })
+        functionName: "getAllOrganizations",
+      });
       console.log(data, "Das");
       // return data;
       return data;
@@ -190,7 +191,7 @@ export default function GlobalContextProvider({
         provider,
         loggedIn,
         status: web3auth.status,
-        getAllOrganizations
+        getAllOrganizations,
       }}
     >
       {children}
