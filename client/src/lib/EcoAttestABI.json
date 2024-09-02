@@ -78,6 +78,31 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "eventId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "participant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ParticipantRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "orgAddress",
         "type": "address"
@@ -230,11 +255,6 @@
             "type": "address"
           },
           {
-            "internalType": "uint256",
-            "name": "reputationScore",
-            "type": "uint256"
-          },
-          {
             "internalType": "address[]",
             "name": "subOrganizers",
             "type": "address[]"
@@ -248,6 +268,52 @@
         "internalType": "struct EcoAttest.Organization[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_orgAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getOrganizationByAddress",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "orgAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address[]",
+            "name": "subOrganizers",
+            "type": "address[]"
+          },
+          {
+            "internalType": "string",
+            "name": "imageUrl",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct EcoAttest.Organization",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -277,11 +343,6 @@
         "internalType": "address",
         "name": "orgAddress",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "reputationScore",
-        "type": "uint256"
       },
       {
         "internalType": "string",
@@ -318,11 +379,6 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "reputationScore",
-        "type": "uint256"
-      },
-      {
         "internalType": "string",
         "name": "imageUrl",
         "type": "string"
@@ -342,6 +398,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_eventId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_participantName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_photo",
+        "type": "string"
+      }
+    ],
+    "name": "registerForEvent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
