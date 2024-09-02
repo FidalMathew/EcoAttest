@@ -1,6 +1,5 @@
 import {useRouter} from "next/router";
 import {Avatar, AvatarFallback, AvatarImage} from "./avatar";
-import {Input} from "./input";
 import {Button} from "./button";
 import {useEffect, useState} from "react";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
@@ -95,13 +94,19 @@ export default function Navbar() {
         >
           Organisation
         </Button>
-        {/* <Avatar
+        <Button
+          variant={"outline"}
+          onClick={() => router.push(`/suborganisers`)}
+        >
+          SubOrg
+        </Button>
+        <Avatar
           onClick={() => router.push("/profile")}
           className="cursor-pointer"
         >
           <AvatarImage src="/man.png" />
           <AvatarFallback>CN</AvatarFallback>
-        </Avatar> */}
+        </Avatar>
       </div>
     </nav>
   );

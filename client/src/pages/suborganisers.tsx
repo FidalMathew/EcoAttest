@@ -22,10 +22,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {useEffect, useRef, useState} from "react";
-import Webcam from "react-webcam";
+// import Webcam from "react-webcam";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {Skeleton} from "@/components/ui/skeleton";
+import QrScanner from "qr-scanner";
+import QrFrame from "../../public/qr-frame.svg";
+import QrReader from "@/components/QrReader";
 
 export default function Profile() {
   const router = useRouter();
@@ -90,6 +93,7 @@ export default function Profile() {
   //     }
   //   };
   // }, []);
+
   return (
     <div className="min-h-screen w-full">
       <Navbar />
@@ -105,13 +109,12 @@ export default function Profile() {
               <p className="text-sm font-sans text-gray-900 text-center">
                 Scan this QR to Attest Carbon Credits to User
               </p>
-
+              <Button onClick={() => setOpenQr(!openQr)}>
+                {openQr ? "Close" : "Open"} QR Scanner
+              </Button>
               <div className="rounded-2xl border-2 border-gray-700">
-                <Webcam
-                  height={600}
-                  width={600}
-                  className="h-full w-full rounded-2xl"
-                />
+                {/* webcam */}
+                {openQr && <QrReader />}
               </div>
             </DialogDescription>
           </DialogHeader>
