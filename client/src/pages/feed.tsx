@@ -51,15 +51,15 @@ export default function Feed() {
                 <div className="flex items-center gap-2">
                   <div className="flex">
                     <Avatar className="h-8 w-8 -ml-4 first:ml-0 border-2 border-gray-700">
-                      <AvatarImage src="/man1.png" />
+                      <AvatarImage src="/man.png" />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <Avatar className="h-8 w-8 -ml-4 border-2 border-gray-700">
-                      <AvatarImage src="/man1.png" />
+                      <AvatarImage src="/man.png" />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <Avatar className="h-8 w-8 -ml-4 border-2 border-gray-700">
-                      <AvatarImage src="/man1.png" />
+                      <AvatarImage src="/man.png" />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                   </div>
