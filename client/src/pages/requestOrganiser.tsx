@@ -1,14 +1,14 @@
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Skeleton} from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import QRX from "@qr-x/react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Pencil} from "lucide-react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
-import {useRouter} from "next/router";
-import {ChangeEvent, useEffect, useState} from "react";
+import { useRouter } from "next/router";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function RequestOrganiser() {
   const router = useRouter();
@@ -25,33 +25,32 @@ export default function RequestOrganiser() {
     balanceAddress,
   } = useGlobalContextHook();
 
-  const [userAddress, setUserAddress] = useState<String>("");
+  const [userAddress, setUserAddress] = useState<string>("");
   const [qrValue, setQrValue] = useState<string>("");
 
   const [userInfo, setUserInfo] = useState<
     Partial<OpenloginUserInfo> | undefined
   >();
 
-  const getUser = async () => {
-    if (!getUserInfo) return;
-    try {
-      const userInfo = await getUserInfo();
-      setUserInfo(userInfo);
-      console.log(userInfo, "User info");
-    } catch (error) {
-      console.error(error, "Error user info");
-    }
-  };
 
   useEffect(() => {
-    (async function () {
+
+    const test = async () => {
       try {
-        getUser();
+        if (!getUserInfo) return;
+        const userInfo = await getUserInfo();
+        console.log(userInfo, "userInfo")
+        setUserInfo(userInfo);
       } catch (error) {
         console.error(error, "Error logging in");
       }
-    })();
-  }, [walletClient, publicClient, provider, loggedIn, router.pathname, status]);
+    }
+    console.log(status, walletClient, publicClient)
+
+    if (status == "connected" || status == "ready") {
+      test();
+    }
+  }, [status, walletClient, publicClient]);
 
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -67,7 +66,7 @@ export default function RequestOrganiser() {
       }
     };
 
-    if (status == "connected") {
+    if (status == "connected" || status == "ready") {
       fetchOrganizations();
     }
   }, [status, walletClient, publicClient]);
@@ -185,12 +184,12 @@ export default function RequestOrganiser() {
           <div className="grid gap-2">
             <Label htmlFor="address">Address</Label>
 
-            {loggedInAddress ? (
+            {userAddress ? (
               <>
                 <Input
                   id="address"
                   type="text"
-                  value={loggedInAddress}
+                  value={userAddress}
                   disabled
                   className="border-2 border-gray-700"
                 />
