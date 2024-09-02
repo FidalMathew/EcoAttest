@@ -8,9 +8,14 @@ contract EcoAttest {
         bool verified;
         string name;
         address orgAddress;
-        uint256 reputationScore; // Reputation score based on participant feedback
         address[] subOrganizers; // List of sub-organizers
         string imageUrl; // URL or IPFS hash of the organization's image
+    }
+
+    struct Participant {
+        address user;
+        string name;
+        string photo;
     }
 
     struct Event {
@@ -20,6 +25,7 @@ contract EcoAttest {
         address organizer;
         bool isActive;
         uint256 dateTime; // Date and time represented as a Unix timestamp
+        Participant[] participants;
     }
 
     mapping(address => Organization) public organizations;
@@ -39,6 +45,11 @@ contract EcoAttest {
         uint256 maxSeats,
         uint256 dateTime,
         address indexed organizer
+    );
+    event ParticipantRegistered(
+        uint256 indexed eventId,
+        address indexed participant,
+        string name
     );
 
     modifier onlyOwner() {
@@ -71,6 +82,16 @@ contract EcoAttest {
         return organizationList;
     }
 
+    function getOrganizationByAddress(
+        address _orgAddress
+    ) public view returns (Organization memory) {
+        require(
+            organizations[_orgAddress].orgAddress != address(0),
+            "Organization not found"
+        );
+        return organizations[_orgAddress];
+    }
+
     function addOrganization(
         string memory _name,
         address _orgAddress,
@@ -80,7 +101,6 @@ contract EcoAttest {
             verified: false, // Organizations start as unverified
             name: _name,
             orgAddress: _orgAddress,
-            reputationScore: 0, // Initial reputation score
             subOrganizers: new address[](0), // Initialize empty sub-organizers list
             imageUrl: _imageUrl // Set the image URL
         });
@@ -148,14 +168,14 @@ contract EcoAttest {
         );
 
         eventCount++;
-        events[eventCount] = Event({
-            eventName: _eventName,
-            maxSeats: _maxSeats,
-            registeredSeats: 0,
-            organizer: msg.sender,
-            isActive: true,
-            dateTime: _dateTime
-        });
+        Event storage newEvent = events[eventCount];
+        newEvent.eventName = _eventName;
+        newEvent.maxSeats = _maxSeats;
+        newEvent.registeredSeats = 0;
+        newEvent.organizer = msg.sender;
+        newEvent.isActive = true;
+        newEvent.dateTime = _dateTime;
+        // No need to initialize participants array; it's already done by default
 
         emit EventCreated(
             eventCount,
@@ -164,6 +184,34 @@ contract EcoAttest {
             _dateTime,
             msg.sender
         );
+    }
+
+    function registerForEvent(
+        uint256 _eventId,
+        string memory _participantName,
+        string memory _photo
+    ) public {
+        Event storage eventToAttend = events[_eventId];
+        require(eventToAttend.isActive, "Event is not active");
+        require(
+            eventToAttend.registeredSeats < eventToAttend.maxSeats,
+            "No available seats"
+        );
+        require(
+            block.timestamp < eventToAttend.dateTime,
+            "Event has already occurred"
+        );
+
+        Participant memory newParticipant = Participant({
+            user: msg.sender,
+            name: _participantName,
+            photo: _photo
+        });
+
+        eventToAttend.participants.push(newParticipant);
+        eventToAttend.registeredSeats++;
+
+        emit ParticipantRegistered(_eventId, msg.sender, _participantName);
     }
 
     function isSubOrganizer(

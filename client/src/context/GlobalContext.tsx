@@ -206,6 +206,9 @@ export default function GlobalContextProvider({
     }
   };
 
+  // register for event participant -> provide name, image along with msg.sender
+
+
   return (
     <GlobalContext.Provider
       value={{

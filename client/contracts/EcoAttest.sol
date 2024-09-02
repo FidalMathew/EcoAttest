@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.9;
 
 contract EcoAttest {
     address public owner;
-
-    struct Participant {
-        string name;
-        address participantAddress;
-        bool isOrganiser;
-        bool isSubOrganizer;
-    }
 
     struct Organization {
         bool verified;
         string name;
         address orgAddress;
-        uint256 reputationScore; // Reputation score based on participant feedback
         address[] subOrganizers; // List of sub-organizers
+        string imageUrl; // URL or IPFS hash of the organization's image
+    }
+
+    struct Participant {
+        address user;
+        string name;
+        string photo;
     }
 
     struct Event {
@@ -26,12 +25,13 @@ contract EcoAttest {
         address organizer;
         bool isActive;
         uint256 dateTime; // Date and time represented as a Unix timestamp
+        Participant[] participants;
     }
 
     mapping(address => Organization) public organizations;
     mapping(uint256 => Event) public events;
     uint256 public eventCount;
-    address[] public organizationAddresses;
+    Organization[] public organizationList; // Array of Organization structs
 
     event OrganizationAdded(address indexed orgAddress, string name);
     event OrganizationVerified(address indexed orgAddress);
@@ -45,6 +45,11 @@ contract EcoAttest {
         uint256 maxSeats,
         uint256 dateTime,
         address indexed organizer
+    );
+    event ParticipantRegistered(
+        uint256 indexed eventId,
+        address indexed participant,
+        string name
     );
 
     modifier onlyOwner() {
@@ -73,25 +78,50 @@ contract EcoAttest {
         owner = msg.sender; // Set the contract deployer as the owner
     }
 
-    function getAllOrganizations() public view returns (address[] memory) {
-        return organizationAddresses;
+    function getAllOrganizations() public view returns (Organization[] memory) {
+        return organizationList;
     }
 
-    function addOrganization(string memory _name, address _orgAddress) public {
-        organizations[_orgAddress] = Organization({
+    function getOrganizationByAddress(
+        address _orgAddress
+    ) public view returns (Organization memory) {
+        require(
+            organizations[_orgAddress].orgAddress != address(0),
+            "Organization not found"
+        );
+        return organizations[_orgAddress];
+    }
+
+    function addOrganization(
+        string memory _name,
+        address _orgAddress,
+        string memory _imageUrl
+    ) public {
+        Organization memory newOrganization = Organization({
             verified: false, // Organizations start as unverified
             name: _name,
             orgAddress: _orgAddress,
-            reputationScore: 0, // Initial reputation score
-            subOrganizers: new address[](0) // Initialize empty sub-organizers list
+            subOrganizers: new address[](0), // Initialize empty sub-organizers list
+            imageUrl: _imageUrl // Set the image URL
         });
-        organizationAddresses.push(_orgAddress); // Store the organization address
+
+        organizations[_orgAddress] = newOrganization;
+        organizationList.push(newOrganization); // Store the organization in the array
 
         emit OrganizationAdded(_orgAddress, _name);
     }
 
     function verifyOrganization(address _orgAddress) public onlyOwner {
         organizations[_orgAddress].verified = true;
+
+        // Update the organization in the array
+        for (uint256 i = 0; i < organizationList.length; i++) {
+            if (organizationList[i].orgAddress == _orgAddress) {
+                organizationList[i].verified = true;
+                break;
+            }
+        }
+
         emit OrganizationVerified(_orgAddress);
     }
 
@@ -100,6 +130,14 @@ contract EcoAttest {
     ) public onlyVerifiedOrganization {
         require(_subOrgAddress != address(0), "Invalid sub-organizer address");
         organizations[msg.sender].subOrganizers.push(_subOrgAddress);
+
+        // Update the organization in the array
+        for (uint256 i = 0; i < organizationList.length; i++) {
+            if (organizationList[i].orgAddress == msg.sender) {
+                organizationList[i].subOrganizers.push(_subOrgAddress);
+                break;
+            }
+        }
     }
 
     function verifySubOrganizer(
@@ -114,6 +152,7 @@ contract EcoAttest {
             isSubOrganizer(_orgAddress, _subOrgAddress),
             "Not a valid sub-organizer"
         );
+
         emit SubOrganizerVerified(_orgAddress, _subOrgAddress);
     }
 
@@ -129,14 +168,14 @@ contract EcoAttest {
         );
 
         eventCount++;
-        events[eventCount] = Event({
-            eventName: _eventName,
-            maxSeats: _maxSeats,
-            registeredSeats: 0,
-            organizer: msg.sender,
-            isActive: true,
-            dateTime: _dateTime
-        });
+        Event storage newEvent = events[eventCount];
+        newEvent.eventName = _eventName;
+        newEvent.maxSeats = _maxSeats;
+        newEvent.registeredSeats = 0;
+        newEvent.organizer = msg.sender;
+        newEvent.isActive = true;
+        newEvent.dateTime = _dateTime;
+        // No need to initialize participants array; it's already done by default
 
         emit EventCreated(
             eventCount,
@@ -145,6 +184,34 @@ contract EcoAttest {
             _dateTime,
             msg.sender
         );
+    }
+
+    function registerForEvent(
+        uint256 _eventId,
+        string memory _participantName,
+        string memory _photo
+    ) public {
+        Event storage eventToAttend = events[_eventId];
+        require(eventToAttend.isActive, "Event is not active");
+        require(
+            eventToAttend.registeredSeats < eventToAttend.maxSeats,
+            "No available seats"
+        );
+        require(
+            block.timestamp < eventToAttend.dateTime,
+            "Event has already occurred"
+        );
+
+        Participant memory newParticipant = Participant({
+            user: msg.sender,
+            name: _participantName,
+            photo: _photo
+        });
+
+        eventToAttend.participants.push(newParticipant);
+        eventToAttend.registeredSeats++;
+
+        emit ParticipantRegistered(_eventId, msg.sender, _participantName);
     }
 
     function isSubOrganizer(
@@ -160,6 +227,4 @@ contract EcoAttest {
         }
         return false;
     }
-
-    // Additional functions can be added here to manage events (e.g., registration, cancellation)
 }

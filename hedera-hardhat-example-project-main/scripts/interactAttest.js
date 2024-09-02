@@ -1,14 +1,11 @@
-// scripts/interact.js
-
 async function main() {
   // Define the contract address and ABI
-  const contractAddress = "0x8934C4959c865dAAC507C1f5E1587fe5Dd7365Bf";
+  const contractAddress = "0x33Aace9A6AE283939b423e97F1f015A182dbCe92";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
   const ecoAttest = await EcoAttest.attach(contractAddress);
 
-  // Call functions on the deployed contract
   // Example: Adding an organization
   const tx1 = await ecoAttest.addOrganization(
     "Eco Organization",
@@ -24,6 +21,12 @@ async function main() {
   );
   await tx2.wait();
   console.log("Organization verified successfully.");
+
+  // Example: Fetching an organization by address
+  const organization = await ecoAttest.getOrganizationByAddress(
+    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  );
+  console.log("Organization Details:", organization);
 
   // Example: Fetching all organizations
   const organizations = await ecoAttest.getAllOrganizations();
