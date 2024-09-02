@@ -32,14 +32,14 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          // { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
+          // { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           {
             key: "Cross-Origin-Resource-Policy", value: "cross-origin"
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            value: "same-origin allow-popups",
+            value: "same-origin",
           },
 
         ],
