@@ -13,12 +13,55 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import QRX from "@qr-x/react";
+import useGlobalContextHook from "@/context/useGlobalContextHook";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {Skeleton} from "@/components/ui/skeleton";
 
 export default function Profile() {
   const router = useRouter();
   const [openQr, setOpenQr] = useState(false);
+  const [userInfo, setUserInfo] = useState<
+    Partial<OpenloginUserInfo> | undefined
+  >();
+
+  const {
+    getUserInfo,
+    walletClient,
+    publicClient,
+    logout,
+    provider,
+    loggedIn,
+    status,
+    loggedInAddress,
+    balanceAddress,
+  } = useGlobalContextHook();
+
+  const getUser = async () => {
+    if (!getUserInfo) return;
+    try {
+      const userInfo = await getUserInfo();
+      setUserInfo(userInfo);
+      console.log(userInfo, "User info");
+    } catch (error) {
+      console.error(error, "Error user info");
+    }
+  };
+
+  useEffect(() => {
+    (async function () {
+      try {
+        getUser();
+      } catch (error) {
+        console.error(error, "Error logging in");
+      }
+    })();
+  }, [walletClient, publicClient, provider, loggedIn, router.pathname, status]);
+
+  console.log(userInfo, "dsa");
+
   return (
     <div className="min-h-screen w-full">
       <Navbar />
@@ -56,27 +99,51 @@ export default function Profile() {
         style={{
           height: "calc(100% - 70px)",
         }}
-        className="flex gap-9 p-7 flex-col lg:flex-row"
+        className="flex gap-9 p-7 flex-col lg:flex-row items-center"
       >
-        <div className="max-w-[800px] lg:w-[600px] h-[250px] rounded-2xl flex items-center lg:flex-col justify-center lg:justify-start border-2 border-gray-700 relative lg:h-[580px]">
-          <div className="h-full rounded-l-2xl lg:rounded-l-none w-full bg-green-600 lg:rounded-t-2xl flex justify-center items-center">
-            <div className="w-full h-full flex justify-center items-center px-7">
-              <div className="bg-white rounded-full border-2 border-green-800 h-[170px] w-[170px] lg:h-[250px] lg:w-[250px]"></div>
+        <div className="max-w-[400px] w-[550px] lg:w-[600px] h-[650px] rounded-2xl flex items-center flex-col lg:justify-center gap-5 border-2 border-gray-700 ">
+          <div className="lg:h-full h-3/5 rounded-t-2xl w-full bg-green-600 flex justify-center items-center">
+            <div className="w-full flex justify-center items-center px-7">
+              <div className="bg-white rounded-full border-2 border-green-800 h-[250px] w-[250px] flex overflow-hidden">
+                {userInfo && userInfo.profileImage ? (
+                  <>
+                    <img
+                      src={
+                        "https://lh3.googleusercontent.com/a/ACg8ocJnJ7LnlmcMN-yPSILf-BYvk34oUaxOfA1wPDtlP8F6TwQdTg=s96-c"
+                      }
+                      alt="dp"
+                    />
+                  </>
+                ) : (
+                  <Skeleton className="w-[250px] h-[250px] rounded-full bg-gray-300" />
+                )}
+              </div>
             </div>
           </div>
-          <div className="font-sans lg:h-2/5 w-full lg:py-6 rounded-b-2xl px-6 flex flex-col gap-4 lg:relative">
+          <div className="font-sans h-2/5 w-full lg:py-6 justify-center rounded-b-2xl px-6 flex flex-col gap-4 relative">
             <div
               className="absolute lg:top-3 lg:right-4 top-5 right-5 hover:bg-slate-100 rounded-lg cursor-pointer p-1"
               onClick={() => setOpenQr((prev) => !prev)}
             >
               <QrCode />
             </div>
-            <p className="text-3xl font-normal">Jaydeep Dey</p>
-            <p>
-              {"0x3f93B8DCAf29D8B3202347018E23F76e697D8539".slice(0, 10) +
-                "..." +
-                "0x3f93B8DCAf29D8B3202347018E23F76e697D8539".slice(-10)}
-            </p>
+            {userInfo && userInfo.name ? (
+              <>
+                <p className="text-3xl font-normal">{userInfo.name}</p>
+              </>
+            ) : (
+              <Skeleton className="w-3/4 bg-gray-300 h-[30px]" />
+            )}
+
+            {loggedInAddress ? (
+              <p>
+                {loggedInAddress.slice(0, 10) +
+                  "..." +
+                  loggedInAddress.slice(-10)}
+              </p>
+            ) : (
+              <Skeleton className="w-4/5 bg-gray-300 h-[30px]" />
+            )}
             <div className="flex items-center justify-between font-sans font-semibold mt-5">
               <div className="flex items-center gap-2">
                 <Star className="w-6 h-6 fill-yellow-500" />
@@ -117,7 +184,7 @@ export default function Profile() {
             </TabsList>
             <TabsContent value="ongoing" className="focus-visible:ring-0">
               <div
-                className="w-full overflow-y-auto flex flex-col gap-4"
+                className="w-full overflow-y-auto flex flex-col gap-4 pr-4"
                 style={{
                   height: "calc(100vh - 30vh)",
                 }}
@@ -125,10 +192,13 @@ export default function Profile() {
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, index) => (
                   <div className="w-full h-full rounded-xl flex flex-col gap-10 items-end">
                     <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
-                      <p className="text-xl"> Car Pooling to Accenture</p>
+                      <p className="lg:text-xl max-w-sm lg:max-w-full">
+                        {" "}
+                        Car Pooling to Accenture
+                      </p>
                       <Badge
                         variant={"outline"}
-                        className={`px-8 py-2 border-2 border-gray-700  text-white ${
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
                           index % 3 ? "bg-yellow-700" : "bg-green-700"
                         }`}
                       >
@@ -150,7 +220,7 @@ export default function Profile() {
             </TabsContent>
             <TabsContent value="past">
               <div
-                className="w-full overflow-y-auto flex flex-col gap-4"
+                className="w-full overflow-y-auto flex flex-col gap-4 pr-4"
                 style={{
                   height: "calc(100vh - 30vh)",
                 }}
@@ -161,10 +231,13 @@ export default function Profile() {
                     key={index}
                   >
                     <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
-                      <p className="text-xl"> Car Pooling to Accenture</p>
+                      <p className="lg:text-xl max-w-sm lg:max-w-full">
+                        {" "}
+                        Car Pooling to Accenture
+                      </p>
                       <Badge
                         variant={"outline"}
-                        className={`px-8 py-2 border-2 border-gray-700  text-white ${
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
                           index % 3 === 0
                             ? index === 2
                               ? "bg-red-700"

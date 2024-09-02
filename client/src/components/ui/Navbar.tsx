@@ -95,13 +95,13 @@ export default function Navbar() {
         >
           Organisation
         </Button>
-        <Avatar
+        {/* <Avatar
           onClick={() => router.push("/profile")}
           className="cursor-pointer"
         >
           <AvatarImage src="/man.png" />
           <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        </Avatar> */}
       </div>
     </nav>
   );

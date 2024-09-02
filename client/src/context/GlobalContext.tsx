@@ -33,6 +33,8 @@ interface PublicClientContextType {
   loggedIn: boolean;
   status: ADAPTER_STATUS_TYPE;
   getAllOrganizations?: () => Promise<void>;
+  loggedInAddress?: string | null;
+  balanceAddress?: string | null;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
@@ -83,7 +85,8 @@ export default function GlobalContextProvider({
   const [loggedIn, setLoggedIn] = useState(false);
   const [walletClient, setWalletClient] = useState<any>(null);
   const [publicClient, setPublicClient] = useState<any>(null);
-
+  const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
+  const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -144,6 +147,27 @@ export default function GlobalContextProvider({
     }
   };
 
+  useEffect(() => {
+    (async function () {
+      try {
+        if (walletClient && publicClient) {
+          const [address] = await walletClient.getAddresses();
+          console.log(address, "dsaaddress");
+          setLoggedInAddress(address);
+
+          const balance = await publicClient.getBalance({
+            address: address,
+          });
+
+          console.log(balance.toString(), "balance");
+          setBalanceAddress(balance.toString());
+        }
+      } catch (error) {
+        console.error(error, "Error logging in");
+      }
+    })();
+  }, [walletClient, publicClient, provider, loggedIn, router.pathname]);
+
   const logout = async () => {
     await web3auth.logout();
     router.reload();
@@ -166,17 +190,19 @@ export default function GlobalContextProvider({
 
   const getAllOrganizations = async () => {
     try {
-      console.log(contract, "contract");
-      const data = await publicClient.readContract({
-        address: CONTRACT_ADDRESS,
-        abi: EcoAttestABI,
-        functionName: "getAllOrganizations",
-      });
-      console.log(data, "Das");
-      // return data;
-      return data;
+      if (publicClient) {
+        console.log(contract, "contract");
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "getAllOrganizations",
+        });
+        console.log(data, "Das");
+        // return data;
+        return data;
+      }
     } catch (error) {
-      console.log(error);
+      console.log(error, "from getAllOrganizations");
     }
   };
 
@@ -192,6 +218,8 @@ export default function GlobalContextProvider({
         loggedIn,
         status: web3auth.status,
         getAllOrganizations,
+        balanceAddress,
+        loggedInAddress,
       }}
     >
       {children}
