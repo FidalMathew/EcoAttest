@@ -1,10 +1,10 @@
 import Navbar from "@/components/ui/Navbar";
-import {ArrowRight, Gem, QrCode, Shrub, Star} from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {useRouter} from "next/router";
+import { ArrowRight, Gem, QrCode, Shrub, Star } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -13,12 +13,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Skeleton} from "@/components/ui/skeleton";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Profile() {
   const router = useRouter();
@@ -108,9 +108,7 @@ export default function Profile() {
                 {userInfo && userInfo.profileImage ? (
                   <>
                     <img
-                      src={
-                        "https://lh3.googleusercontent.com/a/ACg8ocJnJ7LnlmcMN-yPSILf-BYvk34oUaxOfA1wPDtlP8F6TwQdTg=s96-c"
-                      }
+                      src={userInfo.profileImage}
                       alt="dp"
                     />
                   </>
@@ -198,9 +196,8 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 ? "bg-yellow-700" : "bg-green-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 ? "bg-yellow-700" : "bg-green-700"
+                          }`}
                       >
                         {index % 3 == 0 ? "Issued CC" : "Participated"}
                       </Badge>
@@ -237,13 +234,12 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 === 0
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
                             ? index === 2
                               ? "bg-red-700"
                               : "bg-green-800"
                             : "bg-yellow-700"
-                        }`}
+                          }`}
                       >
                         {index % 3 === 0
                           ? index === 2

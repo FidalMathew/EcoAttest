@@ -128,6 +128,8 @@ export default function GlobalContextProvider({
   const login = async () => {
     try {
       const web3authProvider = await web3auth.connect();
+
+      console.log(web3authProvider, "Connected")
       setProvider(web3authProvider);
       if (web3auth.connected) {
         setLoggedIn(true);

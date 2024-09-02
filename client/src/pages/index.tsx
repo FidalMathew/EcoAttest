@@ -1,18 +1,18 @@
 import Image from "next/image";
-import {ArrowRight} from "lucide-react";
-import {useRouter} from "next/router";
+import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/router";
 // import {useFetchValue, useStoreValue} from "@nillion/client-react-hooks";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 
-import {useEffect, useState} from "react";
-import {Button} from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const router = useRouter();
 
   // web3auth -------
-  const {getUserInfo, login, loggedIn, status} = useGlobalContextHook();
+  const { getUserInfo, login, loggedIn, status } = useGlobalContextHook();
 
   useEffect(() => {
     if (loggedIn && status === "connected") {
@@ -23,7 +23,7 @@ export default function Home() {
   // web3auth -------
 
   return (
-    <div className="w-full lg:grid lg:grid-cols-3 lg:min-h-screen">
+    <div className="w-full lg:grid lg:grid-cols-3 lg:min-h-screen" suppressHydrationWarning>
       <div className="hidden bg-muted lg:block">
         <Image
           src={`/agriculture2.jpg`}
