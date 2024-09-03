@@ -71,13 +71,7 @@ export default function QrReader() {
       {/* QR */}
       <video ref={videoEl}></video>
       <div ref={qrBoxEl} className="qr-box">
-        <img
-          src={"/qr-frame.svg"}
-          alt="Qr Frame"
-          width={256}
-          height={256}
-          className="qr-frame"
-        />
+        <img src={"/qr-frame.svg"} alt="Qr Frame" className="qr-frame" />
       </div>
 
       {/* Show Data Result if scan is success */}
