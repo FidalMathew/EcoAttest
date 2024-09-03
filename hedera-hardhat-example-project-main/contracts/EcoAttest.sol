@@ -7,6 +7,7 @@ contract EcoAttest {
     struct Organization {
         bool verified;
         string name;
+        string email;
         address orgAddress;
         address[] subOrganizers; // List of sub-organizers
         string imageUrl; // URL or IPFS hash of the organization's image
@@ -32,6 +33,7 @@ contract EcoAttest {
     mapping(uint256 => Event) public events;
     uint256 public eventCount;
     Organization[] public organizationList; // Array of Organization structs
+    mapping(address => address) subOrgToOrgAddress;
 
     event OrganizationAdded(address indexed orgAddress, string name);
     event OrganizationVerified(address indexed orgAddress);
@@ -68,7 +70,7 @@ contract EcoAttest {
     modifier onlyOrganizerOrSubOrganizer(address _orgAddress) {
         require(
             msg.sender == organizations[_orgAddress].orgAddress ||
-                isSubOrganizer(_orgAddress, msg.sender),
+                isSubOrganizer(msg.sender),
             "Caller is not the organizer or a sub-organizer"
         );
         _;
@@ -94,21 +96,22 @@ contract EcoAttest {
 
     function addOrganization(
         string memory _name,
-        address _orgAddress,
+        string memory _email,
         string memory _imageUrl
     ) public {
         Organization memory newOrganization = Organization({
             verified: false, // Organizations start as unverified
             name: _name,
-            orgAddress: _orgAddress,
+            email: _email,
+            orgAddress: msg.sender,
             subOrganizers: new address[](0), // Initialize empty sub-organizers list
             imageUrl: _imageUrl // Set the image URL
         });
 
-        organizations[_orgAddress] = newOrganization;
+        organizations[msg.sender] = newOrganization;
         organizationList.push(newOrganization); // Store the organization in the array
 
-        emit OrganizationAdded(_orgAddress, _name);
+        emit OrganizationAdded(msg.sender, _name);
     }
 
     function verifyOrganization(address _orgAddress) public onlyOwner {
@@ -125,11 +128,19 @@ contract EcoAttest {
         emit OrganizationVerified(_orgAddress);
     }
 
+    function isOrganizer() public view returns (bool) {
+        // Check if msg.sender is associated with any organization
+        return organizations[msg.sender].orgAddress != address(0);
+    }
+
     function addSubOrganizer(
         address _subOrgAddress
     ) public onlyVerifiedOrganization {
         require(_subOrgAddress != address(0), "Invalid sub-organizer address");
+
         organizations[msg.sender].subOrganizers.push(_subOrgAddress);
+        subOrgToOrgAddress[_subOrgAddress] = organizations[msg.sender]
+            .orgAddress;
 
         // Update the organization in the array
         for (uint256 i = 0; i < organizationList.length; i++) {
@@ -148,10 +159,7 @@ contract EcoAttest {
             organizations[_orgAddress].verified,
             "Organization must be verified"
         );
-        require(
-            isSubOrganizer(_orgAddress, _subOrgAddress),
-            "Not a valid sub-organizer"
-        );
+        require(isSubOrganizer(_subOrgAddress), "Not a valid sub-organizer");
 
         emit SubOrganizerVerified(_orgAddress, _subOrgAddress);
     }
@@ -214,17 +222,18 @@ contract EcoAttest {
         emit ParticipantRegistered(_eventId, msg.sender, _participantName);
     }
 
-    function isSubOrganizer(
-        address _orgAddress,
-        address _subOrgAddress
-    ) internal view returns (bool) {
-        address[] memory subOrganizers = organizations[_orgAddress]
-            .subOrganizers;
-        for (uint256 i = 0; i < subOrganizers.length; i++) {
-            if (subOrganizers[i] == _subOrgAddress) {
-                return true;
-            }
-        }
-        return false;
+    function isSubOrganizer(address _subAddress) public view returns (bool) {
+        // Check if msg.sender is a sub-organizer of any organization
+        return subOrgToOrgAddress[_subAddress] != address(0);
+    }
+
+    function getOrgAddressFromSub() public view returns (address) {
+        // Retrieve the organization address associated with msg.sender
+        address orgAddress = subOrgToOrgAddress[msg.sender];
+        require(
+            orgAddress != address(0),
+            "msg.sender is not a sub-organizer of any organization"
+        );
+        return orgAddress;
     }
 }

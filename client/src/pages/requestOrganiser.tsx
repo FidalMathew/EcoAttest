@@ -9,6 +9,7 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
+import { PinataSDK } from "pinata-web3";
 
 export default function RequestOrganiser() {
   const router = useRouter();
@@ -109,16 +110,21 @@ export default function RequestOrganiser() {
 
   const [imageSrc, setImageSrc] = useState("/user.png");
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // Safely accessing the first file
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          setImageSrc(reader.result as string); // Type assertion to string
-        }
-      };
-      reader.readAsDataURL(file);
+
+      const pinata = new PinataSDK({
+        pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT!,
+        pinataGateway: "example-gateway.mypinata.cloud",
+      });
+
+      const upload = await pinata.upload.file(file);
+
+      console.log(upload, " upload")
+      const cid = upload?.IpfsHash;
+      setImageSrc(cid)
+      console.log('IPFS CID:', cid);
     }
   };
 

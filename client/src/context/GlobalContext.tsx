@@ -33,6 +33,13 @@ interface PublicClientContextType {
   loggedIn: boolean;
   status: ADAPTER_STATUS_TYPE;
   getAllOrganizations?: () => Promise<void>;
+  addOrganization?: (cName: string, cEmail: string, cLogo: string) => Promise<void>;
+  getOrganizationByAddress?: (orgAddress: string) => Promise<void>;
+  getEventById?: (eventId: number) => Promise<void>;
+  createEvent?: (eventName: string, maxSeats: number, eventTime: string) => Promise<void>;
+  addSubOrganizer?: (subOrgAddress: string) => Promise<void>;
+  verifySubOrganizer?: (orgAddress: string, subOrgAddress: string) => Promise<void>;
+  registerForEvent?: (eventId: number, participantName: string, photo: string) => Promise<void>;
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
 }
@@ -52,7 +59,7 @@ const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0x128",
-  rpcTarget: "https://testnet.hashio.io/api",
+  rpcTarget: "https://296.rpc.thirdweb.com",
   displayName: "Ethereum Sepolia Testnet",
   blockExplorerUrl: "https://sepolia.etherscan.io",
   ticker: "ETH",
@@ -87,6 +94,9 @@ export default function GlobalContextProvider({
   const [publicClient, setPublicClient] = useState<any>(null);
   const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
   const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
+
+  const [isSubOrganiserState, setIsSubOrganiserState] = useState<boolean>(false);
+  const [isOrganizerState, setIsOrganizerState] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -178,7 +188,7 @@ export default function GlobalContextProvider({
   };
   // 0.0.4798103
 
-  const CONTRACT_ADDRESS = "0x33Aace9A6AE283939b423e97F1f015A182dbCe92";
+  const CONTRACT_ADDRESS = "0xFf6BB66D5ceB222F1477BfcB95e05fAb5512eC59";
 
   // Create a contract instance
   const contract = getContract({
@@ -208,6 +218,190 @@ export default function GlobalContextProvider({
     }
   };
 
+  const addOrganization = async (cName: string, cEmail: string, cLogo: string) => {
+
+    try {
+      console.log(loggedInAddress, "loggedInAddress")
+      await walletClient.writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'addOrganization',
+        account: loggedInAddress,
+        args: [cName, cEmail, cLogo]
+      })
+
+      console.log("successfully added organization")
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  const getOrganizationByAddress = async (organizationAddress: string) => {
+    try {
+      if (publicClient) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "getOrganizationByAddress",
+          args: [organizationAddress],
+        });
+        console.log("Organization Details:", data);
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from getOrganizationByAddress");
+    }
+  };
+
+  const getEventById = async (eventId: number) => {
+    try {
+      if (publicClient) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "events",
+          args: [eventId],
+        });
+        console.log("Event Details:", data);
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from getEventById");
+    }
+  };
+
+  // only for contract Admins
+  const verifyOrganization = async (organizationAddress: string) => {
+    try {
+      await walletClient.writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'verifyOrganization',
+        account: loggedInAddress,
+        args: [organizationAddress]
+      });
+
+      console.log("Organization verified successfully");
+    } catch (error) {
+      console.log(error, "from verifyOrganization");
+    }
+  };
+
+  const createEvent = async (eventName: string, maxSeats: number, eventTime: string) => {
+    try {
+      await walletClient.writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'createEvent',
+        account: loggedInAddress,
+        args: [eventName, maxSeats, eventTime]
+      });
+
+      console.log("Event created successfully");
+    } catch (error) {
+      console.log(error, "from createEvent");
+    }
+  };
+
+  const addSubOrganizer = async (subOrgAddress: string) => {
+    try {
+      const tx = await walletClient.writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'addSubOrganizer',
+        account: loggedInAddress,
+        args: [subOrgAddress],
+      });
+
+      await publicClient.waitForTransactionReceipt(
+        { hash: tx }
+      )
+      console.log("Sub-organizer added successfully");
+    } catch (error) {
+      console.log(error, "from addSubOrganizer");
+    }
+  };
+
+  const verifySubOrganizer = async (orgAddress: string, subOrgAddress: string) => {
+    try {
+      await walletClient.writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'verifySubOrganizer',
+        account: loggedInAddress,
+        args: [orgAddress, subOrgAddress],
+      });
+
+      console.log("Sub-organizer verified successfully");
+    } catch (error) {
+      console.log(error, "from verifySubOrganizer");
+    }
+  };
+
+  const registerForEvent = async (eventId: number, participantName: string, photo: string) => {
+    try {
+      await walletClient.writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: EcoAttestABI,
+        functionName: 'registerForEvent',
+        account: loggedInAddress,
+        args: [eventId, participantName, photo],
+      });
+
+      console.log("Registered for event successfully");
+    } catch (error) {
+      console.log(error, "from registerForEvent");
+    }
+  };
+
+  const isSubOrganizer = async () => {
+    try {
+      if (publicClient && loggedInAddress) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "isSubOrganizer",
+          args: [loggedInAddress]
+        });
+        setIsSubOrganiserState(data)
+        console.log(data, "isSubOrganiser")
+        // return data;
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from isSubOrganizer");
+    }
+  }
+
+  const isOrganizer = async () => {
+    try {
+      if (publicClient) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "isOrganizer"
+        });
+        setIsOrganizerState(data)
+        console.log(data, "isOrganizer")
+        // return data;
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from isOrganizer");
+    }
+  }
+
+  useEffect(() => {
+
+    if (publicClient) {
+      isSubOrganizer();
+      isOrganizer();
+    }
+  }, [publicClient, loggedInAddress])
+
+
   // register for event participant -> provide name, image along with msg.sender
 
 
@@ -225,6 +419,13 @@ export default function GlobalContextProvider({
         getAllOrganizations,
         balanceAddress,
         loggedInAddress,
+        addOrganization,
+        getOrganizationByAddress,
+        getEventById,
+        createEvent,
+        addSubOrganizer,
+        verifySubOrganizer,
+        registerForEvent
       }}
     >
       {children}

@@ -125,9 +125,9 @@
         "type": "string"
       },
       {
-        "internalType": "address",
-        "name": "_orgAddress",
-        "type": "address"
+        "internalType": "string",
+        "name": "_email",
+        "type": "string"
       },
       {
         "internalType": "string",
@@ -250,6 +250,11 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
             "internalType": "address",
             "name": "orgAddress",
             "type": "address"
@@ -268,6 +273,19 @@
         "internalType": "struct EcoAttest.Organization[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getOrgAddressFromSub",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -296,6 +314,11 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
             "internalType": "address",
             "name": "orgAddress",
             "type": "address"
@@ -320,6 +343,38 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "isOrganizer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_subAddress",
+        "type": "address"
+      }
+    ],
+    "name": "isSubOrganizer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -337,6 +392,11 @@
       {
         "internalType": "string",
         "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
         "type": "string"
       },
       {
@@ -371,6 +431,11 @@
       {
         "internalType": "string",
         "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
         "type": "string"
       },
       {

@@ -1,9 +1,9 @@
-import {Button} from "@/components/ui/button";
-import {ArrowUpRight, Plus, Search, UserIcon} from "lucide-react";
-import {Badge} from "@/components/ui/badge";
-import {useRouter} from "next/router";
-import {useState} from "react";
-import {Form, Formik} from "formik";
+import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Plus, Search, UserIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { Form, Formik } from "formik";
 import {
   Card,
   CardContent,
@@ -20,44 +20,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import useGlobalContextHook from "@/context/useGlobalContextHook";
 
-const orgs = [
-  {
-    name: "Org1",
-    logo: "org1.png",
-  },
-  {
-    name: "Org2",
-    logo: "org2.png",
-  },
-  {
-    name: "Org3",
-    logo: "org3.png",
-  },
-  {
-    name: "Org4",
-    logo: "org4.png",
-  },
-  {
-    name: "Org5",
-    logo: "org5.png",
-  },
-  {
-    name: "Org6",
-    logo: "org6.png",
-  },
-  {
-    name: "Org7",
-    logo: "org7.png",
-  },
-  {
-    name: "Org8",
-    logo: "org8.png",
-  },
-];
 
 export default function Organisation() {
+
+
+  const { loggedInAddress, getOrganizationByAddress, addSubOrganizer } = useGlobalContextHook();
+
+  const [organizationDetails, setOrganizationDetails] = useState<any>({});
+  const [tempSubOrganizer, setTempSubOrganizer] = useState<string>('0x723d14A921D450C669CCc18C4A713be63bF25D0c');
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+
+      if (getOrganizationByAddress) {
+        const res = await getOrganizationByAddress(loggedInAddress as string);
+        console.log(res, "organisation");
+        setOrganizationDetails(res)
+      }
+
+    }
+
+    if (loggedInAddress)
+      fetchDetails()
+  }, [loggedInAddress])
+
+
   const router = useRouter();
   const [open, setOpen] = useState(false);
   return (
@@ -66,18 +56,18 @@ export default function Organisation() {
       <div className="h-[250px] w-full lg:w-2/3  border-gray-700 border-2 rounded-2xl flex">
         <div className="w-1/3 h-full bg-blue-700 rounded-l-2xl flex justify-center items-center">
           <div className="rounded-full border-2 border-white-700 w-[80%] md:w-3/5 aspect-square bg-white flex flex-col">
-            {/* <img
-              src="https://freelogopng.com/images/all_img/1659761297uber-icon.png"
-              alt="uber"
-            /> */}
+            {organizationDetails && <img
+              src={organizationDetails.imageUrl}
+              alt={organizationDetails.name}
+            />}
           </div>
         </div>
         <div className="flex flex-col justify-center ml-6 gap-6">
-          <p className="text-3xl   font-semibold">Organisation Name</p>
+          <p className="text-3xl   font-semibold">{organizationDetails.name}</p>
           <p className="text-md lg:text-lg font-normal">
-            {"0x10AbbDc83E8e33974650cB897b16250E07979CBa".slice(0, 10) +
+            {loggedInAddress && (loggedInAddress.slice(0, 10) +
               "..." +
-              "0x10AbbDc83E8e33974650cB897b16250E07979CBa".slice(-10)}
+              loggedInAddress.slice(-10))}
           </p>
         </div>
       </div>
@@ -91,6 +81,7 @@ export default function Organisation() {
                 className="mr-2 rounded-full border-2 border-gray-700 "
                 variant={"outline"}
                 size="icon"
+                onClick={() => addSubOrganizer!(tempSubOrganizer)}
               >
                 <Plus className="h-5 w-5 text-black" />
               </Button>
