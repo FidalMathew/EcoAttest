@@ -8,6 +8,9 @@ import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.s
 
 contract EventAttend {
     ISP public spInstance = ISP(0x4e4af2a21ebf62850fD99Eb6253E1eFBb56098cD);
+    // https://testnet-scan.sign.global/schema/onchain_evm_84532_0x1a2
+    // base sepolia -- contract deployed
+
     uint64 public schemaId;
 
     // events
@@ -21,7 +24,7 @@ contract EventAttend {
         uint256 score;
     }
 
-    function setSchemaID(uint64 schemaId_) external onlyOwner {
+    function setSchemaID(uint64 schemaId_) external {
         schemaId = schemaId_;
     }
 
@@ -36,7 +39,7 @@ contract EventAttend {
         address participantAddress,
         uint256 eventId,
         uint256 score
-    ) {
+    ) public returns (uint64) {
         // issue attestation
         AttestEvent memory attestation = AttestEvent({
             orgAddress: orgAddress,
