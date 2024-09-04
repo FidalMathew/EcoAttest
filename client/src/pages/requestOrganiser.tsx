@@ -1,16 +1,16 @@
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Skeleton} from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import QRX from "@qr-x/react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Pencil} from "lucide-react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
-import {useRouter} from "next/router";
-import {ChangeEvent, useEffect, useState} from "react";
-import {PinataSDK} from "pinata-web3";
-import {Field, Formik, Form} from "formik";
+import { useRouter } from "next/router";
+import { ChangeEvent, useEffect, useState } from "react";
+import { PinataSDK } from "pinata-web3";
+import { Field, Formik, Form } from "formik";
 
 export default function RequestOrganiser() {
   const router = useRouter();
@@ -20,6 +20,7 @@ export default function RequestOrganiser() {
     walletClient,
     publicClient,
     getUserInfo,
+    addOrganization,
     logout,
     provider,
     loggedIn,
@@ -115,18 +116,6 @@ export default function RequestOrganiser() {
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // Safely accessing the first file
     if (file) {
-      // const pinata = new PinataSDK({
-      //   pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT!,
-      //   pinataGateway: "example-gateway.mypinata.cloud",
-      // });
-
-      // const upload = await pinata.upload.file(file);
-
-      // console.log(upload, " upload");
-      // const cid = upload?.IpfsHash;
-      // setImageSrc(cid);
-      // console.log("IPFS CID:", cid);
-
       setImageFile(file);
     }
   };
@@ -139,10 +128,12 @@ export default function RequestOrganiser() {
         </div>
 
         <Formik
-          initialValues={{orgName: ""}}
-          onSubmit={(values, _) => {
+          initialValues={{ orgName: "" }}
+          onSubmit={async (values, _) => {
             console.log(values);
             console.log(imageFile);
+
+            let cid;
 
             (async function () {
               try {
@@ -155,14 +146,22 @@ export default function RequestOrganiser() {
                   const upload = await pinata.upload.file(imageFile);
 
                   console.log(upload, " upload");
-                  const cid = upload?.IpfsHash;
+                  cid = upload?.IpfsHash;
 
                   console.log("IPFS CID:", cid);
+
+                  console.log(addOrganization, userInfo, userInfo?.email, cid)
+                  if (addOrganization && userInfo && userInfo.email && cid) {
+                    console.log("started")
+                    await addOrganization(values.orgName, userInfo.email, cid);
+                    console.log("done")
+                  }
                 }
               } catch (error) {
                 console.error(error, "Error uploading image to ipfs");
               }
             })();
+
           }}
         >
           {(formik) => (
