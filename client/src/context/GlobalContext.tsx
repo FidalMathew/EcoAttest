@@ -42,6 +42,8 @@ interface PublicClientContextType {
   registerForEvent?: (eventId: number, participantName: string, photo: string) => Promise<void>;
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
+  isOrganizerState?: boolean;
+  isSubOrganizerState?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
@@ -95,7 +97,7 @@ export default function GlobalContextProvider({
   const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
   const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
 
-  const [isSubOrganiserState, setIsSubOrganiserState] = useState<boolean>(false);
+  const [isSubOrganizerState, setisSubOrganizerState] = useState<boolean>(false);
   const [isOrganizerState, setIsOrganizerState] = useState<boolean>(false);
   const router = useRouter();
 
@@ -188,7 +190,7 @@ export default function GlobalContextProvider({
   };
   // 0.0.4798103
 
-  const CONTRACT_ADDRESS = "0xFf6BB66D5ceB222F1477BfcB95e05fAb5512eC59";
+  const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 
   // Create a contract instance
   const contract = getContract({
@@ -365,7 +367,7 @@ export default function GlobalContextProvider({
           functionName: "isSubOrganizer",
           args: [loggedInAddress]
         });
-        setIsSubOrganiserState(data)
+        setisSubOrganizerState(data)
         console.log(data, "isSubOrganiser")
         // return data;
         return data;
@@ -381,7 +383,8 @@ export default function GlobalContextProvider({
         const data = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
-          functionName: "isOrganizer"
+          functionName: "isOrganizer",
+          args: [loggedInAddress]
         });
         setIsOrganizerState(data)
         console.log(data, "isOrganizer")
@@ -425,7 +428,9 @@ export default function GlobalContextProvider({
         createEvent,
         addSubOrganizer,
         verifySubOrganizer,
-        registerForEvent
+        registerForEvent,
+        isSubOrganizerState,
+        isOrganizerState
       }}
     >
       {children}

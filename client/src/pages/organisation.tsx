@@ -1,9 +1,9 @@
-import {Button} from "@/components/ui/button";
-import {ArrowUpRight, Pencil, Plus, Search, UserIcon} from "lucide-react";
-import {Badge} from "@/components/ui/badge";
-import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
-import {Field, Form, Formik} from "formik";
+import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Pencil, Plus, Search, UserIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { Field, Form, Formik } from "formik";
 import {
   Card,
   CardContent,
@@ -29,14 +29,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Organisation() {
-  const {loggedInAddress, getOrganizationByAddress, addSubOrganizer} =
+  const { loggedInAddress, getOrganizationByAddress, addSubOrganizer } =
     useGlobalContextHook();
 
   const [organizationDetails, setOrganizationDetails] = useState<any>({});
@@ -67,7 +67,10 @@ export default function Organisation() {
           <DialogHeader>
             <DialogTitle>Are you absolutely sure?</DialogTitle>
             <DialogDescription>
-              <Formik initialValues={{address: ""}} onSubmit={() => {}}>
+              <Formik initialValues={{ address: "" }} onSubmit={async (values, _) => {
+                if (addSubOrganizer)
+                  await addSubOrganizer(values.address)
+              }}>
                 {(formik) => (
                   <Form className="font-sans">
                     <div className="my-6 mb-3">
@@ -127,7 +130,7 @@ export default function Organisation() {
                         id="orgIcon"
                         name="orgIcon"
                         accept="image/*"
-                        // onChange={handleImageChange}
+                      // onChange={handleImageChange}
                       />
                       <Label htmlFor="orgIcon" className="z-[100]">
                         <div className="cursor-pointer h-10 w-10 border-2 border-gray-700 rounded-full grid place-content-center bg-green-700 text-white absolute bottom-0 right-0">
@@ -225,7 +228,7 @@ export default function Organisation() {
             </div>
           </CardHeader>
           <CardContent className="grid gap-8">
-            {[1, 2, 3, 4, 5].map((_, index) => (
+            {organizationDetails && organizationDetails.subOrganizers && organizationDetails.subOrganizers.map((sAddress: string, index: number) => (
               <div className="flex items-center gap-4">
                 <Avatar className="hidden h-9 w-9 sm:flex border-2 border-gray-700">
                   <AvatarImage src="/avatars/01.png" alt="Avatar" />
@@ -237,9 +240,9 @@ export default function Organisation() {
                     Olivia Martin
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {"0x10AbbDc83E8e33974650cB897b16250E07979CBa".slice(0, 5) +
+                    {sAddress.slice(0, 5) +
                       "..." +
-                      "0x10AbbDc83E8e33974650cB897b16250E07979CBa".slice(-8)}
+                      sAddress.slice(-8)}
                   </p>
                 </div>
                 <div className="ml-auto font-medium">1111</div>

@@ -1,43 +1,49 @@
 async function main() {
   // Define the contract address and ABI
-  const contractAddress = "0x2b06bFDe18Ac8619177DDaE76e683fa12F326b3d";
+  const contractAddress = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
   const ecoAttest = await EcoAttest.attach(contractAddress);
 
-  // Example: Adding an organization
-  const tx1 = await ecoAttest.addOrganization(
-    "Eco Organization",
-    "ecoorganizer@eco.com",
-    "https://example.com/image.png"
-  );
-  await tx1.wait();
-  console.log("Organization added successfully.");
+  // // Example: Adding an organization
+  // const tx1 = await ecoAttest.addOrganization(
+  //   "Eco Organization",
+  //   "ecoorganizer@eco.com",
+  //   "https://example.com/image.png"
+  // );
+  // await tx1.wait();
+  // console.log("Organization added successfully.");
 
-  const og = await ecoAttest.getOrganizationByAddress(
-    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
-  );
+  // const og = await ecoAttest.getOrganizationByAddress(
+  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  // );
 
-  console.log(og);
-  // Example: Verifying an organization
-  const tx2 = await ecoAttest.verifyOrganization(
-    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
-  );
-  await tx2.wait();
-  console.log("Organization verified successfully.");
+  // console.log(og);
+  // // Example: Verifying an organization
+  // const tx2 = await ecoAttest.verifyOrganization(
+  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  // );
+  // await tx2.wait();
+  // console.log("Organization verified successfully.");
 
-  const ss = await ecoAttest.addSubOrganizer(
-    "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"
-  );
-  await ss.wait();
-  console.log("Suborganiser added successfully.");
-
-  const v = await ecoAttest.isSubOrganizer(
-    "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"
+  const c = await ecoAttest.isOrganizer(
+    "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
   );
 
-  console.log(v, " sad");
+  console.log(c);
+
+  // const ss = await ecoAttest.addSubOrganizer(
+  //   "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"
+  // );
+  // await ss.wait();
+  // console.log("Suborganiser added successfully.");
+
+  // const v = await ecoAttest.isSubOrganizer(
+  //   "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"
+  // );
+
+  // console.log(v, " sad");
 
   // // Example: Fetching an organization by address
   // const organization = await ecoAttest.getOrganizationByAddress(

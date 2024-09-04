@@ -21,6 +21,9 @@ contract EcoAttest {
 
     struct Event {
         string eventName;
+        string eventPhoto;
+        string eventDesc;
+        uint256 carbonCreds;
         uint256 maxSeats;
         uint256 registeredSeats;
         address organizer;
@@ -128,9 +131,9 @@ contract EcoAttest {
         emit OrganizationVerified(_orgAddress);
     }
 
-    function isOrganizer() public view returns (bool) {
+    function isOrganizer(address _org) public view returns (bool) {
         // Check if msg.sender is associated with any organization
-        return organizations[msg.sender].orgAddress != address(0);
+        return organizations[_org].orgAddress != address(0);
     }
 
     function addSubOrganizer(
@@ -166,6 +169,9 @@ contract EcoAttest {
 
     function createEvent(
         string memory _eventName,
+        string memory _eventPhoto,
+        string memory _eventDesc,
+        uint256 _carbonCreds,
         uint256 _maxSeats,
         uint256 _dateTime
     ) public onlyOrganizerOrSubOrganizer(msg.sender) {
@@ -183,6 +189,9 @@ contract EcoAttest {
         newEvent.organizer = msg.sender;
         newEvent.isActive = true;
         newEvent.dateTime = _dateTime;
+        newEvent.eventDesc = _eventDesc;
+        newEvent.carbonCreds = _carbonCreds;
+        newEvent.eventPhoto = _eventPhoto;
         // No need to initialize participants array; it's already done by default
 
         emit EventCreated(

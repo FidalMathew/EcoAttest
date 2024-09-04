@@ -1,8 +1,8 @@
-import {useRouter} from "next/router";
-import {Avatar, AvatarFallback, AvatarImage} from "./avatar";
-import {Button} from "./button";
-import {useEffect, useState} from "react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { useRouter } from "next/router";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Button } from "./button";
+import { useEffect, useState } from "react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 
 export default function Navbar() {
@@ -22,6 +22,8 @@ export default function Navbar() {
     provider,
     loggedIn,
     status,
+    isOrganizerState,
+    isSubOrganizerState
   } = useGlobalContextHook();
 
   const getUser = async () => {
