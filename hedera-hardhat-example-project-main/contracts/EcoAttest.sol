@@ -245,4 +245,21 @@ contract EcoAttest {
         );
         return orgAddress;
     }
+
+    function getAllEvents() public view returns (Event[] memory) {
+        // Create a temporary array to store all events
+        Event[] memory allEvents = new Event[](eventCount);
+
+        // Loop through the mapping and assign each event to the array
+        for (uint256 i = 1; i <= eventCount; i++) {
+            allEvents[i - 1] = events[i];
+        }
+
+        return allEvents;
+    }
+
+    function getEventById(uint256 _eventId) public view returns (Event memory) {
+        require(_eventId > 0 && _eventId <= eventCount, "Event not found");
+        return events[_eventId];
+    }
 }

@@ -1,37 +1,36 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-
   const [signer0] = await ethers.getSigners();
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0x354Cf76Dd188C3f5bc1D30eC11144E64f1a4cd45";
+  const contractAddress = "0x77478bBB5a7a1c4cCCa94964Ce892728DC00428C";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
   const ecoAttest = EcoAttest.attach(contractAddress);
 
   // // Example: Adding an organization
-  const tx1 = await ecoAttest.addOrganization(
-    "Eco Organization",
-    "ecoorganizer@eco.com",
-    "https://example.com/image.png"
-  );
-  await tx1.wait();
-  console.log("Organization added successfully.");
-
-  // // const og = await ecoAttest.getOrganizationByAddress(
-  // //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
-  // // );
-
-  // // console.log(og);
-  // Example: Verifying an organization
-  // const tx2 = await ecoAttest.verifyOrganization(
-  //   "0x87cd12be2cf76239294D97Ea4978Ee9cC19Fd283"
+  // const tx1 = await ecoAttest.addOrganization(
+  //   "Eco Organization",
+  //   "ecoorganizer@eco.com",
+  //   "https://example.com/image.png"
   // );
-  // await tx2.wait();
-  // console.log("Organization verified successfully.");
+  // await tx1.wait();
+  // console.log("Organization added successfully.");
+
+  const og = await ecoAttest.getOrganizationByAddress(
+    "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  );
+
+  // console.log(og);
+  // Example: Verifying an organization
+  const tx2 = await ecoAttest.verifyOrganization(
+    "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  );
+  await tx2.wait();
+  console.log("Organization verified successfully.");
 
   // const c = await ecoAttest.isOrganizer(
   //   "0x87cd12be2cf76239294D97Ea4978Ee9cC19Fd283"

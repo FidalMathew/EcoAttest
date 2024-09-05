@@ -1,9 +1,9 @@
-import {Button} from "@/components/ui/button";
-import {ArrowUpRight, Pencil, Plus, Search, UserIcon} from "lucide-react";
-import {Badge} from "@/components/ui/badge";
-import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
-import {Field, Form, Formik} from "formik";
+import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Pencil, Plus, Search, UserIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { Field, Form, Formik } from "formik";
 import {
   Card,
   CardContent,
@@ -28,14 +28,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Organisation() {
-  const {loggedInAddress, getOrganizationByAddress, addSubOrganizer} =
+  const { loggedInAddress, getOrganizationByAddress, addSubOrganizer, createEvent } =
     useGlobalContextHook();
 
   const [organizationDetails, setOrganizationDetails] = useState<any>({});
@@ -67,7 +67,7 @@ export default function Organisation() {
             <DialogTitle>Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               <Formik
-                initialValues={{address: ""}}
+                initialValues={{ address: "" }}
                 onSubmit={async (values, _) => {
                   if (addSubOrganizer) await addSubOrganizer(values.address);
                 }}
@@ -112,7 +112,15 @@ export default function Organisation() {
                   description: "",
                   carboncredits: 0,
                 }}
-                onSubmit={(values, _) => console.log(values)}
+                onSubmit={(values, _) => {
+                  console.log(values, createEvent)
+                  if (createEvent) {
+                    const _eventPhoto = "http://placekitten.com/200/300";
+                    const _maxSeats = 100;
+                    const _dateTime = new Date().toISOString();
+                    createEvent(values.title, _eventPhoto, values.description, values.carboncredits, _maxSeats, _dateTime)
+                  }
+                }}
               >
                 {(formik) => (
                   <Form className="font-sans">
@@ -131,7 +139,7 @@ export default function Organisation() {
                         id="orgIcon"
                         name="orgIcon"
                         accept="image/*"
-                        // onChange={handleImageChange}
+                      // onChange={handleImageChange}
                       />
                       <Label htmlFor="orgIcon" className="z-[100]">
                         <div className="cursor-pointer h-10 w-10 border-2 border-gray-700 rounded-full grid place-content-center bg-green-700 text-white absolute bottom-0 right-0">
@@ -292,6 +300,6 @@ export default function Organisation() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div >
   );
 }

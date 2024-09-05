@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
-import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -20,15 +20,17 @@ import {
   Hex,
   Account,
   http,
+  hexToBigInt, sliceHex
 } from "viem";
-import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
-import {getContract} from "viem";
+import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
+import { getContract } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import countabi from "../lib/CountAbi.json";
-import {Web3Auth} from "@web3auth/modal";
-import {useRouter} from "next/router";
+import { Web3Auth } from "@web3auth/modal";
+import { useRouter } from "next/router";
 import axios from "axios";
-import {privateKeyToAccount} from "viem/accounts";
+import { privateKeyToAccount } from "viem/accounts";
+import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -48,9 +50,12 @@ interface PublicClientContextType {
   getOrganizationByAddress?: (organizationAddress: string) => Promise<any>;
   getEventById?: (eventId: number) => Promise<any>;
   createEvent?: (
-    eventName: string,
-    maxSeats: number,
-    eventTime: string
+    _eventName: string,
+    _eventPhoto: string,
+    _eventDesc: string,
+    _carbonCreds: number,
+    _maxSeats: number,
+    _dateTime: number
   ) => Promise<void>;
   addSubOrganizer?: (subOrgAddress: string) => Promise<void>;
   verifySubOrganizer?: (
@@ -67,7 +72,8 @@ interface PublicClientContextType {
   isOrganizerState?: boolean;
   isSubOrganizerState?: boolean;
   testbase?: () => Promise<void>;
-
+  getAllEvents?: () => Promise<any>;
+  attest?: (orgAddress: string, participantAddress: string, eventId: number, score: number) => Promise<void>;
   // loading states
 
   addOrganizationLoading?: boolean;
@@ -77,8 +83,8 @@ interface PublicClientContextType {
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  logout: async () => { },
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -98,7 +104,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: {chainConfig},
+  config: { chainConfig },
 });
 
 const web3auth = new Web3Auth({
@@ -184,7 +190,7 @@ export default function GlobalContextProvider({
           const privateKey = await web3auth.provider.request({
             method: "eth_private_key",
           });
-          console.log(privateKey, "fucker");
+          console.log(privateKey, "da");
 
           const account = privateKeyToAccount(privateKey as Hex);
           setUserAccount(account);
@@ -281,7 +287,7 @@ export default function GlobalContextProvider({
   // 0.0.4798103
 
   // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
-  const CONTRACT_ADDRESS = "0x354Cf76Dd188C3f5bc1D30eC11144E64f1a4cd45";
+  const CONTRACT_ADDRESS = "0x77478bBB5a7a1c4cCCa94964Ce892728DC00428C";
 
   // Create a contract instance
   const contract = getContract({
@@ -290,7 +296,7 @@ export default function GlobalContextProvider({
     // 1a. Insert a single client
     // client: publicClient,
     // // 1b. Or public and/or wallet clients
-    client: {public: publicClient as PublicClient, wallet: walletClient},
+    client: { public: publicClient as PublicClient, wallet: walletClient },
   });
 
   const getAllOrganizations = async () => {
@@ -328,7 +334,7 @@ export default function GlobalContextProvider({
           args: [cName, cEmail, cLogo],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
       }
       console.log("successfully added organization");
     } catch (error) {
@@ -390,17 +396,21 @@ export default function GlobalContextProvider({
   };
 
   const createEvent = async (
-    eventName: string,
-    maxSeats: number,
-    eventTime: string
+    _eventName: string,
+    _eventPhoto: string,
+    _eventDesc: string,
+    _carbonCreds: number,
+    _maxSeats: number,
+    _dateTime: number
   ) => {
     try {
+      console.log('create event')
       await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
         functionName: "createEvent",
         account: loggedInAddress,
-        args: [eventName, maxSeats, eventTime],
+        args: [_eventName, _eventPhoto, _eventDesc, _carbonCreds, _maxSeats, _dateTime],
       });
 
       console.log("Event created successfully");
@@ -422,7 +432,7 @@ export default function GlobalContextProvider({
           args: [subOrgAddress],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
         console.log("Sub-organizer added successfully");
       }
     } catch (error) {
@@ -509,12 +519,94 @@ export default function GlobalContextProvider({
     }
   };
 
+  function decodeData(encodedData: string) {
+    // Remove '0x' prefix if present
+    if (encodedData.startsWith("0x")) {
+      encodedData = encodedData.slice(2);
+    }
+
+    // Split the encoded data into 32-byte (64 hex character) chunks
+    const chunks = encodedData.match(/.{1,64}/g);
+
+    if (chunks?.length === 5) {
+      if (chunks) {
+
+        console.log(chunks, "chunks");
+        // Decode each chunk
+        const address1 = '0x' + chunks[0].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address2 = '0x' + chunks[1].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address3 = '0x' + chunks[2].slice(24); // Extract the last 20 bytes (40 hex characters)
+
+        // Decode the boolean/integer (convert the value to BigInt)
+        const booleanOrInt = Number(hexToBigInt(`0x${chunks[3]}`));
+        // Decode the integer value
+        const integerValue = Number(hexToBigInt(`0x${chunks[4]}`));
+
+        console.log(address1, address2, address3, booleanOrInt, integerValue);
+        return {
+          address1,
+          address2,
+          address3,
+          booleanOrInt,
+          integerValue,
+        };
+      }
+    }
+  }
+  const fetchAttestations = async () => {
+    const id = "onchain_evm_84532_0x1a2"
+    const res = (await axios.get(`https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`))
+    // https://testnet-rpc.sign.global/api/scan/attestations?schemaId=onchain_evm_84532_0x1a2
+
+    const rows = res.data.data.rows;
+
+    const deRows = await Promise.all(rows?.map(async (val: any, index: number) => {
+
+      console.log(val, "val")
+      const iid = val.id;
+      const rr = await axios.get(`https://testnet-rpc.sign.global/api/scan/attestations/${iid}`)
+      console.log(rr, "rr --attestations");
+
+      const encodedData = rr.data.data.data;
+      console.log(encodedData, "encodedData");
+      const decoded = decodeData(encodedData);
+      console.log(decoded, "decoded");
+      // const decodedValue = Promise.all(decoded);
+      return decoded;
+    }))
+
+    console.log(deRows, "deRows");
+
+    console.log(rows, "attestations")
+  }
+
   useEffect(() => {
     if (publicClient) {
       isSubOrganizer();
       isOrganizer();
     }
+
+    fetchAttestations();
   }, [publicClient, loggedInAddress]);
+
+
+  const getAllEvents = async () => {
+    try {
+      if (publicClient) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "getAllEvents",
+        });
+
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from isOrganizer");
+    }
+  }
+
+
 
   async function testbase() {
     // try {
@@ -622,6 +714,55 @@ export default function GlobalContextProvider({
     }
   }
 
+
+  const attest = async (orgAddress: string, participantAddress: string, eventId: number, score: number) => {
+    try {
+
+      if (web3auth && web3auth.provider && loggedInAddress) {
+
+        const SchemaId = "0x1a2";
+        // const privateKey = ("0x" + process.env.NEXT_PUBLIC_PRIVATE_KEY!) as Hex;
+        const privateKey = await web3auth.provider.request({
+          method: 'eth_private_key'
+        })
+        const account = privateKeyToAccount(`0x${privateKey}`);
+
+        const client = new SignProtocolClient(SpMode.OnChain, {
+          chain: EvmChains.baseSepolia,
+          account: account,
+        });
+
+        if (client !== undefined) {
+
+          const data = {
+            orgAddress: orgAddress,
+            subOrgAddress: loggedInAddress,
+            participantAddress: participantAddress,
+            eventId: eventId,
+            score: score
+          };
+
+          const createAttestationRes = await client.createAttestation({
+            data: data,
+            schemaId: SchemaId,
+            indexingValue: "xxx",
+            recipients: [
+              loggedInAddress,
+
+            ],
+          });
+
+          console.log(createAttestationRes);
+        }
+      }
+      else {
+        console.log("web3 auth not fetch")
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   // register for event participant -> provide name, image along with msg.sender
 
   console.log(web3auth.status, "web3auth.status");
@@ -654,6 +795,8 @@ export default function GlobalContextProvider({
         addOrganizationLoading,
         addSubOrganizerLoading,
         testbase,
+        attest,
+        getAllEvents
       }}
     >
       {children}

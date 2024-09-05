@@ -265,6 +265,88 @@
   },
   {
     "inputs": [],
+    "name": "getAllEvents",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "eventName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "eventPhoto",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "eventDesc",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "carbonCreds",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxSeats",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "registeredSeats",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "organizer",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dateTime",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "photo",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct EcoAttest.Participant[]",
+            "name": "participants",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct EcoAttest.Event[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getAllOrganizations",
     "outputs": [
       {
@@ -303,6 +385,94 @@
         "internalType": "struct EcoAttest.Organization[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_eventId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getEventById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "eventName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "eventPhoto",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "eventDesc",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "carbonCreds",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxSeats",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "registeredSeats",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "organizer",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dateTime",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "photo",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct EcoAttest.Participant[]",
+            "name": "participants",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct EcoAttest.Event",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",

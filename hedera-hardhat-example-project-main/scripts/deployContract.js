@@ -20,26 +20,7 @@
 
 const { ethers } = require("hardhat");
 
-// module.exports = async () => {
-//   //Assign the first signer, which comes from the first privateKey from our configuration in hardhat.config.js, to a wallet variable.
-//   let wallet = (await ethers.getSigners())[0];
-
-//   //Initialize a contract factory object
-//   //name of contract as first parameter
-//   //wallet/signer used for signing the contract calls/transactions with this contract
-//   const EcoAttest = await ethers.getContractFactory("EcoAttest", wallet);
-//   //Using already initialized contract factory object with our contract, we can invoke deploy function to deploy the contract.
-//   //Accepts constructor parameters from our contract
-//   const ecoAttest = await EcoAttest.deploy();
-//   //We use wait to receive the transaction (deployment) receipt, which contains contractAddress
-//   const contractAddress = (await ecoAttest.deployTransaction.wait())
-//     .contractAddress;
-
-//   console.log(`ecoAttest deployed to: ${contractAddress}`);
-
-//   return contractAddress;
-// };
-const deployContract = async () => {
+module.exports = async () => {
   //Assign the first signer, which comes from the first privateKey from our configuration in hardhat.config.js, to a wallet variable.
   let wallet = (await ethers.getSigners())[0];
 
@@ -55,17 +36,33 @@ const deployContract = async () => {
     .contractAddress;
 
   console.log(`ecoAttest deployed to: ${contractAddress}`);
+
+  return contractAddress;
 };
 
+// const deployContract = async () => {
+//   //Assign the first signer, which comes from the first privateKey from our configuration in hardhat.config.js, to a wallet variable.
+//   let wallet = (await ethers.getSigners())[0];
 
+//   //Initialize a contract factory object
+//   //name of contract as first parameter
+//   //wallet/signer used for signing the contract calls/transactions with this contract
+//   const EcoAttest = await ethers.getContractFactory("EcoAttest", wallet);
+//   //Using already initialized contract factory object with our contract, we can invoke deploy function to deploy the contract.
+//   //Accepts constructor parameters from our contract
+//   const ecoAttest = await EcoAttest.deploy();
+//   //We use wait to receive the transaction (deployment) receipt, which contains contractAddress
+//   const contractAddress = (await ecoAttest.deployTransaction.wait())
+//     .contractAddress;
 
-deployContract()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+//   console.log(`ecoAttest deployed to: ${contractAddress}`);
+// };
 
-
+// deployContract()
+//   .then(() => process.exit(0))
+//   .catch((error) => {
+//     console.error(error);
+//     process.exit(1);
+//   });
 
 // 0x5DaD32b3495dA900F1c52882f31c2788104d418f
