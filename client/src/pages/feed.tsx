@@ -21,7 +21,6 @@ export default function Feed() {
         }}
         className="w-full flex flex-col gap-4 items-center p-5 py-10"
       >
-        <Button onClick={testbase}>Test</Button>
         {[1, 2, 3, 4].map((_, index) => (
           <div
             key={index}

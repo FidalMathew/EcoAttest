@@ -95,6 +95,10 @@ export default function Profile() {
   //   };
   // }, []);
 
+  const [scannedResult, setScannedResult] = useState<string | undefined>("");
+
+  console.log(scannedResult, "Scanned Result");
+
   return (
     <div className="min-h-screen w-full">
       <Navbar />
@@ -108,14 +112,14 @@ export default function Profile() {
                 Verify User with Carbon QR
               </p>
               <p className="text-sm font-sans text-gray-900 text-center">
-                Scan this QR to Attest Carbon Credits to User
+                Scan the QR to issue Attestations to the User
               </p>
-              <Button onClick={() => setOpenQr(!openQr)}>
-                {openQr ? "Close" : "Open"} QR Scanner
-              </Button>
-              <div className="rounded-2xl border-2 border-gray-700">
+              <div className="rounded-2xl border-2 border-gray-700 h-full">
                 {/* webcam */}
-                {openQr && <QrReader />}
+                <QrReader
+                  scannedResult={scannedResult}
+                  setScannedResult={setScannedResult}
+                />
               </div>
             </DialogDescription>
           </DialogHeader>

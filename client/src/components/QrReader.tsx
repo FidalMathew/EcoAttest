@@ -1,7 +1,13 @@
 import QrScanner from "qr-scanner";
 import {useEffect, useRef, useState} from "react";
 
-export default function QrReader() {
+export default function QrReader({
+  scannedResult,
+  setScannedResult,
+}: {
+  scannedResult: string | undefined;
+  setScannedResult: (result: string | undefined) => void;
+}) {
   // QR States
   const scanner = useRef<QrScanner>();
   const videoEl = useRef<HTMLVideoElement>(null);
@@ -9,7 +15,6 @@ export default function QrReader() {
   const [qrOn, setQrOn] = useState<boolean>(true);
 
   // Result
-  const [scannedResult, setScannedResult] = useState<string | undefined>("");
 
   // Success
   const onScanSuccess = (result: QrScanner.ScanResult) => {
@@ -67,27 +72,18 @@ export default function QrReader() {
       );
   }, [qrOn]);
   return (
-    <div className="qr-reader">
+    <div className="w-full h-full relative">
       {/* QR */}
-      <video ref={videoEl}></video>
-      <div ref={qrBoxEl} className="qr-box">
-        <img src={"/qr-frame.svg"} alt="Qr Frame" className="qr-frame" />
+      <video
+        ref={videoEl}
+        className="rounded-xl h-full w-full object-cover"
+      ></video>
+      <div
+        ref={qrBoxEl}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      >
+        <img src={"/qr-frame.svg"} alt="Qr Frame" className="h-full w-full" />
       </div>
-
-      {/* Show Data Result if scan is success */}
-      {scannedResult && (
-        <p
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: 99999,
-            color: "white",
-          }}
-        >
-          Scanned Result: {scannedResult}
-        </p>
-      )}
     </div>
   );
 }
