@@ -1,37 +1,43 @@
+const { ethers } = require("hardhat");
+
 async function main() {
+
+  const [signer0] = await ethers.getSigners();
+
+  console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
+  const contractAddress = "0x354Cf76Dd188C3f5bc1D30eC11144E64f1a4cd45";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
-  const ecoAttest = await EcoAttest.attach(contractAddress);
+  const ecoAttest = EcoAttest.attach(contractAddress);
 
   // // Example: Adding an organization
-  // const tx1 = await ecoAttest.addOrganization(
-  //   "Eco Organization",
-  //   "ecoorganizer@eco.com",
-  //   "https://example.com/image.png"
-  // );
-  // await tx1.wait();
-  // console.log("Organization added successfully.");
+  const tx1 = await ecoAttest.addOrganization(
+    "Eco Organization",
+    "ecoorganizer@eco.com",
+    "https://example.com/image.png"
+  );
+  await tx1.wait();
+  console.log("Organization added successfully.");
 
-  // const og = await ecoAttest.getOrganizationByAddress(
-  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
-  // );
+  // // const og = await ecoAttest.getOrganizationByAddress(
+  // //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  // // );
 
-  // console.log(og);
-  // // Example: Verifying an organization
+  // // console.log(og);
+  // Example: Verifying an organization
   // const tx2 = await ecoAttest.verifyOrganization(
-  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  //   "0x87cd12be2cf76239294D97Ea4978Ee9cC19Fd283"
   // );
   // await tx2.wait();
   // console.log("Organization verified successfully.");
 
-  const c = await ecoAttest.isOrganizer(
-    "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
-  );
+  // const c = await ecoAttest.isOrganizer(
+  //   "0x87cd12be2cf76239294D97Ea4978Ee9cC19Fd283"
+  // );
 
-  console.log(c);
+  // console.log(c);
 
   // const ss = await ecoAttest.addSubOrganizer(
   //   "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"

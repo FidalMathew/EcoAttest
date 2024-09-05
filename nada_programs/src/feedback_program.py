@@ -7,14 +7,14 @@ from typing import List
 from cosmpy.aerial.client import LedgerClient
 from cosmpy.aerial.wallet import LocalWallet
 from cosmpy.crypto.keypairs import PrivateKey
-
+from flask_cors import CORS
 from py_nillion_client import NodeKey, UserKey
 
 from nillion_python_helpers import get_quote_and_pay, create_nillion_client, create_payments_config
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-
+CORS(app)
 
 home = os.getenv("HOME")
 load_dotenv(f"{home}/.config/nillion/nillion-devnet.env")
@@ -103,7 +103,7 @@ async def storing_vote_func(programId, seed, vote_value, programOwnerSeed, secre
 
 
     program_owner_client = create_nillion_client(
-        UserKey.from_seed("programOwnerForEcoAttest"), NodeKey.from_seed("programOwnerForEcoAttest")
+        UserKey.from_seed(programOwnerSeed), NodeKey.from_seed(programOwnerSeed)
     )
 
     client = create_nillion_client(
@@ -127,14 +127,14 @@ async def storing_vote_func(programId, seed, vote_value, programOwnerSeed, secre
     permissions = nillion.Permissions.default_for_user(client.user_id)
 
     # # Give compute permissions to Alice so she can use the secret in the specific voting program by program id
-    # compute_permissions = {
-    #     program_owner_client.user_id: {programId},
-    # }
+    compute_permissions = {
+        program_owner_client.user_id: {programId},
+    }
     
     # permissions.add_compute_permissions(compute_permissions)
-    compute_permissions = {
-        program_owner_client.user_id: {"56DJR2GD8mLVtRiTwQqo7Fos2sfonJ3kTPGaNVupQ118rMrVGbFhkQtYqYocaFvHrgvXLSBC66EVqHF79jsSaST7/feedback_program"},
-    }
+    # compute_permissions = {
+    #     program_owner_client.user_id: {"56DJR2GD8mLVtRiTwQqo7Fos2sfonJ3kTPGaNVupQ118rMrVGbFhkQtYqYocaFvHrgvXLSBC66EVqHF79jsSaST7/feedback_program"},
+    # }
     
     permissions.add_compute_permissions(compute_permissions)
 
@@ -176,7 +176,7 @@ async def storing_vote_func(programId, seed, vote_value, programOwnerSeed, secre
     return store_id
 
 
-async def compute_func(stored_secret_ids: List[str], subOrganisersSeed: List[str]):
+async def compute_func(stored_secret_ids: List[str], subOrganisersSeed: List[str], participantSeed : str, programId: str):
     cluster_id = os.getenv("NILLION_CLUSTER_ID")
     grpc_endpoint = os.getenv("NILLION_NILCHAIN_GRPC")
     chain_id = os.getenv("NILLION_NILCHAIN_CHAIN_ID")
@@ -188,30 +188,36 @@ async def compute_func(stored_secret_ids: List[str], subOrganisersSeed: List[str
         prefix="nillion",
     )
 
-    program_owner_client = create_nillion_client(
-        UserKey.from_seed("programOwnerForEcoAttest"), NodeKey.from_seed("programOwnerForEcoAttest")
-    )
 
     participant_client = create_nillion_client(
-        UserKey.from_seed("participantWhoGetsScore"), NodeKey.from_seed("participantWhoGetsScore")
+        UserKey.from_seed(participantSeed), NodeKey.from_seed(participantSeed)
     )
 
-    compute_bindings = nillion.ProgramBindings("56DJR2GD8mLVtRiTwQqo7Fos2sfonJ3kTPGaNVupQ118rMrVGbFhkQtYqYocaFvHrgvXLSBC66EVqHF79jsSaST7/feedback_program")
+    # compute_bindings = nillion.ProgramBindings("56DJR2GD8mLVtRiTwQqo7Fos2sfonJ3kTPGaNVupQ118rMrVGbFhkQtYqYocaFvHrgvXLSBC66EVqHF79jsSaST7/feedback_program")
+    compute_bindings = nillion.ProgramBindings(programId)
 
-    subOrganiser_client1 = create_nillion_client(
-        UserKey.from_seed("voter1ForEcoAttest"), NodeKey.from_seed("voter1ForEcoAttest")
-    )
-    compute_bindings.add_input_party(f"SubOrganiser1", subOrganiser_client1.party_id)
+    # subOrganiser_client1 = create_nillion_client(
+    #     UserKey.from_seed("voter1ForEcoAttest"), NodeKey.from_seed("voter1ForEcoAttest")
+    # )
+    # compute_bindings.add_input_party(f"SubOrganiser1", subOrganiser_client1.party_id)
 
-    subOrganiser_client2 = create_nillion_client(
-        UserKey.from_seed("Jaydeep"), NodeKey.from_seed("Jaydeep")
-    )
-    compute_bindings.add_input_party(f"SubOrganiser2", subOrganiser_client2.party_id)
+    # subOrganiser_client2 = create_nillion_client(
+    #     UserKey.from_seed("Jaydeep"), NodeKey.from_seed("Jaydeep")
+    # )
+    # compute_bindings.add_input_party(f"SubOrganiser2", subOrganiser_client2.party_id)
 
-    subOrganiser_client3 = create_nillion_client(
-        UserKey.from_seed("Fidal"), NodeKey.from_seed("Fidal")
-    )
-    compute_bindings.add_input_party(f"SubOrganiser3", subOrganiser_client3.party_id)
+    # subOrganiser_client3 = create_nillion_client(
+    #     UserKey.from_seed("Fidal"), NodeKey.from_seed("Fidal")
+    # )
+
+    # compute_bindings.add_input_party(f"SubOrganiser3", subOrganiser_client3.party_id)
+
+
+    for i, seed in enumerate(subOrganisersSeed):
+        subOrganiser_client = create_nillion_client(
+            UserKey.from_seed(seed), NodeKey.from_seed(seed)
+        )
+        compute_bindings.add_input_party(f"SubOrganiser{i+1}", subOrganiser_client.party_id)
 
     compute_bindings.add_output_party("participant1", participant_client.party_id)
 
@@ -220,8 +226,8 @@ async def compute_func(stored_secret_ids: List[str], subOrganisersSeed: List[str
 
     print(f"Getting Quote:")
     receipt_compute = await get_quote_and_pay(
-        program_owner_client,
-        nillion.Operation.compute("56DJR2GD8mLVtRiTwQqo7Fos2sfonJ3kTPGaNVupQ118rMrVGbFhkQtYqYocaFvHrgvXLSBC66EVqHF79jsSaST7/feedback_program", compute_time_secrets),
+        participant_client,
+        nillion.Operation.compute(programId, compute_time_secrets),
         payments_wallet,
         payments_client,
         cluster_id,
@@ -229,7 +235,7 @@ async def compute_func(stored_secret_ids: List[str], subOrganisersSeed: List[str
     print(f"Quote received. Receipt: {receipt_compute}")
 
     print(f"Sending computation to the network")
-    compute_id = await program_owner_client.compute(
+    compute_id = await participant_client.compute(
         cluster_id,
         compute_bindings,
         stored_secret_ids,
@@ -317,7 +323,9 @@ def compute():
     body = request.get_json()
     stored_secret_ids = body.get("stored_secret_ids")
     subOrganisersSeed = body.get("subOrganisersSeed")
-    result = asyncio.run(compute_func(stored_secret_ids, subOrganisersSeed))
+    participantSeed = body.get("participantSeed")
+    programId = body.get("programId")
+    result = asyncio.run(compute_func(stored_secret_ids, subOrganisersSeed, participantSeed, programId))
     return jsonify(result)
 
 @app.route('/retrieveSecret', methods=['POST'])

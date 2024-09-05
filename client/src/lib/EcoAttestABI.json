@@ -161,6 +161,21 @@
         "type": "string"
       },
       {
+        "internalType": "string",
+        "name": "_eventPhoto",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_eventDesc",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_carbonCreds",
+        "type": "uint256"
+      },
+      {
         "internalType": "uint256",
         "name": "_maxSeats",
         "type": "uint256"
@@ -203,6 +218,21 @@
         "internalType": "string",
         "name": "eventName",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "eventPhoto",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "eventDesc",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "carbonCreds",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",

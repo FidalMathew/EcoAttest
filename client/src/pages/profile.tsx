@@ -1,5 +1,5 @@
 import Navbar from "@/components/ui/Navbar";
-import {ArrowRight, Gem, QrCode, Shrub, Star} from "lucide-react";
+import {ArrowRight, Check, Copy, Gem, QrCode, Shrub, Star} from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Badge} from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import useGlobalContextHook from "@/context/useGlobalContextHook";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Skeleton} from "@/components/ui/skeleton";
+import {formatEther, parseEther} from "viem";
 
 export default function Profile() {
   const router = useRouter();
@@ -61,6 +62,21 @@ export default function Profile() {
   }, [walletClient, publicClient, provider, loggedIn, router.pathname, status]);
 
   console.log(userInfo, "dsa");
+
+  const [isCopied, setIsCopied] = useState(false);
+  async function copyToClipboard(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      console.log("Copied to clipboard");
+    } catch (error) {
+      console.error("Failed to copy: ", error);
+    } finally {
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    }
+  }
 
   return (
     <div className="min-h-screen w-full">
@@ -131,11 +147,32 @@ export default function Profile() {
             )}
 
             {loggedInAddress ? (
-              <p>
-                {loggedInAddress.slice(0, 10) +
-                  "..." +
-                  loggedInAddress.slice(-10)}
-              </p>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-4">
+                  <p>
+                    {loggedInAddress.slice(0, 10) +
+                      "..." +
+                      loggedInAddress.slice(-10)}
+                  </p>
+
+                  {
+                    <div
+                      className="hover:bg-gray-100 p-1 rounded cursor-pointer"
+                      onClick={() => copyToClipboard(loggedInAddress)}
+                    >
+                      {isCopied ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Copy className="w-4 h-4 " />
+                      )}
+                    </div>
+                  }
+                </div>
+                <p>
+                  {balanceAddress &&
+                    "Balance: " + formatEther(BigInt(balanceAddress)) + " HBAR"}
+                </p>
+              </div>
             ) : (
               <Skeleton className="w-4/5 bg-gray-300 h-[30px]" />
             )}

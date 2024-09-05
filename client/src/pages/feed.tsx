@@ -11,6 +11,7 @@ import useGlobalContextHook from "@/context/useGlobalContextHook";
 export default function Feed() {
   const router = useRouter();
 
+  const {testbase} = useGlobalContextHook();
   return (
     <div className="min-h-screen w-full">
       <Navbar />

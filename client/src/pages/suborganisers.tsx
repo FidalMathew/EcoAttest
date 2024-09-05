@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Building,
   Camera,
+  FileCheck,
   Gem,
   QrCode,
   Shrub,
@@ -182,15 +183,15 @@ export default function Profile() {
                   <p>Uber</p>
                 </div>
               </div>
-              {/* <div className="flex items-center justify-between font-sans font-semibold">
-              <div className="flex items-center gap-2">
-                <Gem className="w-6 h-6 fill-yellow-500" />
+              <div className="flex items-center justify-between font-sans font-semibold">
+                <div className="flex items-center gap-2">
+                  <FileCheck className="w-6 h-6 fill-yellow-500" />
 
-                <span>Carbon Credits</span>
+                  <span>Attestations</span>
+                </div>
+
+                <p>6</p>
               </div>
-
-              <p>600</p>
-            </div> */}
             </div>
             {/* <footer className="rounded-b-xl absolute bottom-0 right-0 w-full h-10"></footer> */}
           </div>

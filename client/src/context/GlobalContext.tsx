@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,20 +8,24 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
   custom,
   type PublicClient,
   WalletClient,
+  publicActions,
+  Hex,
 } from "viem";
-import { sepolia, hederaTestnet } from "viem/chains";
-import { getContract } from "viem";
+import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
+import {getContract} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
-import { Web3Auth } from "@web3auth/modal";
-import { useRouter } from "next/router";
+import CountABI from "../lib/CountAbi.json";
+import {Web3Auth} from "@web3auth/modal";
+import {useRouter} from "next/router";
+import axios from "axios";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -32,25 +36,46 @@ interface PublicClientContextType {
   provider: IProvider | null;
   loggedIn: boolean;
   status: ADAPTER_STATUS_TYPE;
-  getAllOrganizations?: () => Promise<void>;
-  addOrganization?: (cName: string, cEmail: string, cLogo: string) => Promise<void>;
-  getOrganizationByAddress?: (orgAddress: string) => Promise<void>;
-  getEventById?: (eventId: number) => Promise<void>;
-  createEvent?: (eventName: string, maxSeats: number, eventTime: string) => Promise<void>;
+  getAllOrganizations?: () => Promise<any>;
+  addOrganization?: (
+    cName: string,
+    cEmail: string,
+    cLogo: string
+  ) => Promise<void>;
+  getOrganizationByAddress?: (organizationAddress: string) => Promise<any>;
+  getEventById?: (eventId: number) => Promise<any>;
+  createEvent?: (
+    eventName: string,
+    maxSeats: number,
+    eventTime: string
+  ) => Promise<void>;
   addSubOrganizer?: (subOrgAddress: string) => Promise<void>;
-  verifySubOrganizer?: (orgAddress: string, subOrgAddress: string) => Promise<void>;
-  registerForEvent?: (eventId: number, participantName: string, photo: string) => Promise<void>;
+  verifySubOrganizer?: (
+    orgAddress: string,
+    subOrgAddress: string
+  ) => Promise<void>;
+  registerForEvent?: (
+    eventId: number,
+    participantName: string,
+    photo: string
+  ) => Promise<void>;
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
   isOrganizerState?: boolean;
   isSubOrganizerState?: boolean;
+  testbase?: () => Promise<void>;
+
+  // loading states
+
+  addOrganizationLoading?: boolean;
+  addSubOrganizerLoading?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => { },
-  logout: async () => { },
+  login: async () => {},
+  logout: async () => {},
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -62,20 +87,21 @@ const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0x128",
   rpcTarget: "https://296.rpc.thirdweb.com",
-  displayName: "Ethereum Sepolia Testnet",
-  blockExplorerUrl: "https://sepolia.etherscan.io",
-  ticker: "ETH",
-  tickerName: "Ethereum",
+  displayName: "Hedera Testnet",
+  blockExplorerUrl: "https://hashscan.io/testnet/",
+  ticker: "HBAR",
+  tickerName: "Hedera",
   logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3Auth({
   clientId,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+  sessionTime: 60 * 60 * 24 * 30, // 30 days
   privateKeyProvider,
   uiConfig: {
     mode: "dark",
@@ -93,13 +119,51 @@ export default function GlobalContextProvider({
   const [provider, setProvider] = useState<IProvider | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [walletClient, setWalletClient] = useState<any>(null);
-  const [publicClient, setPublicClient] = useState<any>(null);
+  const [publicClient, setPublicClient] = useState<PublicClient | null>(null);
   const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
   const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
 
-  const [isSubOrganizerState, setisSubOrganizerState] = useState<boolean>(false);
+  const [isSubOrganizerState, setisSubOrganizerState] =
+    useState<boolean>(false);
   const [isOrganizerState, setIsOrganizerState] = useState<boolean>(false);
   const router = useRouter();
+
+  const [currentUserIdNillion, setCurrentUserIdNillion] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    if (loggedInAddress && loggedIn) {
+      (async function () {
+        try {
+          const res = await axios.post(
+            "http://localhost:6969/generateUserKey",
+            {
+              seed: loggedInAddress.toString(),
+            }
+          );
+
+          console.log(res.data, "hellworld");
+          setCurrentUserIdNillion(res.data);
+        } catch (error) {
+          console.log(error, "from generateUserKey");
+        }
+      })();
+    }
+  }, [loggedInAddress, loggedIn]);
+
+  const createNillionProgramForFeedback = async (seed: string) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:6969/createNillionProgramForFeedback",
+        {
+          seed: seed,
+        }
+      );
+    } catch (error) {
+      console.log(error, "from createNillionProgramForFeedback");
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -107,6 +171,10 @@ export default function GlobalContextProvider({
         await web3auth.initModal();
 
         setProvider(web3auth.provider);
+
+        if (web3auth.connected) {
+          setLoggedIn(true);
+        }
       } catch (error) {
         console.error(error, "Error initializing Web3Auth");
       }
@@ -116,11 +184,18 @@ export default function GlobalContextProvider({
   }, []);
 
   useEffect(() => {
-    if (web3auth.connected && web3auth.provider) {
+    if (
+      web3auth &&
+      web3auth.connected &&
+      web3auth.provider &&
+      web3auth.connected
+    ) {
       const walletClient = createWalletClient({
         chain: hederaTestnet,
         transport: custom(web3auth.provider),
       });
+
+      // console.log(walletClient, "hellowalletClient");
 
       setWalletClient(walletClient);
 
@@ -129,19 +204,20 @@ export default function GlobalContextProvider({
         transport: custom(web3auth.provider),
       });
 
+      // console.log(publicClient, "hellopublicClient");
       setPublicClient(publicClient);
     }
 
     if (web3auth.connected) {
       setLoggedIn(true);
     }
-  }, [router, web3auth.connected, web3auth.provider, loggedIn]);
+  }, [router, web3auth.connected, web3auth.provider, loggedIn, web3auth]);
 
   const login = async () => {
     try {
       const web3authProvider = await web3auth.connect();
 
-      console.log(web3authProvider, "Connected")
+      console.log(web3authProvider, "Connected");
       setProvider(web3authProvider);
       if (web3auth.connected) {
         setLoggedIn(true);
@@ -190,7 +266,8 @@ export default function GlobalContextProvider({
   };
   // 0.0.4798103
 
-  const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
+  // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
+  const CONTRACT_ADDRESS = "0x354Cf76Dd188C3f5bc1D30eC11144E64f1a4cd45";
 
   // Create a contract instance
   const contract = getContract({
@@ -199,7 +276,7 @@ export default function GlobalContextProvider({
     // 1a. Insert a single client
     // client: publicClient,
     // // 1b. Or public and/or wallet clients
-    client: { public: publicClient, wallet: walletClient },
+    client: {public: publicClient as PublicClient, wallet: walletClient},
   });
 
   const getAllOrganizations = async () => {
@@ -213,32 +290,39 @@ export default function GlobalContextProvider({
         });
         console.log(data, "Das");
         // return data;
-        return data;
+        return data as any;
       }
     } catch (error) {
       console.log(error, "from getAllOrganizations");
     }
   };
 
-  const addOrganization = async (cName: string, cEmail: string, cLogo: string) => {
-
+  const [addOrganizationLoading, setAddOrganizationLoading] = useState(false);
+  const addOrganization = async (
+    cName: string,
+    cEmail: string,
+    cLogo: string
+  ) => {
+    setAddOrganizationLoading(true);
     try {
-      console.log(loggedInAddress, "loggedInAddress")
-      await walletClient.writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: EcoAttestABI,
-        functionName: 'addOrganization',
-        account: loggedInAddress,
-        args: [cName, cEmail, cLogo]
-      })
+      if (publicClient && walletClient) {
+        const tx = await walletClient.writeContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "addOrganization",
+          account: loggedInAddress,
+          args: [cName, cEmail, cLogo],
+        });
 
-      console.log("successfully added organization")
-
+        await publicClient.waitForTransactionReceipt({hash: tx});
+      }
+      console.log("successfully added organization");
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setAddOrganizationLoading(false);
     }
-
-  }
+  };
 
   const getOrganizationByAddress = async (organizationAddress: string) => {
     try {
@@ -250,7 +334,7 @@ export default function GlobalContextProvider({
           args: [organizationAddress],
         });
         console.log("Organization Details:", data);
-        return data;
+        return data as any;
       }
     } catch (error) {
       console.log(error, "from getOrganizationByAddress");
@@ -267,7 +351,7 @@ export default function GlobalContextProvider({
           args: [eventId],
         });
         console.log("Event Details:", data);
-        return data;
+        return data as any;
       }
     } catch (error) {
       console.log(error, "from getEventById");
@@ -280,9 +364,9 @@ export default function GlobalContextProvider({
       await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
-        functionName: 'verifyOrganization',
+        functionName: "verifyOrganization",
         account: loggedInAddress,
-        args: [organizationAddress]
+        args: [organizationAddress],
       });
 
       console.log("Organization verified successfully");
@@ -291,14 +375,18 @@ export default function GlobalContextProvider({
     }
   };
 
-  const createEvent = async (eventName: string, maxSeats: number, eventTime: string) => {
+  const createEvent = async (
+    eventName: string,
+    maxSeats: number,
+    eventTime: string
+  ) => {
     try {
       await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
-        functionName: 'createEvent',
+        functionName: "createEvent",
         account: loggedInAddress,
-        args: [eventName, maxSeats, eventTime]
+        args: [eventName, maxSeats, eventTime],
       });
 
       console.log("Event created successfully");
@@ -307,31 +395,38 @@ export default function GlobalContextProvider({
     }
   };
 
+  const [addSubOrganizerLoading, setAddSubOrganizerLoading] = useState(false);
   const addSubOrganizer = async (subOrgAddress: string) => {
+    setAddSubOrganizerLoading(true);
     try {
-      const tx = await walletClient.writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: EcoAttestABI,
-        functionName: 'addSubOrganizer',
-        account: loggedInAddress,
-        args: [subOrgAddress],
-      });
+      if (publicClient) {
+        const tx = await walletClient.writeContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "addSubOrganizer",
+          account: loggedInAddress,
+          args: [subOrgAddress],
+        });
 
-      await publicClient.waitForTransactionReceipt(
-        { hash: tx }
-      )
-      console.log("Sub-organizer added successfully");
+        await publicClient.waitForTransactionReceipt({hash: tx});
+        console.log("Sub-organizer added successfully");
+      }
     } catch (error) {
       console.log(error, "from addSubOrganizer");
+    } finally {
+      setAddSubOrganizerLoading(false);
     }
   };
 
-  const verifySubOrganizer = async (orgAddress: string, subOrgAddress: string) => {
+  const verifySubOrganizer = async (
+    orgAddress: string,
+    subOrgAddress: string
+  ) => {
     try {
       await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
-        functionName: 'verifySubOrganizer',
+        functionName: "verifySubOrganizer",
         account: loggedInAddress,
         args: [orgAddress, subOrgAddress],
       });
@@ -342,12 +437,16 @@ export default function GlobalContextProvider({
     }
   };
 
-  const registerForEvent = async (eventId: number, participantName: string, photo: string) => {
+  const registerForEvent = async (
+    eventId: number,
+    participantName: string,
+    photo: string
+  ) => {
     try {
       await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
-        functionName: 'registerForEvent',
+        functionName: "registerForEvent",
         account: loggedInAddress,
         args: [eventId, participantName, photo],
       });
@@ -365,17 +464,17 @@ export default function GlobalContextProvider({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
           functionName: "isSubOrganizer",
-          args: [loggedInAddress]
+          args: [loggedInAddress],
         });
-        setisSubOrganizerState(data)
-        console.log(data, "isSubOrganiser")
+        setisSubOrganizerState(data as boolean);
+        console.log(data, "isSubOrganiser");
         // return data;
         return data;
       }
     } catch (error) {
       console.log(error, "from isSubOrganizer");
     }
-  }
+  };
 
   const isOrganizer = async () => {
     try {
@@ -384,29 +483,92 @@ export default function GlobalContextProvider({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
           functionName: "isOrganizer",
-          args: [loggedInAddress]
+          args: [loggedInAddress],
         });
-        setIsOrganizerState(data)
-        console.log(data, "isOrganizer")
+        setIsOrganizerState(data as boolean);
+        console.log(data, "isOrganizer");
         // return data;
         return data;
       }
     } catch (error) {
       console.log(error, "from isOrganizer");
     }
-  }
+  };
 
   useEffect(() => {
-
     if (publicClient) {
       isSubOrganizer();
       isOrganizer();
     }
-  }, [publicClient, loggedInAddress])
+  }, [publicClient, loggedInAddress]);
 
+  async function testbase() {
+    try {
+      if (web3auth.provider) {
+        const basePrivateKeyProvider = new EthereumPrivateKeyProvider({
+          config: {
+            chainConfig: {
+              chainId: "0x14a34",
+              displayName: "Base Sepolia",
+              chainNamespace: CHAIN_NAMESPACES.EIP155,
+              tickerName: "Base Sepolia",
+              ticker: "ETH",
+              decimals: 18,
+              rpcTarget: "https://base-sepolia-rpc.publicnode.com",
+              blockExplorerUrl: "https://sepolia.basescan.org/io",
+              logo: "https://images.toruswallet.io/eth.svg",
+              isTestnet: true,
+            },
+          },
+        });
+
+        const privateKey = await web3auth.provider.request({
+          method: "eth_private_key",
+        });
+
+        console.log(privateKey);
+
+        await basePrivateKeyProvider.setupProvider(privateKey as string);
+
+        if (basePrivateKeyProvider) {
+          const baseSepoliaPublicClient = createPublicClient({
+            chain: baseSepolia,
+            transport: custom(basePrivateKeyProvider),
+          });
+
+          const baseSepoliaWalletClient = createWalletClient({
+            chain: baseSepolia,
+            transport: custom(basePrivateKeyProvider),
+          });
+
+          // const tx = await baseSepoliaWalletClient.writeContract({
+          //   address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
+          //   abi: CountABI,
+          //   functionName: "increment",
+          //   account: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
+          //   args: [],
+          // });
+
+          // await baseSepoliaPublicClient.waitForTransactionReceipt({hash: tx});
+
+          const data = await baseSepoliaPublicClient.readContract({
+            address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
+            abi: CountABI,
+
+            functionName: "getCount",
+          });
+
+          console.log(data, "count");
+        }
+      }
+    } catch (error) {
+      console.log(error, "from testbase");
+    }
+  }
 
   // register for event participant -> provide name, image along with msg.sender
 
+  console.log(web3auth.status, "web3auth.status");
 
   return (
     <GlobalContext.Provider
@@ -430,7 +592,10 @@ export default function GlobalContextProvider({
         verifySubOrganizer,
         registerForEvent,
         isSubOrganizerState,
-        isOrganizerState
+        isOrganizerState,
+        addOrganizationLoading,
+        addSubOrganizerLoading,
+        testbase,
       }}
     >
       {children}

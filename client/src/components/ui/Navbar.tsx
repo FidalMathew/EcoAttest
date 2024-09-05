@@ -1,8 +1,8 @@
-import { useRouter } from "next/router";
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
-import { Button } from "./button";
-import { useEffect, useState } from "react";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {useRouter} from "next/router";
+import {Avatar, AvatarFallback, AvatarImage} from "./avatar";
+import {Button} from "./button";
+import {useEffect, useState} from "react";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 
 export default function Navbar() {
@@ -23,7 +23,7 @@ export default function Navbar() {
     loggedIn,
     status,
     isOrganizerState,
-    isSubOrganizerState
+    isSubOrganizerState,
   } = useGlobalContextHook();
 
   const getUser = async () => {
@@ -60,17 +60,7 @@ export default function Navbar() {
     })();
   }, [walletClient, publicClient, provider, loggedIn, router.pathname, status]);
 
-  // useEffect(()=> {
-
-  // }, [status, loggedIn])
-
   console.log(publicClient, "publicClient", walletClient, "walletClient");
-
-  useEffect(() => {
-    if (status === "ready" && !loggedIn) {
-      router.push(`/`);
-    }
-  }, [status, loggedIn]);
 
   return (
     <nav className="w-full h-[70px] flex justify-between items-center px-5 border-b">
@@ -96,10 +86,7 @@ export default function Navbar() {
         >
           Become organizer
         </Button>
-        <Button
-          variant={"outline"}
-          onClick={() => router.push(`/organisation`)}
-        >
+        <Button variant={"outline"} onClick={() => router.push(`/organiser`)}>
           Organisation
         </Button>
         <Button

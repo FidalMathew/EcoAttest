@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Skeleton} from "@/components/ui/skeleton";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import QRX from "@qr-x/react";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
-import { Pencil } from "lucide-react";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import {Pencil} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { ChangeEvent, useEffect, useState } from "react";
-import { PinataSDK } from "pinata-web3";
-import { Field, Formik, Form } from "formik";
+import {useRouter} from "next/router";
+import {ChangeEvent, useEffect, useState} from "react";
+import {PinataSDK} from "pinata-web3";
+import {Field, Formik, Form} from "formik";
 
 export default function RequestOrganiser() {
   const router = useRouter();
@@ -128,7 +128,7 @@ export default function RequestOrganiser() {
         </div>
 
         <Formik
-          initialValues={{ orgName: "" }}
+          initialValues={{orgName: ""}}
           onSubmit={async (values, _) => {
             console.log(values);
             console.log(imageFile);
@@ -150,18 +150,17 @@ export default function RequestOrganiser() {
 
                   console.log("IPFS CID:", cid);
 
-                  console.log(addOrganization, userInfo, userInfo?.email, cid)
+                  console.log(addOrganization, userInfo, userInfo?.email, cid);
                   if (addOrganization && userInfo && userInfo.email && cid) {
-                    console.log("started")
+                    console.log("started");
                     await addOrganization(values.orgName, userInfo.email, cid);
-                    console.log("done")
+                    console.log("done");
                   }
                 }
               } catch (error) {
                 console.error(error, "Error uploading image to ipfs");
               }
             })();
-
           }}
         >
           {(formik) => (
