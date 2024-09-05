@@ -36,7 +36,8 @@
     "react-dom": "^18",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "viem": "^2.20.1"
+    "viem": "^2.20.1",
+    "@nillion/client-web": "^0.5.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.1",
