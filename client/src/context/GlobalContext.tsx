@@ -18,14 +18,17 @@ import {
   WalletClient,
   publicActions,
   Hex,
+  Account,
+  http,
 } from "viem";
 import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
 import {getContract} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
-import CountABI from "../lib/CountAbi.json";
+import countabi from "../lib/CountAbi.json";
 import {Web3Auth} from "@web3auth/modal";
 import {useRouter} from "next/router";
 import axios from "axios";
+import {privateKeyToAccount} from "viem/accounts";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -122,6 +125,7 @@ export default function GlobalContextProvider({
   const [publicClient, setPublicClient] = useState<PublicClient | null>(null);
   const [balanceAddress, setBalanceAddress] = useState<string | null>(null);
   const [loggedInAddress, setLoggedInAddress] = useState<string | null>(null);
+  const [userAccount, setUserAccount] = useState<Account | null>(null);
 
   const [isSubOrganizerState, setisSubOrganizerState] =
     useState<boolean>(false);
@@ -174,6 +178,16 @@ export default function GlobalContextProvider({
 
         if (web3auth.connected) {
           setLoggedIn(true);
+        }
+
+        if (web3auth.provider && web3auth.connected) {
+          const privateKey = await web3auth.provider.request({
+            method: "eth_private_key",
+          });
+          console.log(privateKey, "fucker");
+
+          const account = privateKeyToAccount(privateKey as Hex);
+          setUserAccount(account);
         }
       } catch (error) {
         console.error(error, "Error initializing Web3Auth");
@@ -503,72 +517,116 @@ export default function GlobalContextProvider({
   }, [publicClient, loggedInAddress]);
 
   async function testbase() {
-    try {
-      if (web3auth.provider) {
-        const basePrivateKeyProvider = new EthereumPrivateKeyProvider({
-          config: {
-            chainConfig: {
-              chainId: "0x14a34",
-              displayName: "Base Sepolia",
-              chainNamespace: CHAIN_NAMESPACES.EIP155,
-              tickerName: "Base Sepolia",
-              ticker: "ETH",
-              decimals: 18,
-              rpcTarget: "https://base-sepolia-rpc.publicnode.com",
-              blockExplorerUrl: "https://sepolia.basescan.org/io",
-              logo: "https://images.toruswallet.io/eth.svg",
-              isTestnet: true,
-            },
-          },
-        });
+    // try {
+    //   if (web3auth.provider) {
+    //     const basePrivateKeyProvider = new EthereumPrivateKeyProvider({
+    //       config: {
+    //         chainConfig: {
+    //           chainId: "0x14a34",
+    //           displayName: "Base Sepolia",
+    //           chainNamespace: CHAIN_NAMESPACES.EIP155,
+    //           tickerName: "Base Sepolia",
+    //           ticker: "ETH",
+    //           decimals: 18,
+    //           rpcTarget: "https://base-sepolia-rpc.publicnode.com",
+    //           blockExplorerUrl: "https://sepolia.basescan.org/io",
+    //           logo: "https://images.toruswallet.io/eth.svg",
+    //           isTestnet: true,
+    //         },
+    //       },
+    //     });
 
-        const privateKey = await web3auth.provider.request({
-          method: "eth_private_key",
-        });
+    //     const privateKey = await web3auth.provider.request({
+    //       method: "eth_private_key",
+    //     });
 
-        console.log(privateKey);
+    //     console.log(privateKey);
 
-        await basePrivateKeyProvider.setupProvider(privateKey as string);
+    //     await basePrivateKeyProvider.setupProvider(privateKey as string);
 
-        if (basePrivateKeyProvider) {
-          const baseSepoliaPublicClient = createPublicClient({
-            chain: baseSepolia,
-            transport: custom(basePrivateKeyProvider),
-          });
+    //     if (basePrivateKeyProvider) {
+    //       const baseSepoliaPublicClient = createPublicClient({
+    //         chain: baseSepolia,
+    //         transport: custom(basePrivateKeyProvider),
+    //       });
 
-          const baseSepoliaWalletClient = createWalletClient({
-            chain: baseSepolia,
-            transport: custom(basePrivateKeyProvider),
-          });
+    //       const baseSepoliaWalletClient = createWalletClient({
+    //         chain: baseSepolia,
+    //         transport: custom(basePrivateKeyProvider),
+    //       });
 
-          // const tx = await baseSepoliaWalletClient.writeContract({
-          //   address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
-          //   abi: CountABI,
-          //   functionName: "increment",
-          //   account: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
-          //   args: [],
-          // });
+    //       // const tx = await baseSepoliaWalletClient.writeContract({
+    //       //   address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
+    //       //   abi: CountABI,
+    //       //   functionName: "increment",
+    //       //   account: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
+    //       //   args: [],
+    //       // });
 
-          // await baseSepoliaPublicClient.waitForTransactionReceipt({hash: tx});
+    //       // await baseSepoliaPublicClient.waitForTransactionReceipt({hash: tx});
 
-          const data = await baseSepoliaPublicClient.readContract({
-            address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
-            abi: CountABI,
+    //       const data = await baseSepoliaPublicClient.readContract({
+    //         address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
+    //         abi: CountABI,
 
-            functionName: "getCount",
-          });
+    //         functionName: "getCount",
+    //       });
 
-          console.log(data, "count");
-        }
-      }
-    } catch (error) {
-      console.log(error, "from testbase");
+    //       console.log(data, "count");
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.log(error, "from testbase");
+    // }
+
+    if (web3auth.provider) {
+      const privateKey = await web3auth.provider.request({
+        method: "eth_private_key",
+      });
+
+      console.log(privateKey, "private key");
+      const acc = privateKeyToAccount(`0x${privateKey}` as Hex);
+
+      const baseSepoliaPublicClient = createPublicClient({
+        transport: http(),
+        chain: baseSepolia,
+      });
+
+      // const baseSepoliaWalletClient = createWalletClient({
+      //   transport: http(
+      //     `https://base-sepolia.g.alchemy.com/v2/mNBmuddfdRetMg5zjtZTAYo2IKPMH-nF`
+      //   ),
+      //   chain: baseSepolia,
+      //   account: acc,
+      // });
+
+      // console.log("started");
+
+      // const tx = await baseSepoliaWalletClient.writeContract({
+      //   address: "0x9586a27C47EA790e2c9f8939F6A661e4f5Aaa6db" as Hex,
+      //   abi: countabi,
+      //   functionName: "increment",
+      //   args: [],
+      // });
+
+      // await baseSepoliaPublicClient.waitForTransactionReceipt({hash: tx});
+
+      // console.log("done");
+      const data = await baseSepoliaPublicClient.readContract({
+        address: "0x9586a27C47EA790e2c9f8939F6A661e4f5Aaa6db" as Hex,
+        abi: countabi,
+        functionName: "getValue",
+      });
+
+      console.log(data, "vit");
     }
   }
 
   // register for event participant -> provide name, image along with msg.sender
 
   console.log(web3auth.status, "web3auth.status");
+
+  console.log(userAccount, "lol");
 
   return (
     <GlobalContext.Provider
