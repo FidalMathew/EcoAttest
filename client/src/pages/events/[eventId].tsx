@@ -1,6 +1,6 @@
 import Navbar from "@/components/ui/Navbar";
-import {CircleCheck, Leaf, Star, TicketCheck} from "lucide-react";
-import {useRouter} from "next/router";
+import { CircleCheck, Leaf, Star, TicketCheck } from "lucide-react";
+import { useRouter } from "next/router";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -19,16 +19,34 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {Button} from "@/components/ui/button";
-import {useState} from "react";
-import {Label} from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
+import useGlobalContextHook from "@/context/useGlobalContextHook";
+import { register } from "module";
 
 export default function Events() {
   const router = useRouter();
 
   const [openStatus, setOpenStatus] = useState(false);
 
-  const {eventId} = router.query;
+  const { eventId } = router.query;
+
+  const { testbase, getEventById, loggedInAddress, registerForEvent } = useGlobalContextHook();
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      if (loggedInAddress && getEventById) {
+
+        const id = (Number)(eventId as string);
+        const res = await getEventById(id);
+        console.log(res, "getEventById");
+      }
+    };
+    fetchEvent();
+  }, [])
+
+
   return (
     <div className="min-h-screen w-full">
       <Dialog open={openStatus} onOpenChange={setOpenStatus}>
@@ -91,7 +109,12 @@ export default function Events() {
             <Leaf className="h-8 w-8 mr-2" />
             <p className="font-bold font-sans text-2xl">12 CC</p>
           </div>
-          <div className="cursor-pointer w-[400px] h-[60px] bg-orange-900 hover:bg-orange-800 rounded-xl flex items-center px-10 border-2 border-gray-800 justify-center text-white">
+          <div
+            onClick={() => {
+              if (registerForEvent)
+                registerForEvent((Number)(eventId as string))
+            }}
+            className="cursor-pointer w-[400px] h-[60px] bg-orange-900 hover:bg-orange-800 rounded-xl flex items-center px-10 border-2 border-gray-800 justify-center text-white">
             <TicketCheck className="h-6 w-6 mr-2" />
 
             <p className="font-bold font-sans text-2xl">Join</p>

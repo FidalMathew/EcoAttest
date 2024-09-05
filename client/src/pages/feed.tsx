@@ -1,17 +1,31 @@
-import {Input} from "@/components/ui/input";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Button} from "@/components/ui/button";
-import {ArrowRight, Leaf} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Leaf } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
-import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 
 export default function Feed() {
   const router = useRouter();
 
-  const {testbase} = useGlobalContextHook();
+  const { testbase, getAllEvents, loggedInAddress } = useGlobalContextHook();
+  const [events, setEvents] = useState<any>([]);
+  useEffect(() => {
+
+    const fetchedEvents = async () => {
+
+      if (loggedInAddress && getAllEvents) {
+        const res = await getAllEvents()
+        console.log(res, "getAllEvents")
+        setEvents(res)
+      }
+    }
+    fetchedEvents()
+  }, [loggedInAddress])
+
   return (
     <div className="min-h-screen w-full">
       <Navbar />
@@ -21,7 +35,7 @@ export default function Feed() {
         }}
         className="w-full flex flex-col gap-4 items-center p-5 py-10"
       >
-        {[1, 2, 3, 4].map((_, index) => (
+        {events.map((value: any, index: number) => (
           <div
             key={index}
             className="border-2 border-gray-600 w-[90%] lg:w-[900px] h-[250px] rounded-md"
@@ -70,7 +84,7 @@ export default function Feed() {
                 <Button
                   variant={"outline"}
                   className="border-2 border-gray-600 group"
-                  onClick={() => router.push(`/events/${index}`)}
+                  onClick={() => router.push(`/events/${index + 1}`)}
                 >
                   View
                   <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 duration-200" />

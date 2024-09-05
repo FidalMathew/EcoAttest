@@ -5,7 +5,7 @@ async function main() {
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0x77478bBB5a7a1c4cCCa94964Ce892728DC00428C";
+  const contractAddress = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
@@ -20,17 +20,17 @@ async function main() {
   // await tx1.wait();
   // console.log("Organization added successfully.");
 
-  const og = await ecoAttest.getOrganizationByAddress(
-    "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
-  );
+  // const og = await ecoAttest.getOrganizationByAddress(
+  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  // );
 
-  // console.log(og);
-  // Example: Verifying an organization
-  const tx2 = await ecoAttest.verifyOrganization(
-    "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
-  );
-  await tx2.wait();
-  console.log("Organization verified successfully.");
+  // // console.log(og);
+  // // Example: Verifying an organization
+  // const tx2 = await ecoAttest.verifyOrganization(
+  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  // );
+  // await tx2.wait();
+  // console.log("Organization verified successfully.");
 
   // const c = await ecoAttest.isOrganizer(
   //   "0x87cd12be2cf76239294D97Ea4978Ee9cC19Fd283"
@@ -57,8 +57,8 @@ async function main() {
   // console.log("Organization Details:", organization);
 
   // Example: Fetching all organizations
-  const organizations = await ecoAttest.getAllOrganizations();
-  console.log("All Organizations:", organizations);
+  // const organizations = await ecoAttest.getAllOrganizations();
+  // console.log("All Organizations:", organizations);
 
   // // Example: Creating an event
   // const tx3 = await ecoAttest.createEvent(
@@ -70,8 +70,8 @@ async function main() {
   // console.log("Event created successfully.");
 
   // // Example: Fetching an event
-  // const event = await ecoAttest.events(1); // Assuming event ID is 1
-  // console.log("Event Details:", event);
+  const event = await ecoAttest.getEventById(1); // Assuming event ID is 1
+  console.log("Event Details:", event);
 }
 
 // Run the script with proper error handling

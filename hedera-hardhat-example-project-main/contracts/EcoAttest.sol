@@ -32,6 +32,7 @@ contract EcoAttest {
         Participant[] participants;
     }
 
+    mapping(address => Participant) public participants;
     mapping(address => Organization) public organizations;
     mapping(uint256 => Event) public events;
     uint256 public eventCount;
@@ -53,8 +54,7 @@ contract EcoAttest {
     );
     event ParticipantRegistered(
         uint256 indexed eventId,
-        address indexed participant,
-        string name
+        address indexed participant
     );
 
     modifier onlyOwner() {
@@ -81,6 +81,19 @@ contract EcoAttest {
 
     constructor() {
         owner = msg.sender; // Set the contract deployer as the owner
+    }
+
+    function createParticipant(
+        string memory _participantName,
+        string memory _photo
+    ) public {
+        Participant memory newParticipant = Participant({
+            user: msg.sender,
+            name: _participantName,
+            photo: _photo
+        });
+
+        participants[msg.sender] = newParticipant;
     }
 
     function getAllOrganizations() public view returns (Organization[] memory) {
@@ -203,11 +216,7 @@ contract EcoAttest {
         );
     }
 
-    function registerForEvent(
-        uint256 _eventId,
-        string memory _participantName,
-        string memory _photo
-    ) public {
+    function registerForEvent(uint256 _eventId) public {
         Event storage eventToAttend = events[_eventId];
         require(eventToAttend.isActive, "Event is not active");
         require(
@@ -219,21 +228,21 @@ contract EcoAttest {
             "Event has already occurred"
         );
 
-        Participant memory newParticipant = Participant({
-            user: msg.sender,
-            name: _participantName,
-            photo: _photo
-        });
-
-        eventToAttend.participants.push(newParticipant);
+        Participant memory oldParticipant = participants[msg.sender];
+        eventToAttend.participants.push(oldParticipant);
         eventToAttend.registeredSeats++;
 
-        emit ParticipantRegistered(_eventId, msg.sender, _participantName);
+        emit ParticipantRegistered(_eventId, msg.sender);
     }
 
     function isSubOrganizer(address _subAddress) public view returns (bool) {
         // Check if msg.sender is a sub-organizer of any organization
         return subOrgToOrgAddress[_subAddress] != address(0);
+    }
+
+    function isParticipant(address _partAddress) public view returns (bool) {
+        // Check if msg.sender is a sub-organizer of any organization
+        return participants[_partAddress].user != address(0);
     }
 
     function getOrgAddressFromSub() public view returns (address) {

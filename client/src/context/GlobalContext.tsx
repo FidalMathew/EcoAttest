@@ -63,9 +63,7 @@ interface PublicClientContextType {
     subOrgAddress: string
   ) => Promise<void>;
   registerForEvent?: (
-    eventId: number,
-    participantName: string,
-    photo: string
+    eventId: number
   ) => Promise<void>;
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
@@ -287,7 +285,7 @@ export default function GlobalContextProvider({
   // 0.0.4798103
 
   // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
-  const CONTRACT_ADDRESS = "0x77478bBB5a7a1c4cCCa94964Ce892728DC00428C";
+  const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
 
   // Create a contract instance
   const contract = getContract({
@@ -367,7 +365,7 @@ export default function GlobalContextProvider({
         const data = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
-          functionName: "events",
+          functionName: "getEventById",
           args: [eventId],
         });
         console.log("Event Details:", data);
@@ -462,9 +460,7 @@ export default function GlobalContextProvider({
   };
 
   const registerForEvent = async (
-    eventId: number,
-    participantName: string,
-    photo: string
+    eventId: number
   ) => {
     try {
       await walletClient.writeContract({
@@ -472,7 +468,7 @@ export default function GlobalContextProvider({
         abi: EcoAttestABI,
         functionName: "registerForEvent",
         account: loggedInAddress,
-        args: [eventId, participantName, photo],
+        args: [eventId],
       });
 
       console.log("Registered for event successfully");
