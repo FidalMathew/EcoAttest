@@ -25,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
@@ -63,6 +63,7 @@ export default function Organisers() {
     getAllEvents,
     createEvent,
     isOrganizerState,
+    createEventLoading,
   } = useGlobalContextHook();
 
   const [openQr, setOpenQr] = useState(false);
@@ -100,6 +101,7 @@ export default function Organisers() {
     "0x723d14A921D450C669CCc18C4A713be63bF25D0c"
   );
 
+  console.log(organizationDetails, "organizationDetails");
   useEffect(() => {
     if (isOrganizerState !== undefined) {
       console.log(isOrganizerState, "isOrganizerState");
@@ -143,6 +145,15 @@ export default function Organisers() {
       }, 2000);
     }
   }
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Safely accessing the first file
+    if (file) {
+      setImageFile(file);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full">
@@ -213,7 +224,8 @@ export default function Organisers() {
                 onSubmit={(values, _) => {
                   console.log(values);
                   if (createEvent) {
-                    const _eventPhoto = "http://placekitten.com/200/300";
+                    const _eventPhoto =
+                      "bafybeigah35eq2w4hu3h7bots6w6sqso5y267ywxixotxi5456yzxze46y";
                     const _maxSeats = 100;
                     const now = new Date(); // Get the current date
                     const fiveDaysLater = new Date(
@@ -252,7 +264,7 @@ export default function Organisers() {
                           id="orgIcon"
                           name="orgIcon"
                           accept="image/*"
-                          // onChange={handleImageChange}
+                          onChange={handleImageChange}
                         />
                         <Label htmlFor="orgIcon" className="z-[100]">
                           <div className="cursor-pointer h-10 w-10 border-2 border-gray-700 rounded-full grid place-content-center bg-green-700 text-white absolute bottom-0 right-0">
@@ -296,13 +308,24 @@ export default function Organisers() {
                       />
                     </div>
 
-                    <Button
-                      type="submit"
-                      className="mt-4 w-full border-2 border-gray-700"
-                      variant={"outline"}
-                    >
-                      Add Event
-                    </Button>
+                    {createEventLoading ? (
+                      <Button
+                        variant={"outline"}
+                        disabled
+                        className="mt-4 w-full border-2 border-gray-700"
+                      >
+                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                        Please wait
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="mt-4 w-full border-2 border-gray-700"
+                        variant={"outline"}
+                      >
+                        Add Event
+                      </Button>
+                    )}
                   </Form>
                 )}
               </Formik>
@@ -472,45 +495,50 @@ export default function Organisers() {
                   height: "calc(100vh - 30vh)",
                 }}
               >
-                {[1, 2, 3, 5, 6, 7, 8, 9, 0].map((_, index) => (
-                  <div className="w-full h-full rounded-xl flex flex-col gap-10 items-end">
-                    <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
-                      <Avatar className="w-24 h-24">
-                        <AvatarImage src="/man.png" />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col gap-2">
-                        <p className="lg:text-xl max-w-sm lg:max-w-full">
-                          {" "}
-                          Sub Organisers Name
-                        </p>
-                        <p className="lg:text-md max-w-sm lg:max-w-full">
-                          {" "}
-                          0x33434...334fe34234
-                        </p>
-                        <p className="lg:text-sm max-w-sm lg:max-w-full">
-                          {" "}
-                          suborganisers@mail.com
-                        </p>
+                {organizationDetails &&
+                  organizationDetails.subOrganizers &&
+                  organizationDetails.subOrganizers.length > 0 &&
+                  organizationDetails.subOrganizers.map(
+                    (value: any, index: number) => (
+                      <div className="w-full h-full rounded-xl flex flex-col gap-10 items-end">
+                        <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
+                          <Avatar className="w-24 h-24">
+                            <AvatarImage src="/man.png" />
+                            <AvatarFallback>CN</AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col gap-2">
+                            <p className="lg:text-xl max-w-sm lg:max-w-full">
+                              {" "}
+                              Sub Organisers Name
+                            </p>
+                            <p className="lg:text-md max-w-sm lg:max-w-full">
+                              {" "}
+                              0x33434...334fe34234
+                            </p>
+                            <p className="lg:text-sm max-w-sm lg:max-w-full">
+                              {" "}
+                              suborganisers@mail.com
+                            </p>
+                          </div>
+                          <Badge
+                            variant={"outline"}
+                            className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white  bg-green-700`}
+                          >
+                            Event Name
+                          </Badge>
+                          <Button
+                            variant={"outline"}
+                            size="sm"
+                            className="border-2 border-gray-700 group hover:bg-white"
+                            onClick={() => router.push(`/events/${index}`)}
+                          >
+                            View
+                            <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 duration-200 " />
+                          </Button>
+                        </div>
                       </div>
-                      <Badge
-                        variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white  bg-green-700`}
-                      >
-                        Event Name
-                      </Badge>
-                      <Button
-                        variant={"outline"}
-                        size="sm"
-                        className="border-2 border-gray-700 group hover:bg-white"
-                        onClick={() => router.push(`/events/${index}`)}
-                      >
-                        View
-                        <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 duration-200 " />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                    )
+                  )}
               </div>
             </TabsContent>
             <TabsContent value="events">

@@ -59,8 +59,8 @@ async function main() {
   // console.log("Organization Details:", organization);
 
   // Example: Fetching all organizations
-  // const organizations = await ecoAttest.getAllOrganizations();
-  // console.log("All Organizations:", organizations);
+  const organizations = await ecoAttest.getAllOrganizations();
+  console.log("All Organizations:", organizations);
 
   // // Example: Creating an event
   // const tx3 = await ecoAttest.createEvent(

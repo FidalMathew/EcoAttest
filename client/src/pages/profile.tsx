@@ -242,7 +242,10 @@ export default function Profile() {
                 }}
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, index) => (
-                  <div className="w-full h-full rounded-xl flex flex-col gap-10 items-end">
+                  <div
+                    className="w-full h-full rounded-xl flex flex-col gap-10 items-end"
+                    key={index}
+                  >
                     <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
                       <p className="lg:text-xl max-w-sm lg:max-w-full">
                         {" "}
