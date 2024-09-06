@@ -1,8 +1,8 @@
-import { useRouter } from "next/router";
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
-import { Button } from "./button";
-import { useEffect, useState } from "react";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {useRouter} from "next/router";
+import {Avatar, AvatarFallback, AvatarImage} from "./avatar";
+import {Button} from "./button";
+import {useEffect, useState} from "react";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 
 export default function Navbar() {
@@ -64,7 +64,12 @@ export default function Navbar() {
 
   return (
     <nav className="w-full h-[70px] flex justify-between items-center px-5 border-b">
-      <div className="font-sans font-bold">EcoAttest</div>
+      <div
+        className="font-sans font-bold cursor-pointer"
+        onClick={() => router.push("/feed")}
+      >
+        EcoAttest
+      </div>
       {/* <div className="w-1/3">
         <Input placeholder="Search" className="focus-visible:ring-0" />
       </div> */}

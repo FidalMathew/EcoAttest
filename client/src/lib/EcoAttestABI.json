@@ -87,12 +87,6 @@
         "internalType": "address",
         "name": "participant",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
       }
     ],
     "name": "ParticipantRegistered",
@@ -187,6 +181,24 @@
       }
     ],
     "name": "createEvent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_participantName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_photo",
+        "type": "string"
+      }
+    ],
+    "name": "createParticipant",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -565,6 +577,25 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_partAddress",
+        "type": "address"
+      }
+    ],
+    "name": "isParticipant",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_subAddress",
         "type": "address"
       }
@@ -674,19 +705,38 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "participants",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "photo",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_eventId",
         "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_participantName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_photo",
-        "type": "string"
       }
     ],
     "name": "registerForEvent",

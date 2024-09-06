@@ -20,7 +20,7 @@ import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Skeleton} from "@/components/ui/skeleton";
 import {formatEther, parseEther} from "viem";
-
+import EcoAttestABI from "../lib/EcoAttestABI.json";
 export default function Profile() {
   const router = useRouter();
   const [openQr, setOpenQr] = useState(false);
@@ -38,6 +38,7 @@ export default function Profile() {
     status,
     loggedInAddress,
     balanceAddress,
+    registerEventLoading,
   } = useGlobalContextHook();
 
   const getUser = async () => {
@@ -77,6 +78,25 @@ export default function Profile() {
       }, 2000);
     }
   }
+
+  const [isParticipant, setIsParticipant] = useState(false);
+
+  useEffect(() => {
+    (async function () {
+      if (loggedIn && loggedInAddress && publicClient && walletClient) {
+        const isParticipant = await publicClient.readContract({
+          address: "0x8cC33e3A35607bB197553F1e3b606095Dc501FD0",
+          functionName: "isParticipant",
+          abi: EcoAttestABI,
+          args: [loggedInAddress],
+        });
+
+        setIsParticipant(isParticipant as boolean);
+      }
+    })();
+  }, [loggedIn, loggedInAddress, publicClient, walletClient]);
+
+  console.log(isParticipant, "isParticipant");
 
   return (
     <div className="min-h-screen w-full">

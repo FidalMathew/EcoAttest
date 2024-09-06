@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -20,17 +20,18 @@ import {
   Hex,
   Account,
   http,
-  hexToBigInt, sliceHex
+  hexToBigInt,
+  sliceHex,
 } from "viem";
-import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
-import { getContract } from "viem";
+import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
+import {getContract} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import countabi from "../lib/CountAbi.json";
-import { Web3Auth } from "@web3auth/modal";
-import { useRouter } from "next/router";
+import {Web3Auth} from "@web3auth/modal";
+import {useRouter} from "next/router";
 import axios from "axios";
-import { privateKeyToAccount } from "viem/accounts";
-import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
+import {privateKeyToAccount} from "viem/accounts";
+import {SignProtocolClient, EvmChains, SpMode} from "@ethsign/sp-sdk";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -62,30 +63,37 @@ interface PublicClientContextType {
     orgAddress: string,
     subOrgAddress: string
   ) => Promise<void>;
-  registerForEvent?: (
-    eventId: number
-  ) => Promise<void>;
+  registerForEvent?: (eventId: number) => Promise<void>;
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
   isOrganizerState?: boolean;
   isSubOrganizerState?: boolean;
   testbase?: () => Promise<void>;
   getAllEvents?: () => Promise<any>;
-  attest?: (orgAddress: string, participantAddress: string, eventId: number, score: number) => Promise<void>;
+  attest?: (
+    orgAddress: string,
+    participantAddress: string,
+    eventId: number,
+    score: number
+  ) => Promise<void>;
+  testFunc?: (participantName: string, photo: string) => Promise<void>;
+  CONTRACT_ADDRESS?: string;
   // loading states
 
   addOrganizationLoading?: boolean;
   addSubOrganizerLoading?: boolean;
+  registerEventLoading?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => { },
-  logout: async () => { },
+  login: async () => {},
+  logout: async () => {},
   provider: null,
   loggedIn: false,
   status: "not_ready",
+  CONTRACT_ADDRESS: "",
 });
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
@@ -94,6 +102,7 @@ const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0x128",
   rpcTarget: "https://296.rpc.thirdweb.com",
+  // rpcTarget: "https://testnet.hashio.io/api",
   displayName: "Hedera Testnet",
   blockExplorerUrl: "https://hashscan.io/testnet/",
   ticker: "HBAR",
@@ -102,7 +111,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3Auth({
@@ -117,6 +126,10 @@ const web3auth = new Web3Auth({
 
 const openloginAdapter = new OpenloginAdapter();
 web3auth.configureAdapter(openloginAdapter);
+
+// const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
+// const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
+const CONTRACT_ADDRESS = "0x60e5F039Eb984641a9Abca9a3AacbD20BBAA99bE";
 
 export default function GlobalContextProvider({
   children,
@@ -188,13 +201,12 @@ export default function GlobalContextProvider({
           const privateKey = await web3auth.provider.request({
             method: "eth_private_key",
           });
-          console.log(privateKey, "da");
 
-          const account = privateKeyToAccount(privateKey as Hex);
+          const account = privateKeyToAccount(`0x${privateKey}` as Hex);
           setUserAccount(account);
         }
       } catch (error) {
-        console.error(error, "Error initializing Web3Auth");
+        console.error(error, "Error initializing Web3Auth 1");
       }
     };
 
@@ -202,36 +214,109 @@ export default function GlobalContextProvider({
   }, []);
 
   useEffect(() => {
-    if (
-      web3auth &&
-      web3auth.connected &&
-      web3auth.provider &&
-      web3auth.connected
-    ) {
-      const walletClient = createWalletClient({
-        chain: hederaTestnet,
-        transport: custom(web3auth.provider),
-      });
+    (async function () {
+      try {
+        if (
+          web3auth &&
+          web3auth.connected &&
+          web3auth.provider &&
+          web3auth.connected
+        ) {
+          // console.log(loggedInAddress, "loggedInAddress");
+          const walletClient = createWalletClient({
+            chain: hederaTestnet,
+            transport: custom(web3auth.provider),
+            account: loggedInAddress as Hex,
+          });
 
-      // console.log(walletClient, "hellowalletClient");
+          // console.log(walletClient, "hellowalletClient");
 
-      setWalletClient(walletClient);
+          setWalletClient(walletClient);
 
-      const publicClient = createPublicClient({
-        chain: hederaTestnet,
-        transport: custom(web3auth.provider),
-      });
+          const publicClient = createPublicClient({
+            chain: hederaTestnet,
+            transport: custom(web3auth.provider),
+          });
 
-      // console.log(publicClient, "hellopublicClient");
-      setPublicClient(publicClient);
-    }
+          // console.log(publicClient, "hellopublicClient");
+          setPublicClient(publicClient);
 
-    if (web3auth.connected) {
-      setLoggedIn(true);
-    }
+          const userInfo = await getUserInfo();
+          if (userInfo) {
+            console.log(userInfo, "dsa1");
+            const isParticipant = await publicClient.readContract({
+              address: CONTRACT_ADDRESS,
+              functionName: "isParticipant",
+              abi: EcoAttestABI,
+              args: [loggedInAddress],
+            });
+
+            console.log(userInfo.name, userInfo.profileImage, "dsa2");
+
+            if (isParticipant) console.log("Participant already exists dsa");
+            if (!isParticipant && userInfo.name && userInfo.profileImage) {
+              console.log("Creating participant");
+
+              console.log(userInfo.name, userInfo.profileImage, "dsa3");
+              // @ts-ignore
+              const tx = await walletClient.writeContract({
+                address: CONTRACT_ADDRESS,
+                abi: EcoAttestABI,
+                functionName: "createParticipant",
+                account: loggedInAddress as Hex,
+                args: [userInfo.name, userInfo.profileImage],
+              });
+
+              await publicClient.waitForTransactionReceipt({hash: tx});
+
+              console.log("Participant created successfully");
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error, "Error initializing Web3Auth 2");
+      }
+    })();
   }, [router, web3auth.connected, web3auth.provider, loggedIn, web3auth]);
 
+  const testFunc = async (_participantName: string, _photo: string) => {
+    try {
+      if (publicClient && walletClient && loggedInAddress) {
+        const isParticipant = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          functionName: "isParticipant",
+          abi: EcoAttestABI,
+          args: [loggedInAddress],
+        });
+
+        console.log(isParticipant, "isParticipant dsa");
+
+        if (!isParticipant) {
+          console.log("Creating participant dsa");
+          console.log(_participantName, _photo, loggedInAddress, "dsa3");
+
+          const tx = await walletClient.writeContract({
+            address: CONTRACT_ADDRESS,
+            abi: EcoAttestABI,
+            functionName: "createParticipant",
+            account: loggedInAddress as Hex,
+            args: [_participantName, _photo],
+            chain: hederaTestnet,
+          });
+
+          await publicClient.waitForTransactionReceipt({hash: tx});
+
+          console.log("Participant created successfully dsa");
+        }
+      }
+    } catch (error) {
+      console.log("error dsa", error);
+    }
+  };
+
+  const [mainLoading, setMainLoading] = useState(false);
   const login = async () => {
+    setMainLoading(true);
     try {
       const web3authProvider = await web3auth.connect();
 
@@ -278,14 +363,11 @@ export default function GlobalContextProvider({
 
   const logout = async () => {
     await web3auth.logout();
-    router.reload();
+    router.push("/");
     setProvider(null);
     setLoggedIn(false);
   };
   // 0.0.4798103
-
-  // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
-  const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
 
   // Create a contract instance
   const contract = getContract({
@@ -294,7 +376,10 @@ export default function GlobalContextProvider({
     // 1a. Insert a single client
     // client: publicClient,
     // // 1b. Or public and/or wallet clients
-    client: { public: publicClient as PublicClient, wallet: walletClient },
+    client: {
+      public: publicClient as PublicClient,
+      wallet: walletClient as WalletClient,
+    },
   });
 
   const getAllOrganizations = async () => {
@@ -332,7 +417,7 @@ export default function GlobalContextProvider({
           args: [cName, cEmail, cLogo],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
       }
       console.log("successfully added organization");
     } catch (error) {
@@ -402,13 +487,20 @@ export default function GlobalContextProvider({
     _dateTime: number
   ) => {
     try {
-      console.log('create event')
+      console.log("create event");
       await walletClient.writeContract({
         address: CONTRACT_ADDRESS,
         abi: EcoAttestABI,
         functionName: "createEvent",
         account: loggedInAddress,
-        args: [_eventName, _eventPhoto, _eventDesc, _carbonCreds, _maxSeats, _dateTime],
+        args: [
+          _eventName,
+          _eventPhoto,
+          _eventDesc,
+          _carbonCreds,
+          _maxSeats,
+          _dateTime,
+        ],
       });
 
       console.log("Event created successfully");
@@ -426,11 +518,11 @@ export default function GlobalContextProvider({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
           functionName: "addSubOrganizer",
-          account: loggedInAddress,
+          account: loggedInAddress as Hex,
           args: [subOrgAddress],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
         console.log("Sub-organizer added successfully");
       }
     } catch (error) {
@@ -459,21 +551,27 @@ export default function GlobalContextProvider({
     }
   };
 
-  const registerForEvent = async (
-    eventId: number
-  ) => {
+  const [registerEventLoading, setRegisterLoginLoading] = useState(false);
+  const registerForEvent = async (eventId: number) => {
+    setRegisterLoginLoading(true);
     try {
-      await walletClient.writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: EcoAttestABI,
-        functionName: "registerForEvent",
-        account: loggedInAddress,
-        args: [eventId],
-      });
+      if (loggedIn && walletClient && publicClient) {
+        const tx = await walletClient.writeContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "registerForEvent",
+          account: loggedInAddress as Hex,
+          args: [eventId],
+        });
 
-      console.log("Registered for event successfully");
+        await publicClient.waitForTransactionReceipt({hash: tx});
+
+        console.log("Registered for event successfully");
+      }
     } catch (error) {
       console.log(error, "from registerForEvent");
+    } finally {
+      setRegisterLoginLoading(false);
     }
   };
 
@@ -498,15 +596,15 @@ export default function GlobalContextProvider({
 
   const isOrganizer = async () => {
     try {
-      if (publicClient) {
+      if (publicClient && loggedInAddress) {
         const data = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
           functionName: "isOrganizer",
           args: [loggedInAddress],
         });
+        console.log(data, "helloworld");
         setIsOrganizerState(data as boolean);
-        console.log(data, "isOrganizer");
         // return data;
         return data;
       }
@@ -526,12 +624,11 @@ export default function GlobalContextProvider({
 
     if (chunks?.length === 5) {
       if (chunks) {
-
         console.log(chunks, "chunks");
         // Decode each chunk
-        const address1 = '0x' + chunks[0].slice(24); // Extract the last 20 bytes (40 hex characters)
-        const address2 = '0x' + chunks[1].slice(24); // Extract the last 20 bytes (40 hex characters)
-        const address3 = '0x' + chunks[2].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address1 = "0x" + chunks[0].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address2 = "0x" + chunks[1].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address3 = "0x" + chunks[2].slice(24); // Extract the last 20 bytes (40 hex characters)
 
         // Decode the boolean/integer (convert the value to BigInt)
         const booleanOrInt = Number(hexToBigInt(`0x${chunks[3]}`));
@@ -550,31 +647,36 @@ export default function GlobalContextProvider({
     }
   }
   const fetchAttestations = async () => {
-    const id = "onchain_evm_84532_0x1a2"
-    const res = (await axios.get(`https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`))
+    const id = "onchain_evm_84532_0x1a2";
+    const res = await axios.get(
+      `https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`
+    );
     // https://testnet-rpc.sign.global/api/scan/attestations?schemaId=onchain_evm_84532_0x1a2
 
     const rows = res.data.data.rows;
 
-    const deRows = await Promise.all(rows?.map(async (val: any, index: number) => {
+    const deRows = await Promise.all(
+      rows?.map(async (val: any, index: number) => {
+        console.log(val, "val");
+        const iid = val.id;
+        const rr = await axios.get(
+          `https://testnet-rpc.sign.global/api/scan/attestations/${iid}`
+        );
+        console.log(rr, "rr --attestations");
 
-      console.log(val, "val")
-      const iid = val.id;
-      const rr = await axios.get(`https://testnet-rpc.sign.global/api/scan/attestations/${iid}`)
-      console.log(rr, "rr --attestations");
-
-      const encodedData = rr.data.data.data;
-      console.log(encodedData, "encodedData");
-      const decoded = decodeData(encodedData);
-      console.log(decoded, "decoded");
-      // const decodedValue = Promise.all(decoded);
-      return decoded;
-    }))
+        const encodedData = rr.data.data.data;
+        console.log(encodedData, "encodedData");
+        const decoded = decodeData(encodedData);
+        console.log(decoded, "decoded");
+        // const decodedValue = Promise.all(decoded);
+        return decoded;
+      })
+    );
 
     console.log(deRows, "deRows");
 
-    console.log(rows, "attestations")
-  }
+    console.log(rows, "attestations");
+  };
 
   useEffect(() => {
     if (publicClient) {
@@ -585,7 +687,6 @@ export default function GlobalContextProvider({
     fetchAttestations();
   }, [publicClient, loggedInAddress]);
 
-
   const getAllEvents = async () => {
     try {
       if (publicClient) {
@@ -595,90 +696,26 @@ export default function GlobalContextProvider({
           functionName: "getAllEvents",
         });
 
+        console.log(data, "from getallevents");
         return data;
       }
     } catch (error) {
-      console.log(error, "from isOrganizer");
+      console.log(error, "from getallevents");
     }
-  }
-
-
+  };
 
   async function testbase() {
-    // try {
-    //   if (web3auth.provider) {
-    //     const basePrivateKeyProvider = new EthereumPrivateKeyProvider({
-    //       config: {
-    //         chainConfig: {
-    //           chainId: "0x14a34",
-    //           displayName: "Base Sepolia",
-    //           chainNamespace: CHAIN_NAMESPACES.EIP155,
-    //           tickerName: "Base Sepolia",
-    //           ticker: "ETH",
-    //           decimals: 18,
-    //           rpcTarget: "https://base-sepolia-rpc.publicnode.com",
-    //           blockExplorerUrl: "https://sepolia.basescan.org/io",
-    //           logo: "https://images.toruswallet.io/eth.svg",
-    //           isTestnet: true,
-    //         },
-    //       },
-    //     });
-
-    //     const privateKey = await web3auth.provider.request({
-    //       method: "eth_private_key",
-    //     });
-
-    //     console.log(privateKey);
-
-    //     await basePrivateKeyProvider.setupProvider(privateKey as string);
-
-    //     if (basePrivateKeyProvider) {
-    //       const baseSepoliaPublicClient = createPublicClient({
-    //         chain: baseSepolia,
-    //         transport: custom(basePrivateKeyProvider),
-    //       });
-
-    //       const baseSepoliaWalletClient = createWalletClient({
-    //         chain: baseSepolia,
-    //         transport: custom(basePrivateKeyProvider),
-    //       });
-
-    //       // const tx = await baseSepoliaWalletClient.writeContract({
-    //       //   address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
-    //       //   abi: CountABI,
-    //       //   functionName: "increment",
-    //       //   account: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
-    //       //   args: [],
-    //       // });
-
-    //       // await baseSepoliaPublicClient.waitForTransactionReceipt({hash: tx});
-
-    //       const data = await baseSepoliaPublicClient.readContract({
-    //         address: "0x2f4De3b6Aee43c8BE6Cf25e3452aDEeed65D1c26" as Hex,
-    //         abi: CountABI,
-
-    //         functionName: "getCount",
-    //       });
-
-    //       console.log(data, "count");
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.log(error, "from testbase");
-    // }
-
     if (web3auth.provider) {
       const privateKey = await web3auth.provider.request({
         method: "eth_private_key",
       });
 
-      console.log(privateKey, "private key");
       const acc = privateKeyToAccount(`0x${privateKey}` as Hex);
 
-      const baseSepoliaPublicClient = createPublicClient({
-        transport: http(),
-        chain: baseSepolia,
-      });
+      // const baseSepoliaPublicClient = createPublicClient({
+      //   transport: http(),
+      //   chain: baseSepolia,
+      // });
 
       // const baseSepoliaWalletClient = createWalletClient({
       //   transport: http(
@@ -700,27 +737,29 @@ export default function GlobalContextProvider({
       // await baseSepoliaPublicClient.waitForTransactionReceipt({hash: tx});
 
       // console.log("done");
-      const data = await baseSepoliaPublicClient.readContract({
-        address: "0x9586a27C47EA790e2c9f8939F6A661e4f5Aaa6db" as Hex,
-        abi: countabi,
-        functionName: "getValue",
-      });
+      // const data = await baseSepoliaPublicClient.readContract({
+      //   address: "0x9586a27C47EA790e2c9f8939F6A661e4f5Aaa6db" as Hex,
+      //   abi: countabi,
+      //   functionName: "getValue",
+      // });
 
-      console.log(data, "vit");
+      // console.log(data, "vit");
     }
   }
 
-
-  const attest = async (orgAddress: string, participantAddress: string, eventId: number, score: number) => {
+  const attest = async (
+    orgAddress: string,
+    participantAddress: string,
+    eventId: number,
+    score: number
+  ) => {
     try {
-
       if (web3auth && web3auth.provider && loggedInAddress) {
-
         const SchemaId = "0x1a2";
         // const privateKey = ("0x" + process.env.NEXT_PUBLIC_PRIVATE_KEY!) as Hex;
         const privateKey = await web3auth.provider.request({
-          method: 'eth_private_key'
-        })
+          method: "eth_private_key",
+        });
         const account = privateKeyToAccount(`0x${privateKey}`);
 
         const client = new SignProtocolClient(SpMode.OnChain, {
@@ -729,35 +768,30 @@ export default function GlobalContextProvider({
         });
 
         if (client !== undefined) {
-
           const data = {
             orgAddress: orgAddress,
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
             eventId: eventId,
-            score: score
+            score: score,
           };
 
           const createAttestationRes = await client.createAttestation({
             data: data,
             schemaId: SchemaId,
             indexingValue: "xxx",
-            recipients: [
-              loggedInAddress,
-
-            ],
+            recipients: [loggedInAddress],
           });
 
           console.log(createAttestationRes);
         }
-      }
-      else {
-        console.log("web3 auth not fetch")
+      } else {
+        console.log("web3 auth not fetch");
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   // register for event participant -> provide name, image along with msg.sender
 
@@ -792,7 +826,10 @@ export default function GlobalContextProvider({
         addSubOrganizerLoading,
         testbase,
         attest,
-        getAllEvents
+        getAllEvents,
+        testFunc,
+        registerEventLoading,
+        CONTRACT_ADDRESS,
       }}
     >
       {children}
