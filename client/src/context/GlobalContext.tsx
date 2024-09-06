@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
-import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -23,15 +23,15 @@ import {
   hexToBigInt,
   sliceHex,
 } from "viem";
-import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
-import {getContract} from "viem";
+import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
+import { getContract } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import countabi from "../lib/CountAbi.json";
-import {Web3Auth} from "@web3auth/modal";
-import {useRouter} from "next/router";
+import { Web3Auth } from "@web3auth/modal";
+import { useRouter } from "next/router";
 import axios from "axios";
-import {privateKeyToAccount} from "viem/accounts";
-import {SignProtocolClient, EvmChains, SpMode} from "@ethsign/sp-sdk";
+import { privateKeyToAccount } from "viem/accounts";
+import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -88,8 +88,8 @@ interface PublicClientContextType {
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  logout: async () => { },
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -111,7 +111,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: {chainConfig},
+  config: { chainConfig },
 });
 
 const web3auth = new Web3Auth({
@@ -267,7 +267,7 @@ export default function GlobalContextProvider({
                 args: [userInfo.name, userInfo.profileImage],
               });
 
-              await publicClient.waitForTransactionReceipt({hash: tx});
+              await publicClient.waitForTransactionReceipt({ hash: tx });
 
               console.log("Participant created successfully");
             }
@@ -304,7 +304,7 @@ export default function GlobalContextProvider({
             chain: hederaTestnet,
           });
 
-          await publicClient.waitForTransactionReceipt({hash: tx});
+          await publicClient.waitForTransactionReceipt({ hash: tx });
 
           console.log("Participant created successfully dsa");
         }
@@ -417,7 +417,7 @@ export default function GlobalContextProvider({
           args: [cName, cEmail, cLogo],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
       }
       console.log("successfully added organization");
     } catch (error) {
@@ -522,7 +522,7 @@ export default function GlobalContextProvider({
           args: [subOrgAddress],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
         console.log("Sub-organizer added successfully");
       }
     } catch (error) {
@@ -564,7 +564,7 @@ export default function GlobalContextProvider({
           args: [eventId],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
 
         console.log("Registered for event successfully");
       }
@@ -784,6 +784,10 @@ export default function GlobalContextProvider({
           });
 
           console.log(createAttestationRes);
+
+          const url = `https://testnet-scan.sign.global/attestation/onchain_evm_84532_${createAttestationRes.attestationId}`
+
+          console.log(url);
         }
       } else {
         console.log("web3 auth not fetch");

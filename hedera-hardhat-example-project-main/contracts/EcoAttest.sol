@@ -9,7 +9,7 @@ contract EcoAttest {
         string name;
         string email;
         address orgAddress;
-        address[] subOrganizers; // List of sub-organizers
+        Participant[] subOrganizers; // List of sub-organizers
         string imageUrl; // URL or IPFS hash of the organization's image
     }
 
@@ -120,7 +120,7 @@ contract EcoAttest {
             name: _name,
             email: _email,
             orgAddress: msg.sender,
-            subOrganizers: new address[](0), // Initialize empty sub-organizers list
+            subOrganizers: new Participant[](0), // Initialize empty sub-organizers list
             imageUrl: _imageUrl // Set the image URL
         });
 
@@ -154,14 +154,15 @@ contract EcoAttest {
     ) public onlyVerifiedOrganization {
         require(_subOrgAddress != address(0), "Invalid sub-organizer address");
 
-        organizations[msg.sender].subOrganizers.push(_subOrgAddress);
+        Participant memory pp = participants[_subOrgAddress];
+        organizations[msg.sender].subOrganizers.push(pp);
         subOrgToOrgAddress[_subOrgAddress] = organizations[msg.sender]
             .orgAddress;
 
         // Update the organization in the array
         for (uint256 i = 0; i < organizationList.length; i++) {
             if (organizationList[i].orgAddress == msg.sender) {
-                organizationList[i].subOrganizers.push(_subOrgAddress);
+                organizationList[i].subOrganizers.push(pp);
                 break;
             }
         }
