@@ -1,6 +1,6 @@
 import Navbar from "@/components/ui/Navbar";
-import {CircleCheck, Leaf, Star, TicketCheck} from "lucide-react";
-import {useRouter} from "next/router";
+import { CircleCheck, Leaf, Star, TicketCheck } from "lucide-react";
+import { useRouter } from "next/router";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -19,14 +19,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {Button} from "@/components/ui/button";
-import {useEffect, useState} from "react";
-import {Label} from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {register} from "module";
-import {Skeleton} from "@/components/ui/skeleton";
+import { register } from "module";
+import { Skeleton } from "@/components/ui/skeleton";
 import EcoAttestABI from "../../lib/EcoAttestABI.json";
-import {Hex} from "viem";
+import { Hex } from "viem";
+import QRX from "@qr-x/react";
 
 const CONTRACT_ADDRESS = "0x60e5F039Eb984641a9Abca9a3AacbD20BBAA99bE";
 
@@ -35,7 +36,7 @@ export default function Events() {
 
   const [openStatus, setOpenStatus] = useState(false);
 
-  const {eventId} = router.query;
+  const { eventId } = router.query;
 
   const {
     testbase,
@@ -51,11 +52,11 @@ export default function Events() {
 
   console.log(
     event &&
-      loggedInAddress &&
-      event.participants.some(
-        (participant: any) =>
-          participant.user.toLowerCase() === loggedInAddress.toLowerCase()
-      ),
+    loggedInAddress &&
+    event.participants.some(
+      (participant: any) =>
+        participant.user.toLowerCase() === loggedInAddress.toLowerCase()
+    ),
     "isevent"
   );
   useEffect(() => {
@@ -70,14 +71,29 @@ export default function Events() {
     fetchEvent();
   }, [registerEventLoading, loggedInAddress]);
 
+
+  const [qrValue, setQrValue] = useState<string>("");
+  // const { loggedInAddress } = useGlobalContextHook();
+
+  const requestAttestion = () => {
+    const schemaTemplate = {
+      orgAddress: event.organizer,
+      eventId: Number(eventId as unknown as string),
+      participant: loggedInAddress,
+    };
+
+    const url = JSON.stringify(schemaTemplate);
+    setQrValue(url);
+  };
+
   return (
     <div className="min-h-screen w-full">
       <Dialog open={openStatus} onOpenChange={setOpenStatus}>
         <DialogContent className="h-fit lg:w-[500px]">
           <DialogHeader>
-            <DialogTitle>Check Status</DialogTitle>
+            <DialogTitle>Request Attestation</DialogTitle>
             <DialogDescription>
-              <div className="w-full h-full flex flex-col mt-5 font-sans text-black text-left">
+              {/* <div className="w-full h-full flex flex-col mt-5 font-sans text-black text-left">
                 <div className="w-full h-[80px] flex items-center px-4">
                   <p className="text-xl w-full">Attended</p>
                   <CircleCheck className="h-9 w-9 fill-green-700 text-white " />
@@ -112,7 +128,25 @@ export default function Events() {
                     <Star className="w-6 h-6 fill-muted stroke-muted-foreground" />
                   </div>
                 </div>
+              </div> */}
+
+              <div className="flex items-center justify-center">
+                {/* {userAddress} */}
+                <div className="w-96 h-3/4">
+                  {qrValue && (
+                    <QRX
+                      data={qrValue}
+                      color="rgb(20, 93, 20)"
+                      shapes={{
+                        body: "circle",
+                        eyeball: "circle",
+                        eyeframe: "rounded",
+                      }}
+                    />
+                  )}
+                </div>
               </div>
+
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -236,9 +270,12 @@ export default function Events() {
                           size="sm"
                           variant="outline"
                           className="px-4 py-2 border-2 border-green-900 rounded-full"
-                          onClick={() => setOpenStatus((prev) => !prev)}
+                          onClick={() => {
+                            setOpenStatus((prev) => !prev)
+                            requestAttestion()
+                          }}
                         >
-                          Check Status
+                          Request Attestation
                         </Button>
                       </div>
                     </div>

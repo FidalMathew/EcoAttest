@@ -1,18 +1,18 @@
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Skeleton} from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import QRX from "@qr-x/react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Pencil, Verified} from "lucide-react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Pencil, Verified } from "lucide-react";
 import Link from "next/link";
-import {useRouter} from "next/router";
-import {ChangeEvent, useEffect, useState} from "react";
-import {PinataSDK} from "pinata-web3";
-import {Field, Formik, Form} from "formik";
-import {ReloadIcon} from "@radix-ui/react-icons";
-import {Hex} from "viem";
+import { useRouter } from "next/router";
+import { ChangeEvent, useEffect, useState } from "react";
+import { PinataSDK } from "pinata-web3";
+import { Field, Formik, Form } from "formik";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { Hex } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 export default function RequestOrganiser() {
   const router = useRouter();
@@ -33,7 +33,6 @@ export default function RequestOrganiser() {
   } = useGlobalContextHook();
 
   const [userAddress, setUserAddress] = useState<string>("");
-  const [qrValue, setQrValue] = useState<string>("");
 
   const [userInfo, setUserInfo] = useState<
     Partial<OpenloginUserInfo> | undefined
@@ -79,41 +78,6 @@ export default function RequestOrganiser() {
     }
   }, [status, walletClient, publicClient]);
 
-  const requestAttestion = (organization: String, event: String) => {
-    const schemaTemplate = {
-      organization,
-      event,
-      participant: userAddress,
-    };
-    const schema = JSON.stringify(schemaTemplate);
-
-    // let test = "sda"
-    setQrValue(schema);
-  };
-
-  // return (
-  //   <div>
-  //     <button onClick={() => requestAttestion("Uber", "carpooling")}>
-  //       check
-  //     </button>
-  //     <div className="flex items-center justify-center">
-  //       {/* {userAddress} */}
-  //       <div className="w-1/4 h-1/2">
-  //         {qrValue && (
-  //           <QRX
-  //             data={qrValue}
-  //             color="rgb(20, 93, 20)"
-  //             shapes={{
-  //               body: "circle",
-  //               eyeball: "circle",
-  //               eyeframe: "rounded",
-  //             }}
-  //           />
-  //         )}
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -179,7 +143,7 @@ export default function RequestOrganiser() {
 
         {!isOrganisationAdded && !isVerified ? (
           <Formik
-            initialValues={{orgName: ""}}
+            initialValues={{ orgName: "" }}
             onSubmit={async (values, _) => {
               console.log(values);
               console.log(imageFile);

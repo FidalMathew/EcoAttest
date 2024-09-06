@@ -9,11 +9,11 @@ import {
   Shrub,
   Star,
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {useRouter} from "next/router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -22,11 +22,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 // import Webcam from "react-webcam";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Skeleton} from "@/components/ui/skeleton";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Skeleton } from "@/components/ui/skeleton";
 import QrScanner from "qr-scanner";
 import QrFrame from "../../public/qr-frame.svg";
 import QrReader from "@/components/QrReader";
@@ -34,6 +34,7 @@ import QrReader from "@/components/QrReader";
 export default function Profile() {
   const router = useRouter();
   const [openQr, setOpenQr] = useState(false);
+  const [openAttQr, setOpenAttQr] = useState(false);
   const [cameraModal, setCameraModal] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [userInfo, setUserInfo] = useState<
@@ -50,6 +51,7 @@ export default function Profile() {
     status,
     loggedInAddress,
     balanceAddress,
+    attest
   } = useGlobalContextHook();
 
   const getUser = async () => {
@@ -72,32 +74,40 @@ export default function Profile() {
       }
     })();
   }, [walletClient, publicClient, provider, loggedIn, router.pathname, status]);
-  // useEffect(() => {
-  //   const getWebcamStream = async () => {
-  //     try {
-  //       const stream = await navigator.mediaDevices.getUserMedia({video: true});
-  //       if (videoRef.current) {
-  //         videoRef.current.srcObject = stream;
-  //         videoRef.current.play();
-  //       }
-  //     } catch (error) {
-  //       console.error("Error accessing the webcam: ", error);
-  //     }
-  //   };
 
-  //   getWebcamStream();
-
-  //   return () => {
-  //     if (videoRef.current && videoRef.current.srcObject && openQr === false) {
-  //       const stream = videoRef.current.srcObject as MediaStream;
-  //       stream.getTracks().forEach((track) => track.stop());
-  //     }
-  //   };
-  // }, []);
 
   const [scannedResult, setScannedResult] = useState<string | undefined>("");
 
+  const [attestationDetails, setAttestationDetails] = useState<any>({});
   console.log(scannedResult, "Scanned Result");
+
+
+
+  useEffect(() => {
+    // console.log(scannedResult, "Scanned Result");
+
+    if (scannedResult) {
+      // alert(scannedResult);
+      const scannedObj = JSON.parse(scannedResult)
+
+      const { orgAddress, eventId, participant } = scannedObj;
+
+      if (!orgAddress || !eventId || !participant) {
+        console.error("Attestation requirement values incomplete")
+        return;
+      }
+
+      setAttestationDetails({
+        orgAddress: orgAddress,
+        eventId: eventId,
+        participantAddress: participant,
+      })
+
+      setOpenAttQr(true);
+    }
+  }, [scannedResult]);
+
+
 
   return (
     <div className="min-h-screen w-full">
@@ -119,8 +129,34 @@ export default function Profile() {
                 <QrReader
                   scannedResult={scannedResult}
                   setScannedResult={setScannedResult}
+                  setOpenQr={setOpenQr}
                 />
               </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openAttQr} onOpenChange={setOpenAttQr}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Attest Participant</DialogTitle>
+            <DialogDescription className="h-[500px] w-full flex items-center justify-center flex-col gap-4">
+              {
+                attestationDetails &&
+                (<>
+                  Hello
+                  {attestationDetails.orgAddress + " " + attestationDetails.eventId + " " + attestationDetails.participantAddress}
+
+                  <button onClick={() => {
+                    if (attest)
+                      attest(attestationDetails.orgAddress, attestationDetails.participantAddress, attestationDetails.eventId, 10);
+                  }}>
+
+                    Attest
+                  </button>
+                </>)
+              }
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -246,13 +282,12 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 === 0
-                            ? index === 2
-                              ? "bg-red-700"
-                              : "bg-green-700"
-                            : "bg-yellow-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
+                          ? index === 2
+                            ? "bg-red-700"
+                            : "bg-green-700"
+                          : "bg-yellow-700"
+                          }`}
                       >
                         {index % 3 === 0
                           ? index === 2
@@ -293,9 +328,8 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 ? "bg-yellow-700" : "bg-green-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 ? "bg-yellow-700" : "bg-green-700"
+                          }`}
                       >
                         {index % 3 == 0 ? "Issued CC" : "Participated"}
                       </Badge>

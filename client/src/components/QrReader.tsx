@@ -1,12 +1,14 @@
 import QrScanner from "qr-scanner";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function QrReader({
   scannedResult,
   setScannedResult,
+  setOpenQr
 }: {
   scannedResult: string | undefined;
   setScannedResult: (result: string | undefined) => void;
+  setOpenQr: (openQr: boolean) => void;
 }) {
   // QR States
   const scanner = useRef<QrScanner>();
@@ -19,10 +21,11 @@ export default function QrReader({
   // Success
   const onScanSuccess = (result: QrScanner.ScanResult) => {
     // 🖨 Print the "result" to browser console.
-    console.log(result);
+    console.log(result, "result jay");
     // ✅ Handle success.
     // 😎 You can do whatever you want with the scanned result.
     setScannedResult(result?.data);
+    setOpenQr(false);
   };
 
   // Fail
@@ -32,7 +35,7 @@ export default function QrReader({
   };
 
   useEffect(() => {
-    if (videoEl?.current && !scanner.current) {
+    if (qrOn && videoEl?.current && !scanner.current) {
       // 👉 Instantiate the QR Scanner
       scanner.current = new QrScanner(videoEl?.current, onScanSuccess, {
         onDecodeError: onScanFail,
@@ -65,12 +68,13 @@ export default function QrReader({
   }, []);
 
   // ❌ If "camera" is not allowed in browser permissions, show an alert.
-  useEffect(() => {
-    if (!qrOn)
-      alert(
-        "Camera is blocked or not accessible. Please allow camera in your browser permissions and Reload."
-      );
-  }, [qrOn]);
+  // useEffect(() => {
+  //   if (!qrOn)
+  //     alert(
+  //       "Camera is blocked or not accessible. Please allow camera in your browser permissions and Reload."
+  //     );
+  // }, [qrOn]);
+
   return (
     <div className="w-full h-full relative">
       {/* QR */}
