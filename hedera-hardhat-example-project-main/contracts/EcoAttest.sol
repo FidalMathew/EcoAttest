@@ -115,16 +115,13 @@ contract EcoAttest {
         string memory _email,
         string memory _imageUrl
     ) public {
-        Organization memory newOrganization = Organization({
-            verified: false, // Organizations start as unverified
-            name: _name,
-            email: _email,
-            orgAddress: msg.sender,
-            subOrganizers: new Participant[](0), // Initialize empty sub-organizers list
-            imageUrl: _imageUrl // Set the image URL
-        });
+        Organization storage newOrganization = organizations[msg.sender];
+        newOrganization.verified = false;
+        newOrganization.name = _name;
+        newOrganization.email = _email;
+        newOrganization.imageUrl = _imageUrl;
+        newOrganization.orgAddress = msg.sender;
 
-        organizations[msg.sender] = newOrganization;
         organizationList.push(newOrganization); // Store the organization in the array
 
         emit OrganizationAdded(msg.sender, _name);
