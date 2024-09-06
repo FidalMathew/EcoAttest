@@ -83,6 +83,7 @@ interface PublicClientContextType {
   addOrganizationLoading?: boolean;
   addSubOrganizerLoading?: boolean;
   registerEventLoading?: boolean;
+  createEventLoading?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
@@ -478,6 +479,8 @@ export default function GlobalContextProvider({
     }
   };
 
+  const [createEventLoading, setCreateEventLoading] = useState(false);
+
   const createEvent = async (
     _eventName: string,
     _eventPhoto: string,
@@ -486,26 +489,32 @@ export default function GlobalContextProvider({
     _maxSeats: number,
     _dateTime: number
   ) => {
+    setCreateEventLoading(true);
     try {
-      console.log("create event");
-      await walletClient.writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: EcoAttestABI,
-        functionName: "createEvent",
-        account: loggedInAddress,
-        args: [
-          _eventName,
-          _eventPhoto,
-          _eventDesc,
-          _carbonCreds,
-          _maxSeats,
-          _dateTime,
-        ],
-      });
+      if (walletClient && publicClient) {
+        console.log("create event");
+        const tx = await walletClient.writeContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "createEvent",
+          account: loggedInAddress,
+          args: [
+            _eventName,
+            _eventPhoto,
+            _eventDesc,
+            _carbonCreds,
+            _maxSeats,
+            _dateTime,
+          ],
+        });
 
+        await publicClient.waitForTransactionReceipt({hash: tx});
+      }
       console.log("Event created successfully");
     } catch (error) {
       console.log(error, "from createEvent");
+    } finally {
+      setCreateEventLoading(false);
     }
   };
 
@@ -834,6 +843,7 @@ export default function GlobalContextProvider({
         testFunc,
         registerEventLoading,
         CONTRACT_ADDRESS,
+        createEventLoading,
       }}
     >
       {children}

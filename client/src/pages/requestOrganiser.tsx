@@ -118,6 +118,8 @@ export default function RequestOrganiser() {
               org.verified == true
           );
 
+          console.log(isVerified, "isVerified");
+
           if (isAdded) {
             setIsOrganisationAdded(true);
           }
@@ -131,8 +133,6 @@ export default function RequestOrganiser() {
       }
     })();
   }, [publicClient, walletClient, loggedIn, loggedInAddress]);
-
-  console.log(isOrganisationAdded, "isOrganisationAdded");
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center font-sans">
@@ -294,10 +294,7 @@ export default function RequestOrganiser() {
               <p className="text-2xl font-semibold text-center">
                 {isOrganisationAdded ? (
                   !isVerified ? (
-                    <>
-                      Your request has been sent to the organization. Please
-                      wait for the organization to verify your request.
-                    </>
+                    <>Request Sent, Not Verified. Please wait</>
                   ) : (
                     <>
                       Your request has been verified. You can now create events
@@ -318,7 +315,7 @@ export default function RequestOrganiser() {
               {isVerified ? (
                 <Button
                   variant={"outline"}
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push("/organiser")}
                   className="w-1/2 border-2 border-gray-700"
                 >
                   Visit Organisation Page
