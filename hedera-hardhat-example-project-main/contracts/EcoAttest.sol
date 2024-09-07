@@ -17,6 +17,8 @@ contract EcoAttest {
         address user;
         string name;
         string photo;
+        string programId;
+        string[] feedbackStoreIds;
     }
 
     struct Event {
@@ -90,7 +92,9 @@ contract EcoAttest {
         Participant memory newParticipant = Participant({
             user: msg.sender,
             name: _participantName,
-            photo: _photo
+            photo: _photo,
+            programId: "",
+            feedbackStoreIds: new string[](0)
         });
 
         participants[msg.sender] = newParticipant;
@@ -268,5 +272,23 @@ contract EcoAttest {
     function getEventById(uint256 _eventId) public view returns (Event memory) {
         require(_eventId > 0 && _eventId <= eventCount, "Event not found");
         return events[_eventId];
+    }
+
+    // nillion functions
+
+    function updateProgramId(string memory _programId) public {
+        require(
+            bytes(_programId).length > 0,
+            "Invalid program ID (length is 0)"
+        );
+        participants[msg.sender].programId = _programId;
+    }
+
+    function storeFeedback(string memory _feedbackStoreId) public {
+        require(
+            bytes(_feedbackStoreId).length > 0,
+            "Invalid feedback store ID (length is 0)"
+        );
+        participants[msg.sender].feedbackStoreIds.push(_feedbackStoreId);
     }
 }

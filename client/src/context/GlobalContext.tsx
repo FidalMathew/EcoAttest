@@ -33,6 +33,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { privateKeyToAccount } from "viem/accounts";
 import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
+import { toast } from "sonner";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -79,12 +80,15 @@ interface PublicClientContextType {
   ) => Promise<void>;
   testFunc?: (participantName: string, photo: string) => Promise<void>;
   CONTRACT_ADDRESS?: string;
+  storeProgram?: () => Promise<void>;
+  programId?: string | null;
   // loading states
 
   addOrganizationLoading?: boolean;
   addSubOrganizerLoading?: boolean;
   registerEventLoading?: boolean;
   createEventLoading?: boolean;
+  storeProgramLoading?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
@@ -131,7 +135,7 @@ web3auth.configureAdapter(openloginAdapter);
 
 // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 // const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
-const CONTRACT_ADDRESS = "0x60e5F039Eb984641a9Abca9a3AacbD20BBAA99bE";
+const CONTRACT_ADDRESS = "0x0808912DEBa198CFD9BcADAB944D565C26Aa6904";
 
 export default function GlobalContextProvider({
   children,
@@ -175,18 +179,14 @@ export default function GlobalContextProvider({
     }
   }, [loggedInAddress, loggedIn]);
 
-  const createNillionProgramForFeedback = async (seed: string) => {
-    try {
-      const res = await axios.post(
-        "http://localhost:6969/createNillionProgramForFeedback",
-        {
-          seed: seed,
-        }
-      );
-    } catch (error) {
-      console.log(error, "from createNillionProgramForFeedback");
-    }
-  };
+  // const createNillionProgramForFeedback = async (seed: string) => {
+  //   try {
+
+  //     return res.data as string;
+  //   } catch (error) {
+  //     console.log(error, "from createNillionProgramForFeedback");
+  //   }
+  // };
 
   useEffect(() => {
     const init = async () => {
@@ -253,6 +253,8 @@ export default function GlobalContextProvider({
               args: [loggedInAddress],
             });
 
+            console.log(isParticipant, "dsa1");
+
             console.log(userInfo.name, userInfo.profileImage, "dsa2");
 
             if (isParticipant) console.log("Participant already exists dsa");
@@ -280,6 +282,68 @@ export default function GlobalContextProvider({
       }
     })();
   }, [router, web3auth.connected, web3auth.provider, loggedIn, web3auth]);
+
+  const [storeProgramLoading, setStoreProgramLoading] = useState(false);
+  const [programId, setProgramId] = useState<string | null>(null);
+
+  async function storeProgram() {
+    setStoreProgramLoading(true);
+
+    // Function to retry the backend request
+    const retryRequest = async (retryCount = 0) => {
+      try {
+        if (loggedInAddress && walletClient && publicClient) {
+          // Sending request to backend
+          const { data } = await axios.post(
+            "http://localhost:6969/storeProgram",
+            {
+              seed: loggedInAddress,
+            }
+          );
+
+          console.log("program id is succesful from nillion backend");
+          toast.success("Successfully stored Program Id on nillion network");
+          if (data) {
+            setProgramId(data);
+            // Contract update if backend request succeeds
+            const tx = await walletClient.writeContract({
+              address: CONTRACT_ADDRESS,
+              abi: EcoAttestABI,
+              functionName: "updateProgramId",
+              account: loggedInAddress as Hex,
+              args: [data],
+            });
+
+            await publicClient.waitForTransactionReceipt({ hash: tx });
+            console.log("Program Id updated successfully");
+            toast.success("Program Id updated successfully in contract");
+
+            // Request and transaction successful, set loading to false
+            setStoreProgramLoading(false);
+          }
+        }
+      } catch (error) {
+        // If backend server error, log and retry
+        console.log(error, "from storeProgram");
+
+        if (retryCount < 5) {
+          console.log(`Retry attempt: ${retryCount + 1}`);
+
+          // Retry after 3 seconds delay
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await retryRequest(retryCount + 1);
+        } else {
+          // After max retries, log error and set loading to false
+          console.log("Max retry attempts reached. Aborting request.");
+          toast.error("Max retry attempts reached. Aborting request.");
+          setStoreProgramLoading(false); // Ensure loading is set to false on failure
+        }
+      }
+    };
+
+    // Call the retry function to start the process
+    await retryRequest();
+  }
 
   const testFunc = async (_participantName: string, _photo: string) => {
     try {
@@ -530,16 +594,16 @@ export default function GlobalContextProvider({
       if (publicClient) {
         console.log("dsa--------")
 
-        // const tx = await walletClient.writeContract({
-        //   address: CONTRACT_ADDRESS,
-        //   abi: EcoAttestABI,
-        //   functionName: "addSubOrganizer",
-        //   account: loggedInAddress as Hex,
-        //   args: [subOrgAddress],
-        // });
+        const tx = await walletClient.writeContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "addSubOrganizer",
+          account: loggedInAddress as Hex,
+          args: [subOrgAddress],
+        });
 
-        // await publicClient.waitForTransactionReceipt({ hash: tx });
-        // console.log("Sub-organizer added successfully");
+        await publicClient.waitForTransactionReceipt({ hash: tx });
+        console.log("Sub-organizer added successfully");
 
         // setWhitelist(address attester, bool allowed)
         // subOrgAddress, true
@@ -887,6 +951,9 @@ export default function GlobalContextProvider({
         registerEventLoading,
         CONTRACT_ADDRESS,
         createEventLoading,
+        storeProgram,
+        storeProgramLoading,
+        programId,
       }}
     >
       {children}

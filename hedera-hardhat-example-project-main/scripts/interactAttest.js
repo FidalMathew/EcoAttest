@@ -5,7 +5,7 @@ async function main() {
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0x60e5F039Eb984641a9Abca9a3AacbD20BBAA99bE";
+  const contractAddress = "0x0808912DEBa198CFD9BcADAB944D565C26Aa6904";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
@@ -47,7 +47,7 @@ async function main() {
   // console.log("Suborganiser added successfully.");
 
   // const v = await ecoAttest.isSubOrganizer(
-  //   "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"
+  //   "0x7FdcE937855028606f8bd1C082F463fD92369cbf"
   // );
 
   // console.log(v, " sad");
@@ -59,8 +59,8 @@ async function main() {
   // console.log("Organization Details:", organization);
 
   // Example: Fetching all organizations
-  const organizations = await ecoAttest.getAllOrganizations();
-  console.log("All Organizations:", organizations);
+  // const organizations = await ecoAttest.getAllOrganizations();
+  // console.log("All Organizations:", organizations);
 
   // // Example: Creating an event
   // const tx3 = await ecoAttest.createEvent(
@@ -96,8 +96,18 @@ async function main() {
   // await register.wait();
 
 
-  // const partipant = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
-  // console.log(JSON.stringify(partipant), 'participant')
+  const partipant = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
+  console.log(JSON.stringify(partipant), 'participant')
+
+
+  // const ispart = await ecoAttest.isParticipant("0x7FdcE937855028606f8bd1C082F463fD92369cbf")
+  // console.log(ispart, 'ispart')
+
+
+
+  // const val = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
+  // console.log(val, 'val')
+
 }
 
 // Run the script with proper error handling

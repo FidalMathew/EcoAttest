@@ -9,7 +9,7 @@ from cosmpy.aerial.wallet import LocalWallet
 from cosmpy.crypto.keypairs import PrivateKey
 from flask_cors import CORS
 from py_nillion_client import NodeKey, UserKey
-
+import sys
 from nillion_python_helpers import get_quote_and_pay, create_nillion_client, create_payments_config
 from flask import Flask, jsonify, request
 
@@ -19,6 +19,10 @@ CORS(app)
 home = os.getenv("HOME")
 load_dotenv(f"{home}/.config/nillion/nillion-devnet.env")
 
+
+def restart_server():
+    print("Restarting the server now...")
+    os.execv(sys.executable, ['python'] + sys.argv)
 
 
 @app.route('/')
@@ -291,52 +295,77 @@ async def retrieve_secret_func(seed, store_id, secret_name):
 
 @app.route('/generateUserKey', methods=['POST'])
 def generate_userId():
-    body = request.get_json()
-    seed = body.get("seed")
-    user_id = asyncio.run(generate_userId_func(seed))
+    try:
+        body = request.get_json()
+        seed = body.get("seed")
+        user_id = asyncio.run(generate_userId_func(seed))
+        return user_id
+    except Exception as e:
+        print(f"generate user id: timed out - {e}")
+        restart_server()    
+        return jsonify({"error": "Server restarting due to error"}), 500
 
-
-    return user_id
 
 
 @app.route('/storeProgram', methods=['POST'])
 def storing_program():
-    body = request.get_json()
-    programOwnerSeed = body.get("programOwnerSeed")
-    store_id = asyncio.run(storing_program_func(programOwnerSeed))
-    return store_id
-
+    try:
+        body = request.get_json()
+        print(body)
+        programOwnerSeed = body.get("seed")
+        store_id = asyncio.run(storing_program_func(programOwnerSeed))
+        return store_id
+    except Exception as e:
+        print(f"storing program: timed out - {e}")
+        restart_server()    
+        return jsonify({"error": "Server restarting due to error"}), 500
 
 @app.route('/storeVote', methods=['POST'])
 def storing_vote():
-    body = request.get_json()
-    programId = body.get("programId")
-    seed = body.get("seed")
-    vote_value = body.get("vote_value")
-    programOwnerSeed = body.get("programOwnerSeed")
-    secret_name = body.get("secret_name")
-    stored_secret = asyncio.run(storing_vote_func(programId, seed, vote_value, programOwnerSeed, secret_name))
-    return jsonify(stored_secret)
+    try:
+        body = request.get_json()
+        programId = body.get("programId")
+        seed = body.get("seed")
+        vote_value = body.get("vote_value")
+        programOwnerSeed = body.get("programOwnerSeed")
+        secret_name = body.get("secret_name")
+        stored_secret = asyncio.run(storing_vote_func(programId, seed, vote_value, programOwnerSeed, secret_name))
+        return jsonify(stored_secret)
+    except Exception as e:
+        print(f"storing vote: timed out - {e}")
+        restart_server()    
+        return jsonify({"error": "Server restarting due to error"}), 500
 
 @app.route('/compute', methods=['POST'])
 def compute():
-    body = request.get_json()
-    stored_secret_ids = body.get("stored_secret_ids")
-    subOrganisersSeed = body.get("subOrganisersSeed")
-    participantSeed = body.get("participantSeed")
-    programId = body.get("programId")
-    result = asyncio.run(compute_func(stored_secret_ids, subOrganisersSeed, participantSeed, programId))
-    return jsonify(result)
+    try:
+        body = request.get_json()
+        stored_secret_ids = body.get("stored_secret_ids")
+        subOrganisersSeed = body.get("subOrganisersSeed")
+        participantSeed = body.get("participantSeed")
+        programId = body.get("programId")
+        result = asyncio.run(compute_func(stored_secret_ids, subOrganisersSeed, participantSeed, programId))
+        return jsonify(result)
+    except Exception as e:
+        print(f"compute: timed out - {e}")
+        restart_server()    
+        return jsonify({"error": "Server restarting due to error"}), 500
 
 @app.route('/retrieveSecret', methods=['POST'])
 def retrieve_secret():
-    body = request.get_json()
-    store_id = body.get("store_id")
-    secret_name = body.get("secret_name")
-    seed = body.get("seed")
-    result = asyncio.run(retrieve_secret_func(seed, store_id, secret_name))
-    return jsonify(result)
+    try:
+        
+        body = request.get_json()
+        store_id = body.get("store_id")
+        secret_name = body.get("secret_name")
+        seed = body.get("seed")
+        result = asyncio.run(retrieve_secret_func(seed, store_id, secret_name))
+        return jsonify(result)
 
+    except Exception as e:
+        print(f"retrieve secret: timed out - {e}")
+        restart_server()    
+        return jsonify({"error": "Server restarting due to error"}), 500
 
 
 if __name__ == '__main__':

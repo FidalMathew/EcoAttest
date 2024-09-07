@@ -1,6 +1,6 @@
 import Navbar from "@/components/ui/Navbar";
-import { CircleCheck, Leaf, Star, TicketCheck } from "lucide-react";
-import { useRouter } from "next/router";
+import {CircleCheck, Leaf, Star, TicketCheck} from "lucide-react";
+import {useRouter} from "next/router";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -19,24 +19,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
+import {Button} from "@/components/ui/button";
+import {useEffect, useState} from "react";
+import {Label} from "@/components/ui/label";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import { register } from "module";
-import { Skeleton } from "@/components/ui/skeleton";
+import {register} from "module";
+import {Skeleton} from "@/components/ui/skeleton";
 import EcoAttestABI from "../../lib/EcoAttestABI.json";
-import { Hex } from "viem";
+import {Hex} from "viem";
 import QRX from "@qr-x/react";
 
-const CONTRACT_ADDRESS = "0x60e5F039Eb984641a9Abca9a3AacbD20BBAA99bE";
+const CONTRACT_ADDRESS = "0x0808912DEBa198CFD9BcADAB944D565C26Aa6904";
 
 export default function Events() {
   const router = useRouter();
 
   const [openStatus, setOpenStatus] = useState(false);
 
-  const { eventId } = router.query;
+  const {eventId} = router.query;
 
   const {
     testbase,
@@ -52,11 +52,11 @@ export default function Events() {
 
   console.log(
     event &&
-    loggedInAddress &&
-    event.participants.some(
-      (participant: any) =>
-        participant.user.toLowerCase() === loggedInAddress.toLowerCase()
-    ),
+      loggedInAddress &&
+      event.participants.some(
+        (participant: any) =>
+          participant.user.toLowerCase() === loggedInAddress.toLowerCase()
+      ),
     "isevent"
   );
   useEffect(() => {
@@ -70,7 +70,6 @@ export default function Events() {
     };
     fetchEvent();
   }, [registerEventLoading, loggedInAddress]);
-
 
   const [qrValue, setQrValue] = useState<string>("");
   // const { loggedInAddress } = useGlobalContextHook();
@@ -146,7 +145,6 @@ export default function Events() {
                   )}
                 </div>
               </div>
-
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -271,8 +269,8 @@ export default function Events() {
                           variant="outline"
                           className="px-4 py-2 border-2 border-green-900 rounded-full"
                           onClick={() => {
-                            setOpenStatus((prev) => !prev)
-                            requestAttestion()
+                            setOpenStatus((prev) => !prev);
+                            requestAttestion();
                           }}
                         >
                           Request Attestation
