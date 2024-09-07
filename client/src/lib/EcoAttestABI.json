@@ -691,6 +691,52 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getParticipantByAddress",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "photo",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "programId",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "feedbackStoreIds",
+            "type": "string[]"
+          }
+        ],
+        "internalType": "struct EcoAttest.Participant",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_org",
         "type": "address"
       }

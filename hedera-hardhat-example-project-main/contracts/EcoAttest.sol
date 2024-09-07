@@ -96,19 +96,22 @@ contract EcoAttest {
         string memory _participantName,
         string memory _photo
     ) public {
-        Participant memory newParticipant = Participant({
-            user: msg.sender,
-            name: _participantName,
-            photo: _photo,
-            programId: "",
-            feedbackStoreIds: new string[](0)
-        });
+        Participant storage newParticipant = participants[msg.sender];
 
-        participants[msg.sender] = newParticipant;
+        newParticipant.user = msg.sender;
+        newParticipant.name = _participantName;
+        newParticipant.photo = _photo;
+        newParticipant.programId = "";
 
         participantsArray.push(newParticipant);
 
         emit ParticipantAdded(msg.sender, _participantName);
+    }
+
+    function getParticipantByAddress(
+        address user
+    ) public view returns (Participant memory) {
+        return participants[user];
     }
 
     function fetchAllParticipants() public view returns (Participant[] memory) {

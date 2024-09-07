@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -22,18 +22,19 @@ import {
   http,
   hexToBigInt,
   sliceHex,
+  parseEther,
 } from "viem";
-import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
-import { getContract } from "viem";
+import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
+import {getContract} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
-import HookABI from "../lib/Hook.json"
+import HookABI from "../lib/Hook.json";
 import countabi from "../lib/CountAbi.json";
-import { Web3Auth } from "@web3auth/modal";
-import { useRouter } from "next/router";
+import {Web3Auth} from "@web3auth/modal";
+import {useRouter} from "next/router";
 import axios from "axios";
-import { privateKeyToAccount } from "viem/accounts";
-import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
-import { toast } from "sonner";
+import {privateKeyToAccount} from "viem/accounts";
+import {SignProtocolClient, EvmChains, SpMode} from "@ethsign/sp-sdk";
+import {toast} from "sonner";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -82,20 +83,22 @@ interface PublicClientContextType {
   CONTRACT_ADDRESS?: string;
   storeProgram?: () => Promise<void>;
   programId?: string | null;
-  // loading states
+  storeVotesByOrganisers?: (voteValue: number) => Promise<void>;
 
+  // loading states
   addOrganizationLoading?: boolean;
   addSubOrganizerLoading?: boolean;
   registerEventLoading?: boolean;
   createEventLoading?: boolean;
   storeProgramLoading?: boolean;
+  storeVotesLoading?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => { },
-  logout: async () => { },
+  login: async () => {},
+  logout: async () => {},
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -117,7 +120,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3Auth({
@@ -135,7 +138,7 @@ web3auth.configureAdapter(openloginAdapter);
 
 // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 // const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
-const CONTRACT_ADDRESS = "0x72315482d982c4360aD8cf5d63975B02CFb213A0";
+const CONTRACT_ADDRESS = "0xc14df6c6850B059A29B14adA14dec7e3fcA2c59F";
 
 export default function GlobalContextProvider({
   children,
@@ -242,10 +245,19 @@ export default function GlobalContextProvider({
 
           // console.log(publicClient, "hellopublicClient");
           setPublicClient(publicClient);
+        }
+      } catch (error) {
+        console.error(error, "Error initializing Web3Auth 2");
+      }
+    })();
+  }, [router, web3auth.connected, web3auth.provider, loggedIn, web3auth]);
 
+  useEffect(() => {
+    (async function () {
+      try {
+        if (publicClient && walletClient && loggedIn && loggedInAddress) {
           const userInfo = await getUserInfo();
           if (userInfo) {
-            console.log(userInfo, "dsa1");
             const isParticipant = await publicClient.readContract({
               address: CONTRACT_ADDRESS,
               functionName: "isParticipant",
@@ -255,14 +267,26 @@ export default function GlobalContextProvider({
 
             console.log(isParticipant, "dsa1");
 
+            console.log(loggedInAddress, "dsa1");
+
             console.log(userInfo.name, userInfo.profileImage, "dsa2");
 
             if (isParticipant) console.log("Participant already exists dsa");
             if (!isParticipant && userInfo.name && userInfo.profileImage) {
+              const fundingAcc = privateKeyToAccount(
+                `0x${process.env.NEXT_PUBLIC_PRIVATE_KEY!}` as Hex
+              );
+
+              const fundingClient = createWalletClient({
+                account: fundingAcc,
+                chain: hederaTestnet,
+                transport: http(),
+              });
+
               console.log("Creating participant");
 
               console.log(userInfo.name, userInfo.profileImage, "dsa3");
-              // @ts-ignore
+
               const tx = await walletClient.writeContract({
                 address: CONTRACT_ADDRESS,
                 abi: EcoAttestABI,
@@ -271,17 +295,17 @@ export default function GlobalContextProvider({
                 args: [userInfo.name, userInfo.profileImage],
               });
 
-              await publicClient.waitForTransactionReceipt({ hash: tx });
+              await publicClient.waitForTransactionReceipt({hash: tx});
 
               console.log("Participant created successfully");
             }
           }
         }
       } catch (error) {
-        console.error(error, "Error initializing Web3Auth 2");
+        console.error(error, "Error initializing Web3Auth 3");
       }
     })();
-  }, [router, web3auth.connected, web3auth.provider, loggedIn, web3auth]);
+  }, [publicClient, walletClient, loggedInAddress]);
 
   const [storeProgramLoading, setStoreProgramLoading] = useState(false);
   const [programId, setProgramId] = useState<string | null>(null);
@@ -295,7 +319,7 @@ export default function GlobalContextProvider({
       try {
         if (loggedInAddress && walletClient && publicClient) {
           // Sending request to backend
-          const { data } = await axios.post(
+          const {data} = await axios.post(
             "http://localhost:6969/storeProgram",
             {
               seed: loggedInAddress,
@@ -315,12 +339,92 @@ export default function GlobalContextProvider({
               args: [data],
             });
 
-            await publicClient.waitForTransactionReceipt({ hash: tx });
+            await publicClient.waitForTransactionReceipt({hash: tx});
             console.log("Program Id updated successfully");
             toast.success("Program Id updated successfully in contract");
 
             // Request and transaction successful, set loading to false
             setStoreProgramLoading(false);
+          }
+        }
+      } catch (error) {
+        // If backend server error, log and retry
+        console.log(error, "from storeProgram");
+
+        if (retryCount < 5) {
+          console.log(`Retry attempt: ${retryCount + 1}`);
+
+          // Retry after 3 seconds delay
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await retryRequest(retryCount + 1);
+        } else {
+          // After max retries, log error and set loading to false
+          console.log("Max retry attempts reached. Aborting request.");
+          toast.error("Max retry attempts reached. Aborting request.");
+          setStoreProgramLoading(false); // Ensure loading is set to false on failure
+        }
+      }
+    };
+
+    // Call the retry function to start the process
+    await retryRequest();
+  }
+
+  const [storeVotesLoading, setStoreVotesLoading] = useState(false);
+  const [storeId, setStoreId] = useState<string | null>(null);
+
+  async function storeVotesByOrganisers(voteValue: number) {
+    setStoreVotesLoading(true);
+    toast.loading("Waiting...");
+
+    // Function to retry the backend request
+    const retryRequest = async (retryCount = 0) => {
+      try {
+        if (loggedInAddress && walletClient && publicClient) {
+          // fetch feedbackStoreIds
+
+          const participantByAddress = await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            functionName: "getParticipantByAddress",
+            abi: EcoAttestABI,
+            args: [loggedInAddress],
+          });
+
+          console.log(participantByAddress, "storeVotesByOrganisersfucku");
+
+          // @ts-ignore
+          if (participantByAddress && participantByAddress.programId !== "") {
+            const feedbackStoreIds =
+              // @ts-ignore
+              participantByAddress.feedbackStoreIds as string[];
+            const {data} = await axios.post("http://localhost:6969/storeVote", {
+              seed: loggedInAddress,
+              voteValue: voteValue,
+              secret_name: `feedback_${feedbackStoreIds.length + 1}`,
+              // @ts-ignore
+              programId: participantByAddress.programId,
+              programOwnerSeed: loggedInAddress,
+            });
+
+            console.log("feedback stored");
+            toast.success("Successfully stored feedback on nillion network");
+            if (data) {
+              // Contract update if backend request succeeds
+              const tx = await walletClient.writeContract({
+                address: CONTRACT_ADDRESS,
+                abi: EcoAttestABI,
+                functionName: "storeFeedback",
+                account: loggedInAddress as Hex,
+                args: [data],
+              });
+
+              await publicClient.waitForTransactionReceipt({hash: tx});
+              console.log("Feedback stored successfully in contract");
+              toast.success("Feedback stored successfully in contract");
+
+              // Request and transaction successful, set loading to false
+              setStoreProgramLoading(false);
+            }
           }
         }
       } catch (error) {
@@ -371,7 +475,7 @@ export default function GlobalContextProvider({
             chain: hederaTestnet,
           });
 
-          await publicClient.waitForTransactionReceipt({ hash: tx });
+          await publicClient.waitForTransactionReceipt({hash: tx});
 
           console.log("Participant created successfully dsa");
         }
@@ -484,7 +588,7 @@ export default function GlobalContextProvider({
           args: [cName, cEmail, cLogo],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
       }
       console.log("successfully added organization");
     } catch (error) {
@@ -574,7 +678,7 @@ export default function GlobalContextProvider({
           ],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
       }
       console.log("Event created successfully");
     } catch (error) {
@@ -586,14 +690,13 @@ export default function GlobalContextProvider({
 
   const [addSubOrganizerLoading, setAddSubOrganizerLoading] = useState(false);
 
-
   const addSubOrganizer = async (subOrgAddress: string) => {
     setAddSubOrganizerLoading(true);
 
-    console.log("dsa--------")
+    console.log("dsa--------");
     try {
-      if (publicClient) {
-        console.log("dsa--------")
+      if (publicClient && walletClient && loggedInAddress) {
+        console.log("dsa--------");
 
         const tx = await walletClient.writeContract({
           address: CONTRACT_ADDRESS,
@@ -603,20 +706,20 @@ export default function GlobalContextProvider({
           args: [subOrgAddress],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
         console.log("Sub-organizer added successfully");
 
         // setWhitelist(address attester, bool allowed)
         // subOrgAddress, true
-        const pKey = process.env.NEXT_PUBLIC_PRIVATE_KEY
-        console.log(pKey, "sadsads")
+        const pKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+        console.log(pKey, "sadsads");
         const account = privateKeyToAccount(`0x${pKey}`);
 
         const client = createWalletClient({
           account,
           chain: baseSepolia,
-          transport: http()
-        })
+          transport: http(),
+        });
 
         const HOOK_ADDRESS = "0xffd0982617febbfd14fc41f7fb445839c721b262";
         const tx2 = await client.writeContract({
@@ -627,11 +730,8 @@ export default function GlobalContextProvider({
           args: [subOrgAddress, true],
         });
 
-
         // await client.waitForTransactionConfirmation({ hash: tx2 });
         console.log("Sub-organizer added successfully in HOOK_ADDRESS ", tx2);
-
-
       }
     } catch (error) {
       console.error(error, "from addSubOrganizer");
@@ -672,7 +772,7 @@ export default function GlobalContextProvider({
           args: [eventId],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
 
         console.log("Registered for event successfully");
       }
@@ -877,7 +977,7 @@ export default function GlobalContextProvider({
           account: account,
         });
         // 0x2b06bFDe18Ac8619177DDaE76e683fa12F326b3d
-        console.log("Attest ", client)
+        console.log("Attest ", client);
 
         if (client !== undefined) {
           const data = {
@@ -897,13 +997,12 @@ export default function GlobalContextProvider({
             });
             console.log(createAttestationRes);
 
-            const url = `https://testnet-scan.sign.global/attestation/onchain_evm_84532_${createAttestationRes.attestationId}`
+            const url = `https://testnet-scan.sign.global/attestation/onchain_evm_84532_${createAttestationRes.attestationId}`;
 
             console.log(url);
-
           } catch (error) {
-            console.log(error)
-            alert(error)
+            console.log(error);
+            alert(error);
           }
         }
       } else {
@@ -913,12 +1012,6 @@ export default function GlobalContextProvider({
       console.error(error);
     }
   };
-
-  // register for event participant -> provide name, image along with msg.sender
-
-  console.log(web3auth.status, "web3auth.status");
-
-  console.log(userAccount, "lol");
 
   return (
     <GlobalContext.Provider
@@ -955,6 +1048,8 @@ export default function GlobalContextProvider({
         storeProgram,
         storeProgramLoading,
         programId,
+        storeVotesByOrganisers,
+        storeVotesLoading,
       }}
     >
       {children}

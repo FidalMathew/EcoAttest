@@ -105,20 +105,48 @@ export default function Profile() {
 
   useEffect(() => {
     (async function () {
-      if (loggedIn && loggedInAddress && publicClient && walletClient) {
-        const isParticipant = await publicClient.readContract({
-          address: CONTRACT_ADDRESS! as Hex,
-          functionName: "isParticipant",
-          abi: EcoAttestABI,
-          args: [loggedInAddress],
-        });
+      try {
+        if (loggedIn && loggedInAddress && publicClient && walletClient) {
+          const isParticipant = await publicClient.readContract({
+            address: CONTRACT_ADDRESS! as Hex,
+            functionName: "isParticipant",
+            abi: EcoAttestABI,
+            args: [loggedInAddress],
+          });
 
-        setIsParticipant(isParticipant as boolean);
+          if (isParticipant) setIsParticipant(isParticipant as boolean);
+        }
+      } catch (error) {
+        console.error(error, "Error checking participant");
       }
     })();
   }, [loggedIn, loggedInAddress, publicClient, walletClient]);
 
   console.log(isParticipant, "isParticipant");
+
+  const [participantFetched, setParticipantFetched] = useState<any>({});
+
+  useEffect(() => {
+    (async function () {
+      try {
+        if (loggedIn && loggedInAddress && publicClient && walletClient) {
+          const ParticipantDetails = await publicClient.readContract({
+            address: CONTRACT_ADDRESS! as Hex,
+            functionName: "getParticipantByAddress",
+            abi: EcoAttestABI,
+            args: [loggedInAddress],
+          });
+
+          if (ParticipantDetails) {
+            console.log(ParticipantDetails, "ParticipantDetails");
+            setParticipantFetched(ParticipantDetails);
+          }
+        }
+      } catch (error) {
+        console.error(error, "Error getting program id");
+      }
+    })();
+  }, [loggedIn, loggedInAddress, publicClient, walletClient]);
 
   return (
     <div className="min-h-screen w-full">
@@ -255,9 +283,11 @@ export default function Profile() {
               <div className="flex items-center gap-2 truncate">
                 <p>
                   {/*nillion program id */}
-                  {programId && (
+                  {participantFetched && participantFetched.programId && (
                     <span>
-                      {programId.slice(0, 10) + "..." + programId.slice(-17)}
+                      {participantFetched.programId.slice(0, 10) +
+                        "..." +
+                        participantFetched.programId.slice(-17)}
                     </span>
                   )}
                 </p>

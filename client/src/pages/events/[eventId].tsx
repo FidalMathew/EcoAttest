@@ -29,8 +29,6 @@ import EcoAttestABI from "../../lib/EcoAttestABI.json";
 import {Hex} from "viem";
 import QRX from "@qr-x/react";
 
-const CONTRACT_ADDRESS = "0x72315482d982c4360aD8cf5d63975B02CFb213A0";
-
 export default function Events() {
   const router = useRouter();
 

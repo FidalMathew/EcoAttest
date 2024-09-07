@@ -25,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, useCallback, useEffect, useState} from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
@@ -43,6 +43,14 @@ import {Textarea} from "@/components/ui/textarea";
 import {Field, Form, Formik} from "formik";
 import {ReloadIcon} from "@radix-ui/react-icons";
 import {toast} from "sonner";
+
+function debounce<F extends (...args: any[]) => any>(func: F, delay: number) {
+  let debounceTimer: NodeJS.Timeout;
+  return function (this: ThisParameterType<F>, ...args: Parameters<F>) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
 
 export default function Organisers() {
   const router = useRouter();
@@ -181,6 +189,7 @@ export default function Organisers() {
                         type="text"
                         placeholder="0x1234...."
                         className="w-full focus-visible:ring-0 mt-2"
+                        // onChange={(e: any) => handleInputChange(e, formik)}
                       />
                     </div>
 
