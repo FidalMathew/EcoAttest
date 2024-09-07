@@ -40,6 +40,7 @@ contract EcoAttest {
     uint256 public eventCount;
     Organization[] public organizationList; // Array of Organization structs
     mapping(address => address) subOrgToOrgAddress;
+    Participant[] public participantsArray;
 
     event OrganizationAdded(address indexed orgAddress, string name);
     event OrganizationVerified(address indexed orgAddress);
@@ -47,6 +48,12 @@ contract EcoAttest {
         address indexed orgAddress,
         address indexed subOrgAddress
     );
+
+    event ParticipantAdded(
+        address indexed participantAddress,
+        string participantName
+    );
+
     event EventCreated(
         uint256 indexed eventId,
         string eventName,
@@ -98,6 +105,14 @@ contract EcoAttest {
         });
 
         participants[msg.sender] = newParticipant;
+
+        participantsArray.push(newParticipant);
+
+        emit ParticipantAdded(msg.sender, _participantName);
+    }
+
+    function fetchAllParticipants() public view returns (Participant[] memory) {
+        return participantsArray;
     }
 
     function getAllOrganizations() public view returns (Organization[] memory) {

@@ -78,6 +78,25 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "participantAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "participantName",
+        "type": "string"
+      }
+    ],
+    "name": "ParticipantAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "uint256",
         "name": "eventId",
         "type": "uint256"
@@ -270,6 +289,46 @@
         "internalType": "uint256",
         "name": "dateTime",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fetchAllParticipants",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "photo",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "programId",
+            "type": "string"
+          },
+          {
+            "internalType": "string[]",
+            "name": "feedbackStoreIds",
+            "type": "string[]"
+          }
+        ],
+        "internalType": "struct EcoAttest.Participant[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -785,6 +844,40 @@
       }
     ],
     "name": "participants",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "photo",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "programId",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "participantsArray",
     "outputs": [
       {
         "internalType": "address",

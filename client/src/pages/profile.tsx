@@ -241,7 +241,7 @@ export default function Profile() {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="right">
-                          <p>Add to library</p>
+                          <p>Deploy Program ID to Nillion</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>

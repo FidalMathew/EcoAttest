@@ -135,7 +135,7 @@ web3auth.configureAdapter(openloginAdapter);
 
 // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 // const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
-const CONTRACT_ADDRESS = "0x0808912DEBa198CFD9BcADAB944D565C26Aa6904";
+const CONTRACT_ADDRESS = "0x72315482d982c4360aD8cf5d63975B02CFb213A0";
 
 export default function GlobalContextProvider({
   children,
@@ -288,6 +288,7 @@ export default function GlobalContextProvider({
 
   async function storeProgram() {
     setStoreProgramLoading(true);
+    toast.loading("Storing Program Id on nillion network");
 
     // Function to retry the backend request
     const retryRequest = async (retryCount = 0) => {

@@ -10,7 +10,7 @@ import useGlobalContextHook from "@/context/useGlobalContextHook";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import {Hex} from "viem";
 
-const CONTRACT_ADDRESS = "0x0808912DEBa198CFD9BcADAB944D565C26Aa6904";
+const CONTRACT_ADDRESS = "0x72315482d982c4360aD8cf5d63975B02CFb213A0";
 
 export default function Feed() {
   const router = useRouter();

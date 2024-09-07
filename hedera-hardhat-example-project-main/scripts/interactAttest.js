@@ -5,7 +5,7 @@ async function main() {
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0x0808912DEBa198CFD9BcADAB944D565C26Aa6904";
+  const contractAddress = "0x72315482d982c4360aD8cf5d63975B02CFb213A0";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
@@ -27,7 +27,7 @@ async function main() {
   // const og = await ecoAttest.getAllOrganizations()
 
   // console.log(og);
-  // // Example: Verifying an organization
+  // Example: Verifying an organization
   // const tx2 = await ecoAttest.verifyOrganization(
   //   "0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A"
   // );
@@ -96,8 +96,8 @@ async function main() {
   // await register.wait();
 
 
-  const partipant = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
-  console.log(JSON.stringify(partipant), 'participant')
+  // const partipant = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
+  // console.log(JSON.stringify(partipant), 'participant')
 
 
   // const ispart = await ecoAttest.isParticipant("0x7FdcE937855028606f8bd1C082F463fD92369cbf")
