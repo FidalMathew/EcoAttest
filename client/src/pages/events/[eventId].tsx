@@ -1,6 +1,6 @@
 import Navbar from "@/components/ui/Navbar";
-import {CircleCheck, Leaf, Star, TicketCheck} from "lucide-react";
-import {useRouter} from "next/router";
+import { CircleCheck, Leaf, Star, TicketCheck } from "lucide-react";
+import { useRouter } from "next/router";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -19,14 +19,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {Button} from "@/components/ui/button";
-import {useEffect, useState} from "react";
-import {Label} from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {register} from "module";
-import {Skeleton} from "@/components/ui/skeleton";
+import { register } from "module";
+import { Skeleton } from "@/components/ui/skeleton";
 import EcoAttestABI from "../../lib/EcoAttestABI.json";
-import {Hex} from "viem";
+import { Hex } from "viem";
 import QRX from "@qr-x/react";
 
 export default function Events() {
@@ -34,7 +34,7 @@ export default function Events() {
 
   const [openStatus, setOpenStatus] = useState(false);
 
-  const {eventId} = router.query;
+  const { eventId } = router.query;
 
   const {
     testbase,
@@ -50,11 +50,11 @@ export default function Events() {
 
   console.log(
     event &&
-      loggedInAddress &&
-      event.participants.some(
-        (participant: any) =>
-          participant.user.toLowerCase() === loggedInAddress.toLowerCase()
-      ),
+    loggedInAddress &&
+    event.participants.some(
+      (participant: any) =>
+        participant.user.toLowerCase() === loggedInAddress.toLowerCase()
+    ),
     "isevent"
   );
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function Events() {
   const requestAttestion = () => {
     const schemaTemplate = {
       orgAddress: event.organizer,
-      eventId: Number(eventId as unknown as string),
+      event: event.eventName,
       participant: loggedInAddress,
     };
 

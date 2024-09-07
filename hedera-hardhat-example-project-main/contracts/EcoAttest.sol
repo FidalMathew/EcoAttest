@@ -96,6 +96,16 @@ contract EcoAttest {
         string memory _participantName,
         string memory _photo
     ) public {
+        // Participant memory newParticipant = Participant({
+        //     user: msg.sender,
+        //     name: _participantName,
+        //     photo: _photo,
+        //     programId: "",
+        //     feedbackStoreIds: new string[](0)
+        // });
+
+        // participants[msg.sender] = newParticipant;
+
         Participant storage newParticipant = participants[msg.sender];
 
         newParticipant.user = msg.sender;

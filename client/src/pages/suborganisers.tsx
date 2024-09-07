@@ -90,16 +90,16 @@ export default function Profile() {
       // alert(scannedResult);
       const scannedObj = JSON.parse(scannedResult)
 
-      const { orgAddress, eventId, participant } = scannedObj;
+      const { orgAddress, event, participant } = scannedObj;
 
-      if (!orgAddress || !eventId || !participant) {
+      if (!orgAddress || !event || !participant) {
         console.error("Attestation requirement values incomplete")
         return;
       }
 
       setAttestationDetails({
         orgAddress: orgAddress,
-        eventId: eventId,
+        event: event,
         participantAddress: participant,
       })
 
@@ -146,11 +146,11 @@ export default function Profile() {
                 attestationDetails &&
                 (<>
                   Hello
-                  {attestationDetails.orgAddress + " " + attestationDetails.eventId + " " + attestationDetails.participantAddress}
+                  {attestationDetails.orgAddress + " " + attestationDetails.event + " " + attestationDetails.participantAddress}
 
                   <button onClick={() => {
                     if (attest)
-                      attest(attestationDetails.orgAddress, attestationDetails.participantAddress, attestationDetails.eventId, 10);
+                      attest(attestationDetails.orgAddress, attestationDetails.participantAddress, attestationDetails.event, 10);
                   }}>
 
                     Attest

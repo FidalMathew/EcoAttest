@@ -99,20 +99,23 @@ export default function Navbar() {
         >
           Become organizer
         </Button>
-        <Button variant={"outline"} onClick={() => router.push(`/organiser`)}>
+        {isOrganizerState && <Button variant={"outline"} onClick={() => router.push(`/organiser`)}>
           Organisation
-        </Button>
-        <Button
-          variant={"outline"}
-          onClick={() => router.push(`/suborganisers`)}
-        >
-          SubOrg
-        </Button>
+        </Button>}
+        {
+          isSubOrganizerState &&
+          <Button
+            variant={"outline"}
+            onClick={() => router.push(`/suborganisers`)}
+          >
+            SubOrg
+          </Button>
+        }
         <Avatar
           onClick={() => router.push("/profile")}
           className="cursor-pointer"
         >
-          <AvatarImage src="/man.png" />
+          <AvatarImage src={userInfo?.profileImage || "/man.png"} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       </div>

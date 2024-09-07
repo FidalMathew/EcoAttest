@@ -76,7 +76,7 @@ interface PublicClientContextType {
   attest?: (
     orgAddress: string,
     participantAddress: string,
-    eventId: number,
+    event: string,
     score: number
   ) => Promise<void>;
   testFunc?: (participantName: string, photo: string) => Promise<void>;
@@ -821,70 +821,8 @@ export default function GlobalContextProvider({
     }
   };
 
-  function decodeData(encodedData: string) {
-    // Remove '0x' prefix if present
-    if (encodedData.startsWith("0x")) {
-      encodedData = encodedData.slice(2);
-    }
 
-    // Split the encoded data into 32-byte (64 hex character) chunks
-    const chunks = encodedData.match(/.{1,64}/g);
 
-    if (chunks?.length === 5) {
-      if (chunks) {
-        console.log(chunks, "chunks");
-        // Decode each chunk
-        const address1 = "0x" + chunks[0].slice(24); // Extract the last 20 bytes (40 hex characters)
-        const address2 = "0x" + chunks[1].slice(24); // Extract the last 20 bytes (40 hex characters)
-        const address3 = "0x" + chunks[2].slice(24); // Extract the last 20 bytes (40 hex characters)
-
-        // Decode the boolean/integer (convert the value to BigInt)
-        const booleanOrInt = Number(hexToBigInt(`0x${chunks[3]}`));
-        // Decode the integer value
-        const integerValue = Number(hexToBigInt(`0x${chunks[4]}`));
-
-        console.log(address1, address2, address3, booleanOrInt, integerValue);
-        return {
-          address1,
-          address2,
-          address3,
-          booleanOrInt,
-          integerValue,
-        };
-      }
-    }
-  }
-  const fetchAttestations = async () => {
-    const id = "onchain_evm_84532_0x1a2";
-    const res = await axios.get(
-      `https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`
-    );
-    // https://testnet-rpc.sign.global/api/scan/attestations?schemaId=onchain_evm_84532_0x1a2
-
-    const rows = res.data.data.rows;
-
-    const deRows = await Promise.all(
-      rows?.map(async (val: any, index: number) => {
-        console.log(val, "val");
-        const iid = val.id;
-        const rr = await axios.get(
-          `https://testnet-rpc.sign.global/api/scan/attestations/${iid}`
-        );
-        console.log(rr, "rr --attestations");
-
-        const encodedData = rr.data.data.data;
-        console.log(encodedData, "encodedData");
-        const decoded = decodeData(encodedData);
-        console.log(decoded, "decoded");
-        // const decodedValue = Promise.all(decoded);
-        return decoded;
-      })
-    );
-
-    console.log(deRows, "deRows");
-
-    console.log(rows, "attestations");
-  };
 
   useEffect(() => {
     if (publicClient) {
@@ -892,7 +830,7 @@ export default function GlobalContextProvider({
       isOrganizer();
     }
 
-    fetchAttestations();
+    // fetchAttestations();
   }, [publicClient, loggedInAddress]);
 
   const getAllEvents = async () => {
@@ -958,14 +896,14 @@ export default function GlobalContextProvider({
   const attest = async (
     orgAddress: string,
     participantAddress: string,
-    eventId: number,
+    event: string,
     score: number
   ) => {
     try {
       if (web3auth && web3auth.provider && loggedInAddress) {
         // const SchemaId = "0x1a2";
 
-        const SchemaId = "0x225";
+        const SchemaId = "0x226";
         // const privateKey = ("0x" + process.env.NEXT_PUBLIC_PRIVATE_KEY!) as Hex;
         const privateKey = await web3auth.provider.request({
           method: "eth_private_key",
@@ -984,7 +922,7 @@ export default function GlobalContextProvider({
             orgAddress: orgAddress,
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
-            eventId: eventId,
+            event: event,
             score: score,
           };
 
