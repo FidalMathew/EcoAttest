@@ -1,8 +1,8 @@
-import {useRouter} from "next/router";
-import {Avatar, AvatarFallback, AvatarImage} from "./avatar";
-import {Button} from "./button";
-import {useEffect, useState} from "react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { useRouter } from "next/router";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Button } from "./button";
+import { useEffect, useState } from "react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 
 export default function Navbar() {
@@ -24,6 +24,8 @@ export default function Navbar() {
     status,
     isOrganizerState,
     isSubOrganizerState,
+    addSubOrganizer,
+    attest
   } = useGlobalContextHook();
 
   const getUser = async () => {
@@ -81,10 +83,16 @@ export default function Navbar() {
             {loggedInAddress.slice(0, 6) + "..." + loggedInAddress.slice(-4)}
           </div>
         )}
+        {loggedInAddress &&
 
-        <Button variant={"outline"} onClick={logout}>
-          Logout
-        </Button>
+          <Button variant={"outline"} onClick={() => {
+            // attest!('0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736', loggedInAddress, 1, 10)
+            // addSubOrganizer!(loggedInAddress)
+            logout
+          }}>
+            Logout
+          </Button>
+        }
         <Button
           variant={"outline"}
           onClick={() => router.push(`/requestOrganiser`)}

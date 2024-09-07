@@ -26,6 +26,7 @@ import {
 import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
 import { getContract } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
+import HookABI from "../lib/Hook.json"
 import countabi from "../lib/CountAbi.json";
 import { Web3Auth } from "@web3auth/modal";
 import { useRouter } from "next/router";
@@ -508,7 +509,7 @@ export default function GlobalContextProvider({
           ],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
       }
       console.log("Event created successfully");
     } catch (error) {
@@ -519,23 +520,56 @@ export default function GlobalContextProvider({
   };
 
   const [addSubOrganizerLoading, setAddSubOrganizerLoading] = useState(false);
+
+
   const addSubOrganizer = async (subOrgAddress: string) => {
     setAddSubOrganizerLoading(true);
+
+    console.log("dsa--------")
     try {
       if (publicClient) {
-        const tx = await walletClient.writeContract({
-          address: CONTRACT_ADDRESS,
-          abi: EcoAttestABI,
-          functionName: "addSubOrganizer",
-          account: loggedInAddress as Hex,
-          args: [subOrgAddress],
+        console.log("dsa--------")
+
+        // const tx = await walletClient.writeContract({
+        //   address: CONTRACT_ADDRESS,
+        //   abi: EcoAttestABI,
+        //   functionName: "addSubOrganizer",
+        //   account: loggedInAddress as Hex,
+        //   args: [subOrgAddress],
+        // });
+
+        // await publicClient.waitForTransactionReceipt({ hash: tx });
+        // console.log("Sub-organizer added successfully");
+
+        // setWhitelist(address attester, bool allowed)
+        // subOrgAddress, true
+        const pKey = process.env.NEXT_PUBLIC_PRIVATE_KEY
+        console.log(pKey, "sadsads")
+        const account = privateKeyToAccount(`0x${pKey}`);
+
+        const client = createWalletClient({
+          account,
+          chain: baseSepolia,
+          transport: http()
+        })
+
+        const HOOK_ADDRESS = "0xffd0982617febbfd14fc41f7fb445839c721b262";
+        const tx2 = await client.writeContract({
+          address: HOOK_ADDRESS,
+          abi: HookABI,
+          functionName: "setWhitelist",
+          account: account,
+          args: [subOrgAddress, true],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
-        console.log("Sub-organizer added successfully");
+
+        // await client.waitForTransactionConfirmation({ hash: tx2 });
+        console.log("Sub-organizer added successfully in HOOK_ADDRESS ", tx2);
+
+
       }
     } catch (error) {
-      console.log(error, "from addSubOrganizer");
+      console.error(error, "from addSubOrganizer");
     } finally {
       setAddSubOrganizerLoading(false);
     }
@@ -764,7 +798,9 @@ export default function GlobalContextProvider({
   ) => {
     try {
       if (web3auth && web3auth.provider && loggedInAddress) {
-        const SchemaId = "0x1a2";
+        // const SchemaId = "0x1a2";
+
+        const SchemaId = "0x225";
         // const privateKey = ("0x" + process.env.NEXT_PUBLIC_PRIVATE_KEY!) as Hex;
         const privateKey = await web3auth.provider.request({
           method: "eth_private_key",
@@ -775,6 +811,8 @@ export default function GlobalContextProvider({
           chain: EvmChains.baseSepolia,
           account: account,
         });
+        // 0x2b06bFDe18Ac8619177DDaE76e683fa12F326b3d
+        console.log("Attest ", client)
 
         if (client !== undefined) {
           const data = {
@@ -785,18 +823,23 @@ export default function GlobalContextProvider({
             score: score,
           };
 
-          const createAttestationRes = await client.createAttestation({
-            data: data,
-            schemaId: SchemaId,
-            indexingValue: "xxx",
-            recipients: [loggedInAddress],
-          });
+          try {
+            const createAttestationRes = await client.createAttestation({
+              data: data,
+              schemaId: SchemaId,
+              indexingValue: "xxx",
+              recipients: [loggedInAddress],
+            });
+            console.log(createAttestationRes);
 
-          console.log(createAttestationRes);
+            const url = `https://testnet-scan.sign.global/attestation/onchain_evm_84532_${createAttestationRes.attestationId}`
 
-          const url = `https://testnet-scan.sign.global/attestation/onchain_evm_84532_${createAttestationRes.attestationId}`
+            console.log(url);
 
-          console.log(url);
+          } catch (error) {
+            console.log(error)
+            alert(error)
+          }
         }
       } else {
         console.log("web3 auth not fetch");
