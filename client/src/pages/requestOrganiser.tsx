@@ -1,19 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Skeleton} from "@/components/ui/skeleton";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import QRX from "@qr-x/react";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
-import { Pencil, Verified } from "lucide-react";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import {Pencil, Verified} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { ChangeEvent, useEffect, useState } from "react";
-import { PinataSDK } from "pinata-web3";
-import { Field, Formik, Form } from "formik";
-import { ReloadIcon } from "@radix-ui/react-icons";
-import { Hex } from "viem";
+import {useRouter} from "next/router";
+import {ChangeEvent, useEffect, useState} from "react";
+import {PinataSDK} from "pinata-web3";
+import {Field, Formik, Form} from "formik";
+import {ReloadIcon} from "@radix-ui/react-icons";
+import {Hex} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
+import {toast} from "sonner";
 export default function RequestOrganiser() {
   const router = useRouter();
   const {
@@ -78,7 +79,6 @@ export default function RequestOrganiser() {
     }
   }, [status, walletClient, publicClient]);
 
-
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +112,8 @@ export default function RequestOrganiser() {
               org.verified == false
           );
 
+          console.log(isAdded, "isAdded");
+
           const isVerified = orgs.some(
             (org: any) =>
               org.orgAddress.toLowerCase() == loggedInAddress.toLowerCase() &&
@@ -143,7 +145,7 @@ export default function RequestOrganiser() {
 
         {!isOrganisationAdded && !isVerified ? (
           <Formik
-            initialValues={{ orgName: "" }}
+            initialValues={{orgName: ""}}
             onSubmit={async (values, _) => {
               console.log(values);
               console.log(imageFile);
@@ -180,10 +182,12 @@ export default function RequestOrganiser() {
                       );
                       router.reload();
                       console.log("done");
+                      toast.success("Request sent successfully");
                     }
                   }
                 } catch (error) {
                   console.error(error, "Error uploading image to ipfs");
+                  toast.error("Error sending request");
                 }
               })();
             }}

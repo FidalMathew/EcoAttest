@@ -342,6 +342,16 @@
                 "internalType": "string",
                 "name": "photo",
                 "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "programId",
+                "type": "string"
+              },
+              {
+                "internalType": "string[]",
+                "name": "feedbackStoreIds",
+                "type": "string[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -384,9 +394,36 @@
             "type": "address"
           },
           {
-            "internalType": "address[]",
+            "components": [
+              {
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "photo",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "programId",
+                "type": "string"
+              },
+              {
+                "internalType": "string[]",
+                "name": "feedbackStoreIds",
+                "type": "string[]"
+              }
+            ],
+            "internalType": "struct EcoAttest.Participant[]",
             "name": "subOrganizers",
-            "type": "address[]"
+            "type": "tuple[]"
           },
           {
             "internalType": "string",
@@ -475,6 +512,16 @@
                 "internalType": "string",
                 "name": "photo",
                 "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "programId",
+                "type": "string"
+              },
+              {
+                "internalType": "string[]",
+                "name": "feedbackStoreIds",
+                "type": "string[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -536,9 +583,36 @@
             "type": "address"
           },
           {
-            "internalType": "address[]",
+            "components": [
+              {
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "photo",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "programId",
+                "type": "string"
+              },
+              {
+                "internalType": "string[]",
+                "name": "feedbackStoreIds",
+                "type": "string[]"
+              }
+            ],
+            "internalType": "struct EcoAttest.Participant[]",
             "name": "subOrganizers",
-            "type": "address[]"
+            "type": "tuple[]"
           },
           {
             "internalType": "string",
@@ -726,6 +800,11 @@
         "internalType": "string",
         "name": "photo",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "programId",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -740,6 +819,32 @@
       }
     ],
     "name": "registerForEvent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_feedbackStoreId",
+        "type": "string"
+      }
+    ],
+    "name": "storeFeedback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_programId",
+        "type": "string"
+      }
+    ],
+    "name": "updateProgramId",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

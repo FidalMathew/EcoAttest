@@ -1,5 +1,15 @@
 import Navbar from "@/components/ui/Navbar";
-import {ArrowRight, Check, Copy, Gem, QrCode, Shrub, Star} from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  CloudDownload,
+  CloudUpload,
+  Copy,
+  Gem,
+  QrCode,
+  Shrub,
+  Star,
+} from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Badge} from "@/components/ui/badge";
@@ -19,8 +29,16 @@ import useGlobalContextHook from "@/context/useGlobalContextHook";
 import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Skeleton} from "@/components/ui/skeleton";
-import {formatEther, parseEther} from "viem";
+import {formatEther, Hex, parseEther} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {ReloadIcon} from "@radix-ui/react-icons";
+
 export default function Profile() {
   const router = useRouter();
   const [openQr, setOpenQr] = useState(false);
@@ -39,6 +57,10 @@ export default function Profile() {
     loggedInAddress,
     balanceAddress,
     registerEventLoading,
+    CONTRACT_ADDRESS,
+    storeProgram,
+    storeProgramLoading,
+    programId,
   } = useGlobalContextHook();
 
   const getUser = async () => {
@@ -85,7 +107,7 @@ export default function Profile() {
     (async function () {
       if (loggedIn && loggedInAddress && publicClient && walletClient) {
         const isParticipant = await publicClient.readContract({
-          address: "0x8cC33e3A35607bB197553F1e3b606095Dc501FD0",
+          address: CONTRACT_ADDRESS! as Hex,
           functionName: "isParticipant",
           abi: EcoAttestABI,
           args: [loggedInAddress],
@@ -151,7 +173,7 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <div className="font-sans h-2/5 w-full lg:py-6 justify-center rounded-b-2xl px-6 flex flex-col gap-4 relative">
+          <div className="font-sans h-fit pb-5 w-full lg:py-6 justify-center rounded-b-2xl px-6 flex flex-col gap-4 relative">
             <div
               className="absolute lg:top-3 lg:right-4 top-5 right-5 hover:bg-slate-100 rounded-lg cursor-pointer p-1"
               onClick={() => setOpenQr((prev) => !prev)}
@@ -167,7 +189,7 @@ export default function Profile() {
             )}
 
             {loggedInAddress ? (
-              <div className="flex flex-col">
+              <div className="flex flex-col relative">
                 <div className="flex items-center gap-4">
                   <p>
                     {loggedInAddress.slice(0, 10) +
@@ -192,10 +214,62 @@ export default function Profile() {
                   {balanceAddress &&
                     "Balance: " + formatEther(BigInt(balanceAddress)) + " HBAR"}
                 </p>
+
+                {storeProgram &&
+                  (storeProgramLoading ? (
+                    <Button
+                      variant={"outline"}
+                      size={"icon"}
+                      disabled
+                      className="absolute bottom-0 right-0 border border-gray-700 rounded-full cursor-pointer w-7 h-7"
+                    >
+                      {/* put nillion */}
+                      <ReloadIcon className="h-3 w-3 animate-spin" />
+                    </Button>
+                  ) : (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant={"outline"}
+                            size={"icon"}
+                            className="absolute bottom-0 right-0 border border-gray-700 p-1 rounded-full cursor-pointer h-7 w-7"
+                            onClick={storeProgram}
+                          >
+                            {/* put nillion */}
+                            <CloudUpload className="h-5 w-5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>Add to library</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ))}
               </div>
             ) : (
               <Skeleton className="w-4/5 bg-gray-300 h-[30px]" />
             )}
+
+            <div className="flex items-center w-full justify-between">
+              <div className="flex items-center gap-2 truncate">
+                <p>
+                  {/*nillion program id */}
+                  {programId && (
+                    <span>
+                      {programId.slice(0, 10) + "..." + programId.slice(-17)}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <p>
+                <img
+                  src="https://img.cryptorank.io/coins/nillion1670856857177.png"
+                  alt="nillion"
+                  className="w-6 h-6"
+                />
+              </p>
+            </div>
             <div className="flex items-center justify-between font-sans font-semibold mt-5">
               <div className="flex items-center gap-2">
                 <Star className="w-6 h-6 fill-yellow-500" />
@@ -213,6 +287,18 @@ export default function Profile() {
 
               <p>600</p>
             </div>
+            {/* <div className="flex items-center justify-between font-sans font-semibold">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://img.cryptorank.io/coins/nillion1670856857177.png"
+                  className="w-6 h-6 fill-yellow-500"
+                />
+
+                <span>Nillion Program ID</span>
+              </div>
+
+              <p>600</p>
+            </div> */}
           </div>
 
           {/* <footer className="rounded-b-xl absolute bottom-0 right-0 w-full h-10"></footer> */}
@@ -238,7 +324,7 @@ export default function Profile() {
               <div
                 className="w-full overflow-y-auto flex flex-col gap-4 pr-4"
                 style={{
-                  height: "calc(100vh - 30vh)",
+                  height: "70vh",
                 }}
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, index) => (
