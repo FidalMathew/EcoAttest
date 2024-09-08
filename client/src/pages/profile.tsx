@@ -1,6 +1,7 @@
 import Navbar from "@/components/ui/Navbar";
 import {
   ArrowRight,
+  Calculator,
   Check,
   CloudDownload,
   CloudUpload,
@@ -10,11 +11,11 @@ import {
   Shrub,
   Star,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/router";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {useRouter} from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -23,13 +24,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatEther, Hex, parseEther } from "viem";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {Skeleton} from "@/components/ui/skeleton";
+import {formatEther, Hex, parseEther} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import {
   Tooltip,
@@ -37,12 +38,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import {ReloadIcon} from "@radix-ui/react-icons";
 
-import {
-  hexToBigInt,
-  sliceHex
-} from "viem";
+import {hexToBigInt, sliceHex} from "viem";
 import axios from "axios";
 
 export default function Profile() {
@@ -66,8 +64,7 @@ export default function Profile() {
     CONTRACT_ADDRESS,
     storeProgram,
     storeProgramLoading,
-    programId,
-    getAllEvents
+    getAllEvents,
   } = useGlobalContextHook();
 
   const [attestations, setAttestations] = useState<any>([]);
@@ -136,14 +133,12 @@ export default function Profile() {
     console.log(deRows, "deRows");
     console.log(rows, "attestations");
 
-    setAttestations(deRows)
+    setAttestations(deRows);
   };
-
 
   useEffect(() => {
     const fetchEvents = async () => {
-
-      console.log("------ events")
+      console.log("------ events");
       if (loggedInAddress && getAllEvents) {
         const res = await getAllEvents();
 
@@ -152,7 +147,7 @@ export default function Profile() {
           const temp = val.participants;
           let flag = false;
 
-          console.log(temp, "temp")
+          console.log(temp, "temp");
 
           for (let i = 0; i < temp.length; i++) {
             if (temp[i].user === "0xf0b2975277884ADe4476329Abedcde4f15D95f7F") {
@@ -162,15 +157,14 @@ export default function Profile() {
           }
 
           return flag;
-        })
+        });
         setParticipatingEvents(participatingEvents);
-        console.log(participatingEvents, "eventsss")
+        console.log(participatingEvents, "eventsss");
       }
-    }
-    console.log("hellllo")
+    };
+    console.log("hellllo");
     fetchEvents();
-  }, [loggedInAddress])
-
+  }, [loggedInAddress]);
 
   const getUser = async () => {
     if (!getUserInfo) return;
@@ -178,7 +172,7 @@ export default function Profile() {
       const userInfo = await getUserInfo();
       setUserInfo(userInfo);
       console.log(userInfo, "User info");
-      fetchAttestations()
+      fetchAttestations();
     } catch (error) {
       console.error(error, "Error user info");
     }
@@ -242,7 +236,7 @@ export default function Profile() {
         if (loggedIn && loggedInAddress && publicClient && walletClient) {
           const ParticipantDetails = await publicClient.readContract({
             address: CONTRACT_ADDRESS! as Hex,
-            functionName: "getParticipantByAddress",
+            functionName: "participants",
             abi: EcoAttestABI,
             args: [loggedInAddress],
           });
@@ -393,11 +387,11 @@ export default function Profile() {
               <div className="flex items-center gap-2 truncate">
                 <p>
                   {/*nillion program id */}
-                  {participantFetched && participantFetched.programId && (
+                  {participantFetched && participantFetched[3] && (
                     <span>
-                      {participantFetched.programId.slice(0, 10) +
+                      {participantFetched[3].slice(0, 10) +
                         "..." +
-                        participantFetched.programId.slice(-17)}
+                        participantFetched[3].slice(-17)}
                     </span>
                   )}
                 </p>
@@ -415,8 +409,17 @@ export default function Profile() {
                 <Star className="w-6 h-6 fill-yellow-500" />
                 <span>Carbon Score</span>
               </div>
-
-              <p>4.77</p>
+              <div className="flex gap-4">
+                <p>4.77</p>
+                <Button
+                  onClick={() => console.log("clicked")}
+                  size="icon"
+                  variant={"outline"}
+                  className="border-2 border-gray-700 w-7 h-7"
+                >
+                  <Calculator className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
             <div className="flex items-center justify-between font-sans font-semibold">
               <div className="flex items-center gap-2">
@@ -479,8 +482,9 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 ? "bg-yellow-700" : "bg-green-700"
-                          }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
+                          index % 3 ? "bg-yellow-700" : "bg-green-700"
+                        }`}
                       >
                         {index % 3 == 0 ? "Issued CC" : "Participated"}
                       </Badge>
@@ -517,12 +521,13 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
-                          ? index === 2
-                            ? "bg-red-700"
-                            : "bg-green-800"
-                          : "bg-yellow-700"
-                          }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
+                          index % 3 === 0
+                            ? index === 2
+                              ? "bg-red-700"
+                              : "bg-green-800"
+                            : "bg-yellow-700"
+                        }`}
                       >
                         {index % 3 === 0
                           ? index === 2

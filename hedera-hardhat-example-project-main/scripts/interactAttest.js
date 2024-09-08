@@ -6,6 +6,7 @@ async function main() {
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
   const contractAddress = "0xFe0eD10De27B135dC1A00f25dDedF34c4639833d";
+  // const contractAddress = "0xa11ff608DB42F526180543260d9eb135a3c30cFe";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
@@ -41,7 +42,7 @@ async function main() {
   // console.log(c);
 
   // const ss = await ecoAttest.addSubOrganizer(
-  //   "0x45B5175beB39B86609c9e0e7E5A7E5B0f1d65115"
+  //   "0x7FdcE937855028606f8bd1C082F463fD92369cbf"
   // );
   // await ss.wait();
   // console.log("Suborganiser added successfully.");
@@ -62,8 +63,8 @@ async function main() {
   // console.log("Organization Details:", organization);
 
   // Example: Fetching all organizations
-  // const organizations = await ecoAttest.getAllOrganizations();
-  // console.log("All Organizations:", organizations);
+  const organizations = await ecoAttest.getAllOrganizations();
+  console.log("All Organizations:", organizations);
 
   // // Example: Creating an event
   // const tx3 = await ecoAttest.createEvent(
@@ -105,6 +106,8 @@ async function main() {
   // const allParticipants = await ecoAttest.fetchAllParticipants();
   // console.log(allParticipants, 'allParticipants')
 
+  // const participant = await ecoAttest.getParticipantByAddress("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A")
+  // console.log(participant, 'participant')
   // const val = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
   // console.log(val, 'val')
 }

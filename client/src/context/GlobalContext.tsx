@@ -86,8 +86,11 @@ interface PublicClientContextType {
   testFunc?: (participantName: string, photo: string) => Promise<void>;
   CONTRACT_ADDRESS?: string;
   storeProgram?: () => Promise<void>;
-  programId?: string | null;
-  storeVotesByOrganisers?: (voteValue: number) => Promise<void>;
+  storeVotesByOrganisers?: (
+    voteValue: number,
+    participantAddress: string
+  ) => Promise<void>;
+  computeResult?: (participantAddress: string) => Promise<void>;
 
   // loading states
   addOrganizationLoading?: boolean;
@@ -96,6 +99,7 @@ interface PublicClientContextType {
   createEventLoading?: boolean;
   storeProgramLoading?: boolean;
   storeVotesLoading?: boolean;
+  computeLoading?: boolean;
 }
 
 export const GlobalContext = createContext<PublicClientContextType>({
@@ -108,6 +112,17 @@ export const GlobalContext = createContext<PublicClientContextType>({
   status: "not_ready",
   CONTRACT_ADDRESS: "",
 });
+
+// Function to generate a random seed (hex string)
+function generateRandomSeed() {
+  // Generates a random 32-byte hex seed
+  return (
+    "0x" +
+    [...Array(64)]
+      .map(() => Math.floor(Math.random() * 16).toString(16))
+      .join("")
+  );
+}
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
 
@@ -143,6 +158,7 @@ web3auth.configureAdapter(openloginAdapter);
 // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 // const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
 const CONTRACT_ADDRESS = "0xFe0eD10De27B135dC1A00f25dDedF34c4639833d";
+// const CONTRACT_ADDRESS = "0xa11ff608DB42F526180543260d9eb135a3c30cFe";
 
 export default function GlobalContextProvider({
   children,
@@ -210,7 +226,7 @@ export default function GlobalContextProvider({
           const privateKey = await web3auth.provider.request({
             method: "eth_private_key",
           });
-          console.log(privateKey, "private KEy")
+          console.log(privateKey, "private KEy");
           const account = privateKeyToAccount(`0x${privateKey}` as Hex);
           setUserAccount(account);
         }
@@ -312,7 +328,6 @@ export default function GlobalContextProvider({
   }, [publicClient, walletClient, loggedInAddress]);
 
   const [storeProgramLoading, setStoreProgramLoading] = useState(false);
-  const [programId, setProgramId] = useState<string | null>(null);
 
   async function storeProgram() {
     setStoreProgramLoading(true);
@@ -330,10 +345,11 @@ export default function GlobalContextProvider({
             }
           );
 
+          debugger;
+
           console.log("program id is succesful from nillion backend");
           toast.success("Successfully stored Program Id on nillion network");
           if (data) {
-            setProgramId(data);
             // Contract update if backend request succeeds
             const tx = await walletClient.writeContract({
               address: CONTRACT_ADDRESS,
@@ -375,11 +391,12 @@ export default function GlobalContextProvider({
   }
 
   const [storeVotesLoading, setStoreVotesLoading] = useState(false);
-  const [storeId, setStoreId] = useState<string | null>(null);
 
-  async function storeVotesByOrganisers(voteValue: number) {
+  async function storeVotesByOrganisers(
+    voteValue: number,
+    participantAddress: string
+  ) {
     setStoreVotesLoading(true);
-    toast.loading("Waiting...");
 
     // Function to retry the backend request
     const retryRequest = async (retryCount = 0) => {
@@ -391,11 +408,11 @@ export default function GlobalContextProvider({
             address: CONTRACT_ADDRESS,
             functionName: "getParticipantByAddress",
             abi: EcoAttestABI,
-            args: [loggedInAddress],
+            args: [participantAddress],
           });
 
           console.log(participantByAddress, "storeVotesByOrganisersfucku");
-
+          if (!participantByAddress) return;
           // @ts-ignore
           if (participantByAddress && participantByAddress.programId !== "") {
             const feedbackStoreIds =
@@ -403,11 +420,12 @@ export default function GlobalContextProvider({
               participantByAddress.feedbackStoreIds as string[];
             const { data } = await axios.post("http://localhost:6969/storeVote", {
               seed: loggedInAddress,
-              voteValue: voteValue,
-              secret_name: `feedback_${feedbackStoreIds.length + 1}`,
+              vote_value: voteValue,
+              secret_name: `feedback${feedbackStoreIds.length + 1}`,
               // @ts-ignore
               programId: participantByAddress.programId,
-              programOwnerSeed: loggedInAddress,
+              // @ts-ignore
+              programOwnerSeed: participantByAddress.user,
             });
 
             console.log("feedback stored");
@@ -427,7 +445,7 @@ export default function GlobalContextProvider({
               toast.success("Feedback stored successfully in contract");
 
               // Request and transaction successful, set loading to false
-              setStoreProgramLoading(false);
+              setStoreVotesLoading(false);
             }
           }
         }
@@ -447,6 +465,124 @@ export default function GlobalContextProvider({
           toast.error("Max retry attempts reached. Aborting request.");
           setStoreProgramLoading(false); // Ensure loading is set to false on failure
         }
+      } finally {
+        setStoreVotesLoading(false);
+      }
+    };
+
+    // Call the retry function to start the process
+    await retryRequest();
+  }
+
+  const [computeLoading, setComputeLoading] = useState(false);
+
+  const [feedbackResult, setFeedbackResult] = useState<number | undefined>(
+    undefined
+  );
+
+  async function computeResult(participantAddress: string) {
+    setComputeLoading(true);
+
+    // Function to retry the backend request
+    const retryRequest = async (retryCount = 0) => {
+      try {
+        if (loggedInAddress && walletClient && publicClient) {
+          // fetch feedbackStoreIds
+
+          const participantByAddress = await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            functionName: "getParticipantByAddress",
+            abi: EcoAttestABI,
+            args: [participantAddress],
+          });
+
+          console.log(participantByAddress, "ppppppppppp");
+          if (!participantByAddress) return;
+          // @ts-ignore
+          if (participantByAddress && participantByAddress.programId !== "") {
+            const feedbackStoreIds =
+              // @ts-ignore
+              participantByAddress.feedbackStoreIds as string[];
+
+            const subOrganisersSeed =
+              // @ts-ignore
+              participantByAddress.subOrganisersSeed as string[];
+
+            if (subOrganisersSeed.length < 3) {
+              const numberOfVotesToStore = 3 - subOrganisersSeed.length;
+              const remainingArrayOfSeeds = [...subOrganisersSeed];
+
+              // Generate random seeds and push to remainingArrayOfSeeds
+              for (let i = 0; i < numberOfVotesToStore; i++) {
+                const randomSeed = generateRandomSeed();
+                remainingArrayOfSeeds.push(randomSeed);
+
+                const { data } = await axios.post(
+                  "http://localhost:6969/compute",
+                  {
+                    stored_secret_ids: feedbackStoreIds,
+                    subOrganisersSeed: remainingArrayOfSeeds,
+                    participantSeed: loggedInAddress,
+                    // @ts-ignore
+                    programId: participantByAddress.programId,
+                  }
+                );
+
+                setFeedbackResult(data.avg_feedback);
+              }
+            } else if (subOrganisersSeed.length === 3) {
+              const { data } = await axios.post("http://localhost:6969/compute", {
+                stored_secret_ids: feedbackStoreIds,
+                subOrganisersSeed: subOrganisersSeed,
+                participantSeed: loggedInAddress,
+                // @ts-ignore
+                programId: participantByAddress.programId,
+              });
+
+              setFeedbackResult(data.avg_feedback);
+            }
+
+            console.log("feedback stored");
+            toast.success("Successfully stored feedback on nillion network");
+            // if (data) {
+            //   // Contract update if backend request succeeds
+            //   const tx = await walletClient.writeContract({
+            //     address: CONTRACT_ADDRESS,
+            //     abi: EcoAttestABI,
+            //     functionName: "storeFeedback",
+            //     account: loggedInAddress as Hex,
+            //     args: [data],
+            //   });
+
+            //   await publicClient.waitForTransactionReceipt({hash: tx});
+            //   console.log("Feedback stored successfully in contract");
+            //   toast.success("Feedback stored successfully in contract");
+
+            //   // Request and transaction successful, set loading to false
+            //   setComputeLoading(false);
+            // }
+
+            setComputeLoading(false);
+          }
+        }
+      } catch (error) {
+        // If backend server error, log and retry
+        console.log(error, "from storeProgram");
+
+        if (retryCount < 5) {
+          console.log(`Retry attempt: ${retryCount + 1}`);
+
+          // Retry after 3 seconds delay
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await retryRequest(retryCount + 1);
+        } else {
+          // After max retries, log error and set loading to false
+          console.log("Max retry attempts reached. Aborting request.");
+          toast.error("Max retry attempts reached. Aborting request.");
+          setStoreProgramLoading(false); // Ensure loading is set to false on failure
+        }
+      } finally {
+        setStoreVotesLoading(false);
       }
     };
 
@@ -825,7 +961,6 @@ export default function GlobalContextProvider({
     }
   };
 
-
   const getParticipantByAddress = async (address: string): Promise<any> => {
     try {
       if (publicClient) {
@@ -842,8 +977,7 @@ export default function GlobalContextProvider({
     } catch (error) {
       console.log(error, "from getParticipantByAddress");
     }
-  }
-
+  };
 
   useEffect(() => {
     if (publicClient) {
@@ -861,7 +995,7 @@ export default function GlobalContextProvider({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
           functionName: "getOrgAddressFromSub",
-          args: [loggedInAddress]
+          args: [loggedInAddress],
         });
 
         console.log(data, "from getOrgAddressFromSub");
@@ -870,7 +1004,7 @@ export default function GlobalContextProvider({
     } catch (error) {
       console.log(error, "from getOrgAddressFromSub");
     }
-  }
+  };
 
   const getAllEventsUsingEthers = async () => {
     try {
@@ -981,8 +1115,13 @@ export default function GlobalContextProvider({
             orgAddress: orgAddress,
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
+<<<<<<< HEAD
             eventId: eventId,
             score: score
+=======
+            event: event,
+            score: score,
+>>>>>>> 49f48770911cb126836920d0d417a75b206e8442
           };
 
           try {
@@ -1009,9 +1148,6 @@ export default function GlobalContextProvider({
       console.error(error);
     }
   };
-
-
-
 
   return (
     <GlobalContext.Provider
@@ -1048,11 +1184,12 @@ export default function GlobalContextProvider({
         createEventLoading,
         storeProgram,
         storeProgramLoading,
-        programId,
         storeVotesByOrganisers,
         storeVotesLoading,
         getParticipantByAddress,
-        getOrgAddressFromSub
+        getOrgAddressFromSub,
+        computeResult,
+        computeLoading,
       }}
     >
       {children}

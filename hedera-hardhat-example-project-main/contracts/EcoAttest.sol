@@ -19,6 +19,7 @@ contract EcoAttest {
         string photo;
         string programId;
         string[] feedbackStoreIds;
+        address[] subOrganisersSeed;
     }
 
     struct Event {
@@ -322,5 +323,6 @@ contract EcoAttest {
             "Invalid feedback store ID (length is 0)"
         );
         participants[msg.sender].feedbackStoreIds.push(_feedbackStoreId);
+        participants[msg.sender].subOrganisersSeed.push(msg.sender);
     }
 }

@@ -53,6 +53,7 @@ module.exports = {
       url: process.env.TESTNET_ENDPOINT,
       // Your ECDSA account private key pulled from the .env file
       accounts: [process.env.TESTNET_OPERATOR_PRIVATE_KEY],
+      timeout: 3600000,
     },
 
     /**

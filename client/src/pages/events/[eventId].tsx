@@ -1,5 +1,5 @@
 import Navbar from "@/components/ui/Navbar";
-import { CircleCheck, Leaf, Star, TicketCheck } from "lucide-react";
+import { CircleCheck, Leaf, Shrub, Star, TicketCheck } from "lucide-react";
 import { useRouter } from "next/router";
 import {
   Card,
@@ -129,9 +129,18 @@ export default function Events() {
                 </div>
               </div> */}
 
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center flex-col gap-8">
                 {/* {userAddress} */}
-                <div className="w-96 h-3/4">
+                <Shrub className="h-14 w-14 text-green-800" />
+                <div>
+                  <p className="text-xl font-sans font-bold text-gray-900 text-center">
+                    Verify User with Carbon QR
+                  </p>
+                  <p className="text-sm font-sans text-gray-900 text-center">
+                    Scan this QR to Attest Carbon Credits to User
+                  </p>
+                </div>
+                <div className="w-1/2 h-1/2">
                   {qrValue && (
                     <QRX
                       data={qrValue}
@@ -253,7 +262,7 @@ export default function Events() {
                           OM
                         </AvatarFallback>
                       </Avatar>
-                      <div className="grid gap-1">
+                      <div className="gap-1 flex flex-col">
                         <p className="text-sm font-medium leading-none">
                           {value.name}
                         </p>
