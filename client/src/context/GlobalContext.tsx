@@ -71,6 +71,7 @@ interface PublicClientContextType {
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
   isOrganizerState?: boolean;
+  attestations?: [],
   isSubOrganizerState?: boolean;
   testbase?: () => Promise<void>;
   getAllEvents?: () => Promise<any>;
@@ -1124,7 +1125,7 @@ export default function GlobalContextProvider({
               data: data,
               schemaId: SchemaId,
               indexingValue: "xxx",
-              recipients: [loggedInAddress, participantAddress],
+              recipients: [orgAddress, loggedInAddress, participantAddress],
             });
             console.log(createAttestationRes);
 
@@ -1143,6 +1144,82 @@ export default function GlobalContextProvider({
       console.error(error);
     }
   };
+
+
+  const [attestations, setAttestations] = useState<any>([]);
+
+  function decodeData(encodedData: string, attestationId: any) {
+    // Remove '0x' prefix if present
+    if (encodedData.startsWith("0x")) {
+      encodedData = encodedData.slice(2);
+    }
+
+    // Split the encoded data into 32-byte (64 hex character) chunks
+    const chunks = encodedData.match(/.{1,64}/g);
+
+    if (chunks?.length === 5) {
+      if (chunks) {
+        console.log(chunks, "chunks");
+        // Decode each chunk
+        const address1 = "0x" + chunks[0].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address2 = "0x" + chunks[1].slice(24); // Extract the last 20 bytes (40 hex characters)
+        const address3 = "0x" + chunks[2].slice(24); // Extract the last 20 bytes (40 hex characters)
+
+        // Decode the boolean/integer (convert the value to BigInt)
+        const booleanOrInt = Number(hexToBigInt(`0x${chunks[3]}`));
+        // Decode the integer value
+        const integerValue = Number(hexToBigInt(`0x${chunks[4]}`));
+
+        console.log(address1, address2, address3, booleanOrInt, integerValue);
+        return {
+          orgAddress: address1,
+          subOrgAddress: address2,
+          participantAddress: address3,
+          eventId: booleanOrInt,
+          score: integerValue,
+          attestationId: attestationId
+        };
+      }
+    }
+  }
+  const fetchAttestations = async () => {
+    const id = "onchain_evm_84532_0x225";
+    const res = await axios.get(
+      `https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`
+    );
+    // https://testnet-rpc.sign.global/api/scan/attestations?schemaId=onchain_evm_84532_0x1a2
+
+    const rows = res.data.data.rows;
+
+    const deRows = await Promise.all(
+      rows?.map(async (val: any, index: number) => {
+        console.log(val, "val");
+        const iid = val.id;
+        const rr = await axios.get(
+          `https://testnet-rpc.sign.global/api/scan/attestations/${iid}`
+        );
+        console.log(rr, "rr --attestations");
+
+        const encodedData = rr.data.data.data;
+        console.log(encodedData, "encodedData");
+        const decoded = decodeData(encodedData, iid);
+        console.log(decoded, "decoded");
+        // const decodedValue = Promise.all(decoded);
+        return decoded;
+      })
+    );
+
+    console.log(deRows, "deRows");
+    console.log(rows, "attestations");
+
+    setAttestations(deRows);
+  };
+
+
+  useEffect(() => {
+    fetchAttestations();
+  }, [])
+
 
   return (
     <GlobalContext.Provider
@@ -1185,6 +1262,7 @@ export default function GlobalContextProvider({
         getOrgAddressFromSub,
         computeResult,
         computeLoading,
+        attestations
       }}
     >
       {children}

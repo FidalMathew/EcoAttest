@@ -11,11 +11,11 @@ import {
   Shrub,
   Star,
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {useRouter} from "next/router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -24,13 +24,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Skeleton} from "@/components/ui/skeleton";
-import {formatEther, Hex, parseEther} from "viem";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatEther, Hex, parseEther } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import {
   Tooltip,
@@ -38,9 +38,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {ReloadIcon} from "@radix-ui/react-icons";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-import {hexToBigInt, sliceHex} from "viem";
+import { hexToBigInt, sliceHex } from "viem";
 import axios from "axios";
 
 export default function Profile() {
@@ -65,76 +65,14 @@ export default function Profile() {
     storeProgram,
     storeProgramLoading,
     getAllEvents,
+    getEventById,
+    getOrganizationByAddress,
+    attestations
   } = useGlobalContextHook();
 
-  const [attestations, setAttestations] = useState<any>([]);
   const [participatingEvents, setParticipatingEvents] = useState<any>([]);
 
-  function decodeData(encodedData: string) {
-    // Remove '0x' prefix if present
-    if (encodedData.startsWith("0x")) {
-      encodedData = encodedData.slice(2);
-    }
 
-    // Split the encoded data into 32-byte (64 hex character) chunks
-    const chunks = encodedData.match(/.{1,64}/g);
-
-    if (chunks?.length === 5) {
-      if (chunks) {
-        console.log(chunks, "chunks");
-        // Decode each chunk
-        const address1 = "0x" + chunks[0].slice(24); // Extract the last 20 bytes (40 hex characters)
-        const address2 = "0x" + chunks[1].slice(24); // Extract the last 20 bytes (40 hex characters)
-        const address3 = "0x" + chunks[2].slice(24); // Extract the last 20 bytes (40 hex characters)
-
-        // Decode the boolean/integer (convert the value to BigInt)
-        const booleanOrInt = Number(hexToBigInt(`0x${chunks[3]}`));
-        // Decode the integer value
-        const integerValue = Number(hexToBigInt(`0x${chunks[4]}`));
-
-        console.log(address1, address2, address3, booleanOrInt, integerValue);
-        return {
-          address1,
-          address2,
-          address3,
-          booleanOrInt,
-          integerValue,
-        };
-      }
-    }
-  }
-  const fetchAttestations = async () => {
-    const id = "onchain_evm_84532_0x225";
-    const res = await axios.get(
-      `https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`
-    );
-    // https://testnet-rpc.sign.global/api/scan/attestations?schemaId=onchain_evm_84532_0x1a2
-
-    const rows = res.data.data.rows;
-
-    const deRows = await Promise.all(
-      rows?.map(async (val: any, index: number) => {
-        console.log(val, "val");
-        const iid = val.id;
-        const rr = await axios.get(
-          `https://testnet-rpc.sign.global/api/scan/attestations/${iid}`
-        );
-        console.log(rr, "rr --attestations");
-
-        const encodedData = rr.data.data.data;
-        console.log(encodedData, "encodedData");
-        const decoded = decodeData(encodedData);
-        console.log(decoded, "decoded");
-        // const decodedValue = Promise.all(decoded);
-        return decoded;
-      })
-    );
-
-    console.log(deRows, "deRows");
-    console.log(rows, "attestations");
-
-    setAttestations(deRows);
-  };
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -172,7 +110,7 @@ export default function Profile() {
       const userInfo = await getUserInfo();
       setUserInfo(userInfo);
       console.log(userInfo, "User info");
-      fetchAttestations();
+      // fetchAttestations();
     } catch (error) {
       console.error(error, "Error user info");
     }
@@ -251,6 +189,46 @@ export default function Profile() {
       }
     })();
   }, [loggedIn, loggedInAddress, publicClient, walletClient]);
+
+
+  const [perAttestations, setPerAttestations] = useState<any>([]);
+
+  useEffect(() => {
+
+    const fetchValues = async () => {
+
+      if (attestations) {
+        const temp = attestations.filter((val: any) => {
+          return val.participantAddress == loggedInAddress;
+          // return true;
+        })
+
+        const tt = await Promise.all(temp.map(async (val: any) => {
+          const eventDetails = await getEventById!(val.eventId);
+          const orgDetails = await getOrganizationByAddress!(val.orgAddress)
+
+          console.log(val, eventDetails, orgDetails, "-------fetch values");
+
+          return {
+            participantAddress: val.participantAddress,
+            orgAddress: val.orgAddress,
+            subOrgAddress: val.subOrgAddress,
+            eventName: eventDetails?.eventName || "carpooling",
+            orgUrl: orgDetails?.imageUrl || "",
+            orgName: orgDetails?.name || "Uber",
+            attestationId: val.attestationId
+          }
+        }))
+
+        console.log(tt, "----poke")
+
+        setPerAttestations(tt);
+      }
+
+    }
+    fetchValues()
+  }, [attestations])
+
 
   return (
     <div className="min-h-screen w-full">
@@ -454,13 +432,13 @@ export default function Profile() {
                 value="ongoing"
                 className="data-[state=active]:border-2 data-[state=active]:border-gray-700 data-[state=active]:bg-green-700 data-[state=active]:text-white"
               >
-                Ongoing Events
+                Participated Events
               </TabsTrigger>
               <TabsTrigger
                 value="past"
                 className="data-[state=active]:border-2 data-[state=active]:border-gray-700 data-[state=active]:bg-green-700 data-[state=active]:text-white"
               >
-                Past Events
+                Attestations
               </TabsTrigger>
             </TabsList>
             <TabsContent value="ongoing" className="focus-visible:ring-0">
@@ -482,9 +460,8 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 ? "bg-yellow-700" : "bg-green-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 ? "bg-yellow-700" : "bg-green-700"
+                          }`}
                       >
                         {index % 3 == 0 ? "Issued CC" : "Participated"}
                       </Badge>
@@ -492,7 +469,7 @@ export default function Profile() {
                         variant={"outline"}
                         size="sm"
                         className="border-2 border-gray-700 group hover:bg-white"
-                        onClick={() => router.push(`/events/${index}`)}
+                        onClick={() => router.push(`/events/${event.eventId}`)}
                       >
                         View
                         <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 duration-200 " />
@@ -509,25 +486,24 @@ export default function Profile() {
                   height: "calc(100vh - 30vh)",
                 }}
               >
-                {[1, 2, 3, 4, 5, 6, 7].map((_, index) => (
+                {perAttestations.map((val: any, index: number) => (
                   <div
                     className="w-full h-full rounded-xl flex flex-col gap-10 items-end"
                     key={index}
                   >
                     <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
                       <p className="lg:text-xl max-w-sm lg:max-w-full">
-                        {" "}
-                        Car Pooling to Accenture
+                        {val.eventName}
+                        {/* Car Pooling to Accenture */}
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 === 0
-                            ? index === 2
-                              ? "bg-red-700"
-                              : "bg-green-800"
-                            : "bg-yellow-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
+                          ? index === 2
+                            ? "bg-red-700"
+                            : "bg-green-800"
+                          : "bg-yellow-700"
+                          }`}
                       >
                         {index % 3 === 0
                           ? index === 2
@@ -539,9 +515,9 @@ export default function Profile() {
                         variant={"outline"}
                         size="sm"
                         className="border-2 border-gray-700 group hover:bg-white"
-                        onClick={() => router.push(`/events/${index}`)}
+                        onClick={() => window.open(`https://testnet-scan.sign.global/attestation/${val.attestationId}`, '_blank')}
                       >
-                        View
+                        View Attestation
                         <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 duration-200 " />
                       </Button>
                     </div>
