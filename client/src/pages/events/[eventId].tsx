@@ -90,7 +90,7 @@ export default function Events() {
       <Dialog open={openStatus} onOpenChange={setOpenStatus}>
         <DialogContent className="h-fit lg:w-[500px]">
           <DialogHeader>
-            <DialogTitle>Request Attestation</DialogTitle>
+            <DialogTitle className="pb-10">Request Attestation</DialogTitle>
             <DialogDescription>
               {/* <div className="w-full h-full flex flex-col mt-5 font-sans text-black text-left">
                 <div className="w-full h-[80px] flex items-center px-4">

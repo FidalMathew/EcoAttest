@@ -35,6 +35,7 @@ import axios from "axios";
 import { privateKeyToAccount } from "viem/accounts";
 import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
 import { toast } from "sonner";
+import { ethers } from "ethers";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -73,12 +74,13 @@ interface PublicClientContextType {
   isSubOrganizerState?: boolean;
   testbase?: () => Promise<void>;
   getAllEvents?: () => Promise<any>;
+  getAllEventsUsingEthers?: () => Promise<any>;
   getOrgAddressFromSub?: () => Promise<any>;
   getParticipantByAddress?: (address: string) => Promise<any>;
   attest?: (
     orgAddress: string,
     participantAddress: string,
-    event: string,
+    eventId: number,
     score: number
   ) => Promise<void>;
   testFunc?: (participantName: string, photo: string) => Promise<void>;
@@ -140,7 +142,7 @@ web3auth.configureAdapter(openloginAdapter);
 
 // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 // const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
-const CONTRACT_ADDRESS = "0xc14df6c6850B059A29B14adA14dec7e3fcA2c59F";
+const CONTRACT_ADDRESS = "0xFe0eD10De27B135dC1A00f25dDedF34c4639833d";
 
 export default function GlobalContextProvider({
   children,
@@ -700,16 +702,16 @@ export default function GlobalContextProvider({
       if (publicClient && walletClient && loggedInAddress) {
         console.log("dsa--------");
 
-        // const tx = await walletClient.writeContract({
-        //   address: CONTRACT_ADDRESS,
-        //   abi: EcoAttestABI,
-        //   functionName: "addSubOrganizer",
-        //   account: loggedInAddress as Hex,
-        //   args: [subOrgAddress],
-        // });
+        const tx = await walletClient.writeContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "addSubOrganizer",
+          account: loggedInAddress as Hex,
+          args: [subOrgAddress],
+        });
 
-        // await publicClient.waitForTransactionReceipt({ hash: tx });
-        // console.log("Sub-organizer added successfully");
+        await publicClient.waitForTransactionReceipt({ hash: tx });
+        console.log("Sub-organizer added successfully");
 
         // setWhitelist(address attester, bool allowed)
         // subOrgAddress, true
@@ -870,6 +872,26 @@ export default function GlobalContextProvider({
     }
   }
 
+  const getAllEventsUsingEthers = async () => {
+    try {
+      if (web3auth.provider && web3auth.connected) {
+        const privateKey = await web3auth.provider.request({
+          method: "eth_private_key",
+        });
+        console.log(privateKey, "private KEy")
+        const provider = new ethers.providers.JsonRpcProvider('https://296.rpc.thirdweb.com');
+        const signer = new ethers.Wallet(privateKey as ethers.utils.BytesLike, provider);
+
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, EcoAttestABI, signer);
+        const data = await contract.getAllEvents();
+        console.log(data, "from getallevents");
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from getallevents");
+    }
+  }
+
   const getAllEvents = async () => {
     try {
       if (publicClient) {
@@ -933,7 +955,7 @@ export default function GlobalContextProvider({
   const attest = async (
     orgAddress: string,
     participantAddress: string,
-    event: string,
+    eventId: number,
     score: number
   ) => {
     try {
@@ -959,7 +981,7 @@ export default function GlobalContextProvider({
             orgAddress: orgAddress,
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
-            event: event,
+            eventId: eventId,
             score: score
           };
 
@@ -968,7 +990,7 @@ export default function GlobalContextProvider({
               data: data,
               schemaId: SchemaId,
               indexingValue: "xxx",
-              recipients: [loggedInAddress],
+              recipients: [loggedInAddress, participantAddress],
             });
             console.log(createAttestationRes);
 
@@ -1019,6 +1041,7 @@ export default function GlobalContextProvider({
         testbase,
         attest,
         getAllEvents,
+        getAllEventsUsingEthers,
         testFunc,
         registerEventLoading,
         CONTRACT_ADDRESS,

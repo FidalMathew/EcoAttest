@@ -147,7 +147,7 @@ export default function Profile() {
       if (loggedInAddress && getAllEvents) {
         const res = await getAllEvents();
 
-        const participatingEvents = res.filter((val: any, _index: number) => {
+        const participatingEvents = res?.filter((val: any, _index: number) => {
           // return val.participants.includes(loggedInAddress)
           const temp = val.participants;
           let flag = false;

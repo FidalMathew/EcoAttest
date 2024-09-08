@@ -246,6 +246,11 @@
     "name": "events",
     "outputs": [
       {
+        "internalType": "uint256",
+        "name": "eventId",
+        "type": "uint256"
+      },
+      {
         "internalType": "string",
         "name": "eventName",
         "type": "string"
@@ -340,6 +345,11 @@
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "uint256",
+            "name": "eventId",
+            "type": "uint256"
+          },
           {
             "internalType": "string",
             "name": "eventName",
@@ -511,6 +521,11 @@
       {
         "components": [
           {
+            "internalType": "uint256",
+            "name": "eventId",
+            "type": "uint256"
+          },
+          {
             "internalType": "string",
             "name": "eventName",
             "type": "string"
@@ -597,7 +612,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_subAddress",
+        "type": "address"
+      }
+    ],
     "name": "getOrgAddressFromSub",
     "outputs": [
       {

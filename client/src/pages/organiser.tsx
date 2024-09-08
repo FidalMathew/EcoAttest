@@ -469,7 +469,13 @@ export default function Organisers() {
 
           {/* <footer className="rounded-b-xl absolute bottom-0 right-0 w-full h-10"></footer> */}
         </div>
-        <div className="h-full w-full flex flex-col gap-4">
+        {
+          organizationDetails && !organizationDetails.verified &&
+          <>
+            Not Verified
+          </>
+        }
+        {organizationDetails && organizationDetails.verified && <div className="h-full w-full flex flex-col gap-4">
           <p className="text-2xl">Details</p>
           <Tabs
             defaultValue="suborganisers"
@@ -554,13 +560,13 @@ export default function Organisers() {
                               {value.email}
                             </p>
                           </div>
-                          <Badge
+                          {/* <Badge
                             variant={"outline"}
                             className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white  bg-green-700`}
                           >
                             Event Name
-                          </Badge>
-                          <Button
+                          </Badge> */}
+                          {/* <Button
                             variant={"outline"}
                             size="sm"
                             className="border-2 border-gray-700 group hover:bg-white"
@@ -568,7 +574,7 @@ export default function Organisers() {
                           >
                             View
                             <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 duration-200 " />
-                          </Button>
+                          </Button> */}
                         </div>
                       </div>
                     )
@@ -668,7 +674,7 @@ export default function Organisers() {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
+        </div>}
       </div>
     </div>
   );

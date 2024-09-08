@@ -5,7 +5,7 @@ async function main() {
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0xc14df6c6850B059A29B14adA14dec7e3fcA2c59F";
+  const contractAddress = "0xFe0eD10De27B135dC1A00f25dDedF34c4639833d";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
   // Attach to the deployed contract
@@ -46,14 +46,14 @@ async function main() {
   // await ss.wait();
   // console.log("Suborganiser added successfully.");
 
-  const v = await ecoAttest.isSubOrganizer(
-    "0x7FdcE937855028606f8bd1C082F463fD92369cbf"
-  );
+  // const v = await ecoAttest.isSubOrganizer(
+  //   "0x7FdcE937855028606f8bd1C082F463fD92369cbf"
+  // );
 
-  console.log(v, " sad");
+  // console.log(v, " sad");
 
-  const s = await ecoAttest.getOrgAddressFromSub();
-  console.log(s, "Sads");
+  // const s = await ecoAttest.getOrgAddressFromSub();
+  // console.log(s, "Sads");
 
   // // Example: Fetching an organization by address
   // const organization = await ecoAttest.getOrganizationByAddress(
@@ -81,9 +81,9 @@ async function main() {
   // const event = await ecoAttest.getEventById(1); // Assuming event ID is 1
   // console.log("Event Details:", event);
 
-  // const events = await ecoAttest.getAllEvents();
+  const events = await ecoAttest.getAllEvents();
 
-  // console.log(events, 'events')
+  console.log(events, "events");
 
   // const eventCount = await ecoAttest.events(1)
 
