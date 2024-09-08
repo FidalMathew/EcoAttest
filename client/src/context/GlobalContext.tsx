@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {createContext, ReactNode, useEffect, useState} from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
+import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -24,19 +24,17 @@ import {
   sliceHex,
   parseEther,
 } from "viem";
-import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
-import { getContract } from "viem";
+import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
+import {getContract} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import HookABI from "../lib/Hook.json";
 import countabi from "../lib/CountAbi.json";
-import { Web3Auth } from "@web3auth/modal";
-import { useRouter } from "next/router";
+import {Web3Auth} from "@web3auth/modal";
+import {useRouter} from "next/router";
 import axios from "axios";
-import { privateKeyToAccount } from "viem/accounts";
-import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
-import { toast } from "sonner";
-import { ethers } from "ethers";
-
+import {privateKeyToAccount} from "viem/accounts";
+import {SignProtocolClient, EvmChains, SpMode} from "@ethsign/sp-sdk";
+import {toast} from "sonner";
 interface PublicClientContextType {
   publicClient: PublicClient | null;
   walletClient: WalletClient | null;
@@ -71,11 +69,10 @@ interface PublicClientContextType {
   loggedInAddress?: string | null;
   balanceAddress?: string | null;
   isOrganizerState?: boolean;
-  attestations?: [],
+  attestations?: [];
   isSubOrganizerState?: boolean;
   testbase?: () => Promise<void>;
   getAllEvents?: () => Promise<any>;
-  getAllEventsUsingEthers?: () => Promise<any>;
   getOrgAddressFromSub?: () => Promise<any>;
   getParticipantByAddress?: (address: string) => Promise<any>;
   attest?: (
@@ -92,6 +89,7 @@ interface PublicClientContextType {
     participantAddress: string
   ) => Promise<void>;
   computeResult?: (participantAddress: string) => Promise<void>;
+  feedbackResult?: number | undefined;
 
   // loading states
   addOrganizationLoading?: boolean;
@@ -106,8 +104,8 @@ interface PublicClientContextType {
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => { },
-  logout: async () => { },
+  login: async () => {},
+  logout: async () => {},
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -130,8 +128,8 @@ const clientId = process.env.NEXT_PUBLIC_CLIENT_ID!;
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0x128",
-  rpcTarget: "https://296.rpc.thirdweb.com",
-  // rpcTarget: "https://testnet.hashio.io/api",
+  // rpcTarget: "https://296.rpc.thirdweb.com",
+  rpcTarget: "https://testnet.hashio.io/api",
   displayName: "Hedera Testnet",
   blockExplorerUrl: "https://hashscan.io/testnet/",
   ticker: "HBAR",
@@ -140,7 +138,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
+  config: {chainConfig},
 });
 
 const web3auth = new Web3Auth({
@@ -158,7 +156,7 @@ web3auth.configureAdapter(openloginAdapter);
 
 // const CONTRACT_ADDRESS = "0xF73972ACe5Bd3A9363Bc1F12052f18fAeF26139B";
 // const CONTRACT_ADDRESS = "0xe3fc547ba753f2Ce611cf3CD6b8C5861911aE44c";
-const CONTRACT_ADDRESS = "0xFe0eD10De27B135dC1A00f25dDedF34c4639833d";
+const CONTRACT_ADDRESS = "0xd5A40d6371d20eD0FF7e95dE0b952AbE84Fd2418";
 // const CONTRACT_ADDRESS = "0xa11ff608DB42F526180543260d9eb135a3c30cFe";
 
 export default function GlobalContextProvider({
@@ -316,7 +314,7 @@ export default function GlobalContextProvider({
                 args: [userInfo.name, userInfo.profileImage],
               });
 
-              await publicClient.waitForTransactionReceipt({ hash: tx });
+              await publicClient.waitForTransactionReceipt({hash: tx});
 
               console.log("Participant created successfully");
             }
@@ -339,14 +337,12 @@ export default function GlobalContextProvider({
       try {
         if (loggedInAddress && walletClient && publicClient) {
           // Sending request to backend
-          const { data } = await axios.post(
+          const {data} = await axios.post(
             "http://localhost:6969/storeProgram",
             {
               seed: loggedInAddress,
             }
           );
-
-          debugger;
 
           console.log("program id is succesful from nillion backend");
           toast.success("Successfully stored Program Id on nillion network");
@@ -360,12 +356,13 @@ export default function GlobalContextProvider({
               args: [data],
             });
 
-            await publicClient.waitForTransactionReceipt({ hash: tx });
+            await publicClient.waitForTransactionReceipt({hash: tx});
             console.log("Program Id updated successfully");
             toast.success("Program Id updated successfully in contract");
 
             // Request and transaction successful, set loading to false
             setStoreProgramLoading(false);
+            router.reload();
           }
         }
       } catch (error) {
@@ -412,17 +409,23 @@ export default function GlobalContextProvider({
             args: [participantAddress],
           });
 
+          const arrayofstoreid = await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            functionName: "getFeedbackStoreIds",
+            abi: EcoAttestABI,
+            args: [participantAddress],
+          });
+
           console.log(participantByAddress, "storeVotesByOrganisersfucku");
+          console.log(arrayofstoreid, "arrayofstoreid");
           if (!participantByAddress) return;
+
           // @ts-ignore
-          if (participantByAddress && participantByAddress.programId !== "") {
-            const feedbackStoreIds =
-              // @ts-ignore
-              participantByAddress.feedbackStoreIds as string[];
-            const { data } = await axios.post("http://localhost:6969/storeVote", {
+          if (participantByAddress && participantByAddress.programId) {
+            const {data} = await axios.post("http://localhost:6969/storeVote", {
               seed: loggedInAddress,
               vote_value: voteValue,
-              secret_name: `feedback${feedbackStoreIds.length + 1}`,
+              secret_name: `feedback${(arrayofstoreid as string[]).length + 1}`,
               // @ts-ignore
               programId: participantByAddress.programId,
               // @ts-ignore
@@ -432,16 +435,16 @@ export default function GlobalContextProvider({
             console.log("feedback stored");
             toast.success("Successfully stored feedback on nillion network");
             if (data) {
-              // Contract update if backend request succeeds
               const tx = await walletClient.writeContract({
                 address: CONTRACT_ADDRESS,
                 abi: EcoAttestABI,
                 functionName: "storeFeedback",
                 account: loggedInAddress as Hex,
-                args: [data],
+                // @ts-ignore
+                args: [data, participantByAddress.user],
               });
 
-              await publicClient.waitForTransactionReceipt({ hash: tx });
+              await publicClient.waitForTransactionReceipt({hash: tx});
               console.log("Feedback stored successfully in contract");
               toast.success("Feedback stored successfully in contract");
 
@@ -497,51 +500,90 @@ export default function GlobalContextProvider({
             args: [participantAddress],
           });
 
+          const arrayofstoreid = await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            functionName: "getFeedbackStoreIds",
+            abi: EcoAttestABI,
+            args: [participantAddress],
+          });
+
+          const arrayofprogramseeds = await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            functionName: "getVoters",
+            abi: EcoAttestABI,
+            args: [participantAddress],
+          });
+
           console.log(participantByAddress, "ppppppppppp");
           if (!participantByAddress) return;
           // @ts-ignore
           if (participantByAddress && participantByAddress.programId !== "") {
-            const feedbackStoreIds =
-              // @ts-ignore
-              participantByAddress.feedbackStoreIds as string[];
+            // const feedbackStoreIds =
+            //   // @ts-ignore
+            //   participantByAddress.feedbackStoreIds as string[];
 
-            const subOrganisersSeed =
-              // @ts-ignore
-              participantByAddress.subOrganisersSeed as string[];
+            // const subOrganisersSeed =
+            //   // @ts-ignore
+            //   participantByAddress.subOrganisersSeed as string[];
 
-            if (subOrganisersSeed.length < 3) {
-              const numberOfVotesToStore = 3 - subOrganisersSeed.length;
-              const remainingArrayOfSeeds = [...subOrganisersSeed];
+            // @ts-ignore
+            const programId = participantByAddress.programId;
 
-              // Generate random seeds and push to remainingArrayOfSeeds
-              for (let i = 0; i < numberOfVotesToStore; i++) {
-                const randomSeed = generateRandomSeed();
-                remainingArrayOfSeeds.push(randomSeed);
+            // if ((arrayofprogramseeds as string[]).length < 3) {
+            //   const numberOfVotesToStore =
+            //     3 - (arrayofprogramseeds as string[]).length;
+            //   const remainingArrayOfSeeds = [
+            //     ...(arrayofprogramseeds as string[]),
+            //   ];
 
-                const { data } = await axios.post(
-                  "http://localhost:6969/compute",
-                  {
-                    stored_secret_ids: feedbackStoreIds,
-                    subOrganisersSeed: remainingArrayOfSeeds,
-                    participantSeed: loggedInAddress,
-                    // @ts-ignore
-                    programId: participantByAddress.programId,
-                  }
-                );
+            //   // Generate random seeds and push to remainingArrayOfSeeds
+            //   for (let i = 0; i < numberOfVotesToStore; i++) {
+            //     const randomSeed = generateRandomSeed();
+            //     remainingArrayOfSeeds.push(randomSeed);
 
-                setFeedbackResult(data.avg_feedback);
-              }
-            } else if (subOrganisersSeed.length === 3) {
-              const { data } = await axios.post("http://localhost:6969/compute", {
-                stored_secret_ids: feedbackStoreIds,
-                subOrganisersSeed: subOrganisersSeed,
-                participantSeed: loggedInAddress,
-                // @ts-ignore
-                programId: participantByAddress.programId,
-              });
+            //     const {data} = await axios.post(
+            //       "http://localhost:6969/storeVote",
+            //       {
+            //         seed: randomSeed,
+            //         vote_value: 0,
+            //         secret_name: "feedback2",
+            //         programId:
+            //           "3LD8sj1T9c1u6yg63dupUztmhXVwecdh3VLCWxrLoeDG9q9VX88jMRyL1TXvn5iSKCKTCzt7LtQRxSrHKDJAs2eq/feedback_program",
+            //         programOwnerSeed:
+            //           "0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A",
+            //       }
+            //     );
+            //   }
 
-              setFeedbackResult(data.avg_feedback);
-            }
+            //   // setFeedbackResult(data.avg_feedback);
+            // } else if ((arrayofprogramseeds as string[]).length === 3) {
+            //   const {data} = await axios.post("http://localhost:6969/compute", {
+            //     stored_secret_ids: arrayofstoreid,
+            //     subOrganisersSeed: arrayofprogramseeds,
+            //     participantSeed: loggedInAddress,
+            //     // @ts-ignore
+            //     programId: participantByAddress.programId,
+            //   });
+
+            //   setFeedbackResult(data.avg_feedback);
+            // }
+
+            const {data} = await axios.post("http://localhost:6969/compute", {
+              stored_secret_ids: [
+                "06f23a7d-5b9d-4097-ab16-4b302ba76f2e",
+                "53997b22-2fc4-4e14-b9da-142c7bbce6b0",
+                "2e78eba6-35de-4adc-ab60-ce840644f58f",
+              ],
+              subOrganisersSeed: [
+                "0xf0b2975277884ADe4476329Abedcde4f15D95f7F",
+                "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C",
+                "0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A",
+              ],
+              participantSeed: participantAddress,
+              programId: programId,
+            });
+
+            setFeedbackResult(data.avg_feedback);
 
             console.log("feedback stored");
             toast.success("Successfully stored feedback on nillion network");
@@ -616,7 +658,7 @@ export default function GlobalContextProvider({
             chain: hederaTestnet,
           });
 
-          await publicClient.waitForTransactionReceipt({ hash: tx });
+          await publicClient.waitForTransactionReceipt({hash: tx});
 
           console.log("Participant created successfully dsa");
         }
@@ -729,7 +771,7 @@ export default function GlobalContextProvider({
           args: [cName, cEmail, cLogo],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
       }
       console.log("successfully added organization");
     } catch (error) {
@@ -819,7 +861,7 @@ export default function GlobalContextProvider({
           ],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
       }
       console.log("Event created successfully");
     } catch (error) {
@@ -847,7 +889,7 @@ export default function GlobalContextProvider({
           args: [subOrgAddress],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
         console.log("Sub-organizer added successfully");
 
         // setWhitelist(address attester, bool allowed)
@@ -913,7 +955,7 @@ export default function GlobalContextProvider({
           args: [eventId],
         });
 
-        await publicClient.waitForTransactionReceipt({ hash: tx });
+        await publicClient.waitForTransactionReceipt({hash: tx});
 
         console.log("Registered for event successfully");
       }
@@ -1007,33 +1049,14 @@ export default function GlobalContextProvider({
     }
   };
 
-  const getAllEventsUsingEthers = async () => {
-    try {
-      if (web3auth.provider && web3auth.connected) {
-        const privateKey = await web3auth.provider.request({
-          method: "eth_private_key",
-        });
-        console.log(privateKey, "private KEy")
-        const provider = new ethers.providers.JsonRpcProvider('https://296.rpc.thirdweb.com');
-        const signer = new ethers.Wallet(privateKey as ethers.utils.BytesLike, provider);
-
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, EcoAttestABI, signer);
-        const data = await contract.getAllEvents();
-        console.log(data, "from getallevents");
-        return data;
-      }
-    } catch (error) {
-      console.log(error, "from getallevents");
-    }
-  }
-
   const getAllEvents = async () => {
     try {
-      if (publicClient) {
+      if (publicClient && loggedIn && loggedInAddress) {
         const data = await publicClient.readContract({
           address: CONTRACT_ADDRESS,
           abi: EcoAttestABI,
           functionName: "getAllEvents",
+          account: loggedInAddress as Hex,
         });
 
         console.log(data, "from getallevents");
@@ -1102,6 +1125,7 @@ export default function GlobalContextProvider({
         const privateKey = await web3auth.provider.request({
           method: "eth_private_key",
         });
+
         const account = privateKeyToAccount(`0x${privateKey}`);
 
         const client = new SignProtocolClient(SpMode.OnChain, {
@@ -1117,7 +1141,7 @@ export default function GlobalContextProvider({
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
             eventId: eventId,
-            score: score
+            score: score,
           };
 
           try {
@@ -1144,7 +1168,6 @@ export default function GlobalContextProvider({
       console.error(error);
     }
   };
-
 
   const [attestations, setAttestations] = useState<any>([]);
 
@@ -1177,7 +1200,7 @@ export default function GlobalContextProvider({
           participantAddress: address3,
           eventId: booleanOrInt,
           score: integerValue,
-          attestationId: attestationId
+          attestationId: attestationId,
         };
       }
     }
@@ -1215,11 +1238,9 @@ export default function GlobalContextProvider({
     setAttestations(deRows);
   };
 
-
   useEffect(() => {
     fetchAttestations();
-  }, [])
-
+  }, []);
 
   return (
     <GlobalContext.Provider
@@ -1249,7 +1270,6 @@ export default function GlobalContextProvider({
         testbase,
         attest,
         getAllEvents,
-        getAllEventsUsingEthers,
         testFunc,
         registerEventLoading,
         CONTRACT_ADDRESS,
@@ -1262,7 +1282,8 @@ export default function GlobalContextProvider({
         getOrgAddressFromSub,
         computeResult,
         computeLoading,
-        attestations
+        attestations,
+        feedbackResult,
       }}
     >
       {children}

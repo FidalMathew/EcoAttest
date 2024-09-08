@@ -11,11 +11,11 @@ import {
   Shrub,
   Star,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/router";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {useRouter} from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -24,13 +24,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatEther, Hex, parseEther } from "viem";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {Skeleton} from "@/components/ui/skeleton";
+import {formatEther, Hex, parseEther} from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import {
   Tooltip,
@@ -38,9 +38,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import {ReloadIcon} from "@radix-ui/react-icons";
 
-import { hexToBigInt, sliceHex } from "viem";
+import {hexToBigInt, sliceHex} from "viem";
 import axios from "axios";
 
 export default function Profile() {
@@ -67,12 +67,13 @@ export default function Profile() {
     getAllEvents,
     getEventById,
     getOrganizationByAddress,
-    attestations
+    attestations,
+    computeResult,
+    computeLoading,
+    feedbackResult,
   } = useGlobalContextHook();
 
   const [participatingEvents, setParticipatingEvents] = useState<any>([]);
-
-
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -88,7 +89,7 @@ export default function Profile() {
           console.log(temp, "temp");
 
           for (let i = 0; i < temp.length; i++) {
-            if (temp[i].user === "0xf0b2975277884ADe4476329Abedcde4f15D95f7F") {
+            if (temp[i].user === loggedInAddress) {
               flag = true;
               break;
             }
@@ -190,45 +191,76 @@ export default function Profile() {
     })();
   }, [loggedIn, loggedInAddress, publicClient, walletClient]);
 
-
   const [perAttestations, setPerAttestations] = useState<any>([]);
 
   useEffect(() => {
-
     const fetchValues = async () => {
-
-      if (attestations) {
+      if (attestations && loggedInAddress) {
         const temp = attestations.filter((val: any) => {
-          return val.participantAddress == loggedInAddress;
+          return (
+            val.participantAddress.toLowerCase() ==
+            loggedInAddress.toLowerCase()
+          );
           // return true;
-        })
+        });
 
-        const tt = await Promise.all(temp.map(async (val: any) => {
-          const eventDetails = await getEventById!(val.eventId);
-          const orgDetails = await getOrganizationByAddress!(val.orgAddress)
+        const tt = await Promise.all(
+          temp.map(async (val: any) => {
+            const eventDetails = await getEventById!(val.eventId);
+            const orgDetails = await getOrganizationByAddress!(val.orgAddress);
 
-          console.log(val, eventDetails, orgDetails, "-------fetch values");
+            console.log(val, eventDetails, orgDetails, "-------fetch values");
 
-          return {
-            participantAddress: val.participantAddress,
-            orgAddress: val.orgAddress,
-            subOrgAddress: val.subOrgAddress,
-            eventName: eventDetails?.eventName || "carpooling",
-            orgUrl: orgDetails?.imageUrl || "",
-            orgName: orgDetails?.name || "Uber",
-            attestationId: val.attestationId
-          }
-        }))
+            return {
+              participantAddress: val.participantAddress,
+              orgAddress: val.orgAddress,
+              subOrgAddress: val.subOrgAddress,
+              eventName: eventDetails?.eventName || "carpooling",
+              orgUrl: orgDetails?.imageUrl || "",
+              orgName: orgDetails?.name || "Uber",
+              attestationId: val.attestationId,
+            };
+          })
+        );
 
-        console.log(tt, "----poke")
+        console.log(tt, "----poke");
 
         setPerAttestations(tt);
       }
+    };
+    fetchValues();
+  }, [attestations, loggedInAddress]);
 
-    }
-    fetchValues()
-  }, [attestations])
+  const [isOrganiserOrParticipant, setIsOrganiserOrParticipant] =
+    useState(false);
 
+  useEffect(() => {
+    (async function () {
+      try {
+        if (loggedIn && loggedInAddress && publicClient && walletClient) {
+          const isOrganiser = await publicClient.readContract({
+            address: CONTRACT_ADDRESS! as Hex,
+            functionName: "isOrganizer",
+            abi: EcoAttestABI,
+            args: [loggedInAddress],
+          });
+
+          const isSubOrganizer = await publicClient.readContract({
+            address: CONTRACT_ADDRESS! as Hex,
+            functionName: "isSubOrganizer",
+            abi: EcoAttestABI,
+            args: [loggedInAddress],
+          });
+
+          if (isOrganiser || isSubOrganizer) {
+            setIsOrganiserOrParticipant(true);
+          }
+        }
+      } catch (error) {
+        console.error(error, "Error checking participant");
+      }
+    })();
+  }, [loggedIn, loggedInAddress, publicClient, walletClient]);
 
   return (
     <div className="min-h-screen w-full">
@@ -382,23 +414,45 @@ export default function Profile() {
                 />
               </p>
             </div>
-            <div className="flex items-center justify-between font-sans font-semibold mt-5">
-              <div className="flex items-center gap-2">
-                <Star className="w-6 h-6 fill-yellow-500" />
-                <span>Carbon Score</span>
+
+            {!isOrganiserOrParticipant && (
+              <div className="flex items-center justify-between font-sans font-semibold mt-5">
+                <div className="flex items-center gap-2">
+                  <Star className="w-6 h-6 fill-yellow-500" />
+                  <span>Carbon Score</span>
+                </div>
+                <div className="flex gap-4">
+                  {feedbackResult && <p>{(feedbackResult / 3).toFixed(2)}</p>}
+
+                  {computeResult &&
+                    (computeLoading ? (
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        disabled
+                        className="border border-gray-700 rounded-full cursor-pointer w-7 h-7"
+                      >
+                        {/* put nillion */}
+                        <ReloadIcon className="h-3 w-3 animate-spin" />
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() =>
+                          computeResult(
+                            "0x7FdcE937855028606f8bd1C082F463fD92369cbf"
+                          )
+                        }
+                        size="icon"
+                        variant={"outline"}
+                        className="border-2 border-gray-700 w-7 h-7"
+                      >
+                        <Calculator className="w-5 h-5" />
+                      </Button>
+                    ))}
+                </div>
               </div>
-              <div className="flex gap-4">
-                <p>4.77</p>
-                <Button
-                  onClick={() => console.log("clicked")}
-                  size="icon"
-                  variant={"outline"}
-                  className="border-2 border-gray-700 w-7 h-7"
-                >
-                  <Calculator className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
+            )}
+
             <div className="flex items-center justify-between font-sans font-semibold">
               <div className="flex items-center gap-2">
                 <Gem className="w-6 h-6 fill-yellow-500" />
@@ -460,8 +514,9 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 ? "bg-yellow-700" : "bg-green-700"
-                          }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
+                          index % 3 ? "bg-yellow-700" : "bg-green-700"
+                        }`}
                       >
                         {index % 3 == 0 ? "Issued CC" : "Participated"}
                       </Badge>
@@ -498,12 +553,13 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
-                          ? index === 2
-                            ? "bg-red-700"
-                            : "bg-green-800"
-                          : "bg-yellow-700"
-                          }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
+                          index % 3 === 0
+                            ? index === 2
+                              ? "bg-red-700"
+                              : "bg-green-800"
+                            : "bg-yellow-700"
+                        }`}
                       >
                         {index % 3 === 0
                           ? index === 2
@@ -515,7 +571,12 @@ export default function Profile() {
                         variant={"outline"}
                         size="sm"
                         className="border-2 border-gray-700 group hover:bg-white"
-                        onClick={() => window.open(`https://testnet-scan.sign.global/attestation/${val.attestationId}`, '_blank')}
+                        onClick={() =>
+                          window.open(
+                            `https://testnet-scan.sign.global/attestation/${val.attestationId}`,
+                            "_blank"
+                          )
+                        }
                       >
                         View Attestation
                         <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 duration-200 " />

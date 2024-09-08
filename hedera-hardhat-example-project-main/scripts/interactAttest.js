@@ -5,7 +5,7 @@ async function main() {
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0xFb129d7A9a6476f30A9a7B84fB98Dad40B6d2276";
+  const contractAddress = "0xd5A40d6371d20eD0FF7e95dE0b952AbE84Fd2418";
   // const contractAddress = "0xa11ff608DB42F526180543260d9eb135a3c30cFe";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
@@ -30,7 +30,7 @@ async function main() {
   // console.log(og);
   // Example: Verifying an organization
   // const tx2 = await ecoAttest.verifyOrganization(
-  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
+  //   "0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A"
   // );
   // await tx2.wait();
   // console.log("Organization verified successfully.");
@@ -48,7 +48,7 @@ async function main() {
   // console.log("Suborganiser added successfully.");
 
   // const v = await ecoAttest.isSubOrganizer(
-  //   "0x7FdcE937855028606f8bd1C082F463fD92369cbf"
+  //   "0xf0b2975277884ADe4476329Abedcde4f15D95f7F"
   // );
 
   // console.log(v, " sad");
@@ -106,30 +106,57 @@ async function main() {
   // const ispart = await ecoAttest.isParticipant("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A")
   // console.log(ispart, 'ispart')
 
-  const res = await ecoAttest.storeFeedback(
-    "dsa",
-    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
-  );
-  await res.wait();
-  console.log("stored feedback successfully.");
+  // const res = await ecoAttest.storeFeedback(
+  //   "dsa",
+  //   "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  // );
+  // await res.wait();
+  // console.log("stored feedback successfully.");
 
-  // const allParticipants = await ecoAttest.fetchAllParticipants();
-  // console.log(allParticipants, "allParticipants");
+  // // const allParticipants = await ecoAttest.fetchAllParticipants();
+  // // console.log(allParticipants, "allParticipants");
 
-  const vv = await ecoAttest.getVoters(
-    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
-  );
-  console.log(vv, "voters");
+  // const vv = await ecoAttest.getVoters(
+  //   "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  // );
+  // console.log(vv, "voters");
 
-  const allFeedbacks = await ecoAttest.getFeedbackStoreIds(
-    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
-  );
-  console.log(allFeedbacks, "allFeedbacks");
+  // const allFeedbacks = await ecoAttest.getFeedbackStoreIds(
+  //   "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  // );
+  // console.log(allFeedbacks, "allFeedbacks");
 
-  // const participant = await ecoAttest.getParticipantByAddress("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A")
+  // const participant = await ecoAttest.getParticipantByAddress("0x7FdcE937855028606f8bd1C082F463fD92369cbf")
   // console.log(participant, 'participant')
   // const val = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
   // console.log(val, 'val')
+
+
+  // const storesecret = await ecoAttest.storeFeedback("7ceed3a9-cbdb-478f-9284-821043ebe751", "0x7FdcE937855028606f8bd1C082F463fD92369cbf")
+  // await storesecret.wait()
+
+  // console.log('store secret')
+
+
+  // const allParticipants = await ecoAttest.fetchAllParticipants();
+  // console.log(allParticipants, 'allParticipants')
+
+  const getFeedbackStoreIds = await ecoAttest.getFeedbackStoreIds("0x7FdcE937855028606f8bd1C082F463fD92369cbf")
+  console.log(getFeedbackStoreIds, 'getFeedbackStoreIds')
+
+  const getVoters = await ecoAttest.getVoters("0x7FdcE937855028606f8bd1C082F463fD92369cbf")
+  console.log(getVoters, 'getVoters')
+
+
+  const tx6 = await ecoAttest.updateVoterArrays("0x7FdcE937855028606f8bd1C082F463fD92369cbf", ["0xf0b2975277884ADe4476329Abedcde4f15D95f7F", "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C", "0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A"])
+  await tx6.wait()
+
+  console.log('updated voter arrays')
+
+  const tx7 = await ecoAttest.updateFeedbackStoreArrays("0x7FdcE937855028606f8bd1C082F463fD92369cbf", ["06f23a7d-5b9d-4097-ab16-4b302ba76f2e", "53997b22-2fc4-4e14-b9da-142c7bbce6b0", "2e78eba6-35de-4adc-ab60-ce840644f58f"])
+  await tx7.wait()
+
+  console.log('updated feedback store arrays')
 }
 
 // Run the script with proper error handling

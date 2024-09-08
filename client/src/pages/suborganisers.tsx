@@ -211,6 +211,17 @@ export default function Profile() {
     fetchDetails();
   }, [scannedResult]);
 
+  const storeVote = async (voteValue: number, participantAddress: string) => {
+    try {
+      if (storeVotesByOrganisers) {
+        // console.log(voteValue, participantAddress, "from storevotes");
+        await storeVotesByOrganisers(voteValue, participantAddress);
+      }
+    } catch (error) {
+      console.log(error, "from storevotes");
+    }
+  };
+
   return (
     <div className="min-h-screen w-full">
       <Navbar />
@@ -253,7 +264,7 @@ export default function Profile() {
                       participantAddress:
                         attestationDetails.participantAddress || "", // Fill with participantAddress
                       event: attestationDetails.event || "", // Fill with event
-                      score: attestationDetails.score || "", // Fill with score
+                      score: attestationDetails.score || 4, // Fill with score
                     }}
                     onSubmit={async (values, _) => {
                       console.log(values);
@@ -263,6 +274,7 @@ export default function Profile() {
                         attestationDetails.eventId,
                         values.score
                       );
+                      storeVote(values.score, values.participantAddress);
                     }}
                   >
                     {(formik) => (
@@ -402,6 +414,7 @@ export default function Profile() {
         }}
         className="flex gap-9 p-7 flex-col lg:flex-row items-center"
       >
+        {/* <Button onClick={storeVote}>Test</Button> */}
         <div className="max-w-[400px] w-[550px] lg:w-[600px] h-[650px] rounded-2xl flex items-center flex-col lg:justify-center relative gap-5">
           <div className="w-full h-full rounded-2xl flex items-center lg:flex-col justify-center lg:justify-start border-2 border-gray-700 relative flex-col">
             <div className="lg:h-full h-3/5 rounded-t-2xl w-full bg-orange-600 flex justify-center items-center">
@@ -470,6 +483,8 @@ export default function Profile() {
 
             <span>Open Camera for Attestation</span>
           </Button>
+
+          {/* <Button onClick={()=>storeVote()}>Store vote</Button> */}
         </div>
 
         <div className="h-full w-full flex flex-col gap-4">
