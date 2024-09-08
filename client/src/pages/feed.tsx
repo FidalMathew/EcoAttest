@@ -1,14 +1,14 @@
-import {Input} from "@/components/ui/input";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Button} from "@/components/ui/button";
-import {ArrowRight, Leaf} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Leaf } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
-import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
-import {Hex} from "viem";
+import { Hex } from "viem";
 
 export default function Feed() {
   const router = useRouter();
@@ -76,19 +76,16 @@ export default function Feed() {
                 <div className="flex-1 p-5 flex flex-col">
                   <div className="flex items-center justify-between">
                     <p className="font-bold text-2xl font-sans">
-                      Car Pooling to Accenture
+                      {value?.eventName}
                     </p>
                     <div className="w-fit h-fit px-4 py-1 bg-green-700 text-white font-bold font-sans rounded-full flex gap-2 items-center border-2 border-green-900">
-                      12 CC
+                      {value?.carbonCreds}
                       <Leaf className="h-4 w-4" />
                     </div>
                   </div>
                   {/* <div className="flex items-center justify-between"> */}
                   <div className="my-auto max-w-3xl">
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                    Cupiditate nemo ut dignissimos obcaecati quisquam nostrum
-                    tempore porro dolor repellat in odit et, adipisci laudantium
-                    aperiam natus. Placeat nesciunt porro voluptates?
+                    {value.eventDesc}
                   </div>
 
                   {/* <img src="/earth.png" alt="earth" className="h-52 w-52" /> */}
@@ -110,7 +107,7 @@ export default function Feed() {
                         <AvatarFallback>JD</AvatarFallback>
                       </Avatar>
                     </div>
-                    <p className="text-white font-bold font-sans">4 others</p>
+                    <p className="text-white font-bold font-sans">{value.participants.length} others</p>
                   </div>
 
                   <Button

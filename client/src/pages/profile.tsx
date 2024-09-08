@@ -67,9 +67,11 @@ export default function Profile() {
     storeProgram,
     storeProgramLoading,
     programId,
+    getAllEvents
   } = useGlobalContextHook();
 
   const [attestations, setAttestations] = useState<any>([]);
+  const [participatingEvents, setParticipatingEvents] = useState<any>([]);
 
   function decodeData(encodedData: string) {
     // Remove '0x' prefix if present
@@ -105,7 +107,7 @@ export default function Profile() {
     }
   }
   const fetchAttestations = async () => {
-    const id = "onchain_evm_84532_0x226";
+    const id = "onchain_evm_84532_0x225";
     const res = await axios.get(
       `https://testnet-rpc.sign.global/api/scan/attestations?schemaId=${id}`
     );
@@ -136,6 +138,39 @@ export default function Profile() {
 
     setAttestations(deRows)
   };
+
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+
+      console.log("------ events")
+      if (loggedInAddress && getAllEvents) {
+        const res = await getAllEvents();
+
+        const participatingEvents = res.filter((val: any, _index: number) => {
+          // return val.participants.includes(loggedInAddress)
+          const temp = val.participants;
+          let flag = false;
+
+          console.log(temp, "temp")
+
+          for (let i = 0; i < temp.length; i++) {
+            if (temp[i].user === "0xf0b2975277884ADe4476329Abedcde4f15D95f7F") {
+              flag = true;
+              break;
+            }
+          }
+
+          return flag;
+        })
+        setParticipatingEvents(participatingEvents);
+        console.log(participatingEvents, "eventsss")
+      }
+    }
+    console.log("hellllo")
+    fetchEvents();
+  }, [loggedInAddress])
+
 
   const getUser = async () => {
     if (!getUserInfo) return;
@@ -432,7 +467,7 @@ export default function Profile() {
                   height: "70vh",
                 }}
               >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, index) => (
+                {participatingEvents.map((event: any, index: number) => (
                   <div
                     className="w-full h-full rounded-xl flex flex-col gap-10 items-end"
                     key={index}
@@ -440,7 +475,7 @@ export default function Profile() {
                     <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
                       <p className="lg:text-xl max-w-sm lg:max-w-full">
                         {" "}
-                        Car Pooling to Accenture
+                        {event.eventName}
                       </p>
                       <Badge
                         variant={"outline"}

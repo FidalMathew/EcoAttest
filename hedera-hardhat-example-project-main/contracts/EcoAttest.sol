@@ -22,6 +22,7 @@ contract EcoAttest {
     }
 
     struct Event {
+        uint256 eventId;
         string eventName;
         string eventPhoto;
         string eventDesc;
@@ -226,6 +227,7 @@ contract EcoAttest {
 
         eventCount++;
         Event storage newEvent = events[eventCount];
+        newEvent.eventId = eventCount;
         newEvent.eventName = _eventName;
         newEvent.maxSeats = _maxSeats;
         newEvent.registeredSeats = 0;
@@ -275,9 +277,11 @@ contract EcoAttest {
         return participants[_partAddress].user != address(0);
     }
 
-    function getOrgAddressFromSub() public view returns (address) {
+    function getOrgAddressFromSub(
+        address _subAddress
+    ) public view returns (address) {
         // Retrieve the organization address associated with msg.sender
-        address orgAddress = subOrgToOrgAddress[msg.sender];
+        address orgAddress = subOrgToOrgAddress[_subAddress];
         require(
             orgAddress != address(0),
             "msg.sender is not a sub-organizer of any organization"

@@ -75,11 +75,13 @@ export default function Events() {
   const requestAttestion = () => {
     const schemaTemplate = {
       orgAddress: event.organizer,
-      event: event.eventName,
+      eventId: Number(eventId as string),
       participant: loggedInAddress,
     };
 
+
     const url = JSON.stringify(schemaTemplate);
+    console.log(url)
     setQrValue(url);
   };
 
@@ -260,20 +262,23 @@ export default function Events() {
                             "..." +
                             value.user.slice(-4)}
                         </p>
-                      </div>
-                      <div className="ml-auto font-medium">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="px-4 py-2 border-2 border-green-900 rounded-full"
-                          onClick={() => {
-                            setOpenStatus((prev) => !prev);
-                            requestAttestion();
-                          }}
-                        >
-                          Request Attestation
-                        </Button>
-                      </div>
+                      </div>{
+                        value.user.toLowerCase() === loggedInAddress?.toLowerCase() && (
+                          <div className="ml-auto font-medium">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="px-4 py-2 border-2 border-green-900 rounded-full"
+                              onClick={() => {
+                                setOpenStatus((prev) => !prev);
+                                requestAttestion();
+                              }}
+                            >
+                              Request Attestation
+                            </Button>
+                          </div>
+                        )
+                      }
                     </div>
                   ))}
               </CardContent>

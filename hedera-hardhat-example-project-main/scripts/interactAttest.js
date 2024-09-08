@@ -29,7 +29,7 @@ async function main() {
   // console.log(og);
   // Example: Verifying an organization
   // const tx2 = await ecoAttest.verifyOrganization(
-  //   "0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A"
+  //   "0x4c15a97eABF9CA6bAc35cb91543bD3C010f0ef9C"
   // );
   // await tx2.wait();
   // console.log("Organization verified successfully.");
@@ -51,6 +51,9 @@ async function main() {
   );
 
   console.log(v, " sad");
+
+  const s = await ecoAttest.getOrgAddressFromSub();
+  console.log(s, "Sads");
 
   // // Example: Fetching an organization by address
   // const organization = await ecoAttest.getOrganizationByAddress(
@@ -78,11 +81,9 @@ async function main() {
   // const event = await ecoAttest.getEventById(1); // Assuming event ID is 1
   // console.log("Event Details:", event);
 
-
   // const events = await ecoAttest.getAllEvents();
 
   // console.log(events, 'events')
-
 
   // const eventCount = await ecoAttest.events(1)
 
@@ -95,23 +96,17 @@ async function main() {
   // const register = await ecoAttest.registerForEvent(1);
   // await register.wait();
 
-
   // const partipant = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
   // console.log(JSON.stringify(partipant), 'participant')
-
 
   // const ispart = await ecoAttest.isParticipant("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A")
   // console.log(ispart, 'ispart')
 
-
   // const allParticipants = await ecoAttest.fetchAllParticipants();
   // console.log(allParticipants, 'allParticipants')
 
-
-
   // const val = await ecoAttest.participants("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A");
   // console.log(val, 'val')
-
 }
 
 // Run the script with proper error handling

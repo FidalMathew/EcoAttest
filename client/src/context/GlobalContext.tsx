@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import {
   ADAPTER_STATUS_TYPE,
   CHAIN_NAMESPACES,
@@ -8,8 +8,8 @@ import {
   WALLET_ADAPTERS,
   WEB3AUTH_NETWORK,
 } from "@web3auth/base";
-import {EthereumPrivateKeyProvider} from "@web3auth/ethereum-provider";
-import {OpenloginAdapter, OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { OpenloginAdapter, OpenloginUserInfo } from "@web3auth/openlogin-adapter";
 import {
   createWalletClient,
   createPublicClient,
@@ -24,17 +24,17 @@ import {
   sliceHex,
   parseEther,
 } from "viem";
-import {sepolia, hederaTestnet, baseSepolia} from "viem/chains";
-import {getContract} from "viem";
+import { sepolia, hederaTestnet, baseSepolia } from "viem/chains";
+import { getContract } from "viem";
 import EcoAttestABI from "../lib/EcoAttestABI.json";
 import HookABI from "../lib/Hook.json";
 import countabi from "../lib/CountAbi.json";
-import {Web3Auth} from "@web3auth/modal";
-import {useRouter} from "next/router";
+import { Web3Auth } from "@web3auth/modal";
+import { useRouter } from "next/router";
 import axios from "axios";
-import {privateKeyToAccount} from "viem/accounts";
-import {SignProtocolClient, EvmChains, SpMode} from "@ethsign/sp-sdk";
-import {toast} from "sonner";
+import { privateKeyToAccount } from "viem/accounts";
+import { SignProtocolClient, EvmChains, SpMode } from "@ethsign/sp-sdk";
+import { toast } from "sonner";
 
 interface PublicClientContextType {
   publicClient: PublicClient | null;
@@ -73,6 +73,8 @@ interface PublicClientContextType {
   isSubOrganizerState?: boolean;
   testbase?: () => Promise<void>;
   getAllEvents?: () => Promise<any>;
+  getOrgAddressFromSub?: () => Promise<any>;
+  getParticipantByAddress?: (address: string) => Promise<any>;
   attest?: (
     orgAddress: string,
     participantAddress: string,
@@ -97,8 +99,8 @@ interface PublicClientContextType {
 export const GlobalContext = createContext<PublicClientContextType>({
   publicClient: null,
   walletClient: null,
-  login: async () => {},
-  logout: async () => {},
+  login: async () => { },
+  logout: async () => { },
   provider: null,
   loggedIn: false,
   status: "not_ready",
@@ -120,7 +122,7 @@ const chainConfig = {
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: {chainConfig},
+  config: { chainConfig },
 });
 
 const web3auth = new Web3Auth({
@@ -206,7 +208,7 @@ export default function GlobalContextProvider({
           const privateKey = await web3auth.provider.request({
             method: "eth_private_key",
           });
-
+          console.log(privateKey, "private KEy")
           const account = privateKeyToAccount(`0x${privateKey}` as Hex);
           setUserAccount(account);
         }
@@ -295,7 +297,7 @@ export default function GlobalContextProvider({
                 args: [userInfo.name, userInfo.profileImage],
               });
 
-              await publicClient.waitForTransactionReceipt({hash: tx});
+              await publicClient.waitForTransactionReceipt({ hash: tx });
 
               console.log("Participant created successfully");
             }
@@ -319,7 +321,7 @@ export default function GlobalContextProvider({
       try {
         if (loggedInAddress && walletClient && publicClient) {
           // Sending request to backend
-          const {data} = await axios.post(
+          const { data } = await axios.post(
             "http://localhost:6969/storeProgram",
             {
               seed: loggedInAddress,
@@ -339,7 +341,7 @@ export default function GlobalContextProvider({
               args: [data],
             });
 
-            await publicClient.waitForTransactionReceipt({hash: tx});
+            await publicClient.waitForTransactionReceipt({ hash: tx });
             console.log("Program Id updated successfully");
             toast.success("Program Id updated successfully in contract");
 
@@ -397,7 +399,7 @@ export default function GlobalContextProvider({
             const feedbackStoreIds =
               // @ts-ignore
               participantByAddress.feedbackStoreIds as string[];
-            const {data} = await axios.post("http://localhost:6969/storeVote", {
+            const { data } = await axios.post("http://localhost:6969/storeVote", {
               seed: loggedInAddress,
               voteValue: voteValue,
               secret_name: `feedback_${feedbackStoreIds.length + 1}`,
@@ -418,7 +420,7 @@ export default function GlobalContextProvider({
                 args: [data],
               });
 
-              await publicClient.waitForTransactionReceipt({hash: tx});
+              await publicClient.waitForTransactionReceipt({ hash: tx });
               console.log("Feedback stored successfully in contract");
               toast.success("Feedback stored successfully in contract");
 
@@ -475,7 +477,7 @@ export default function GlobalContextProvider({
             chain: hederaTestnet,
           });
 
-          await publicClient.waitForTransactionReceipt({hash: tx});
+          await publicClient.waitForTransactionReceipt({ hash: tx });
 
           console.log("Participant created successfully dsa");
         }
@@ -588,7 +590,7 @@ export default function GlobalContextProvider({
           args: [cName, cEmail, cLogo],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
       }
       console.log("successfully added organization");
     } catch (error) {
@@ -678,7 +680,7 @@ export default function GlobalContextProvider({
           ],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
       }
       console.log("Event created successfully");
     } catch (error) {
@@ -698,16 +700,16 @@ export default function GlobalContextProvider({
       if (publicClient && walletClient && loggedInAddress) {
         console.log("dsa--------");
 
-        const tx = await walletClient.writeContract({
-          address: CONTRACT_ADDRESS,
-          abi: EcoAttestABI,
-          functionName: "addSubOrganizer",
-          account: loggedInAddress as Hex,
-          args: [subOrgAddress],
-        });
+        // const tx = await walletClient.writeContract({
+        //   address: CONTRACT_ADDRESS,
+        //   abi: EcoAttestABI,
+        //   functionName: "addSubOrganizer",
+        //   account: loggedInAddress as Hex,
+        //   args: [subOrgAddress],
+        // });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
-        console.log("Sub-organizer added successfully");
+        // await publicClient.waitForTransactionReceipt({ hash: tx });
+        // console.log("Sub-organizer added successfully");
 
         // setWhitelist(address attester, bool allowed)
         // subOrgAddress, true
@@ -772,7 +774,7 @@ export default function GlobalContextProvider({
           args: [eventId],
         });
 
-        await publicClient.waitForTransactionReceipt({hash: tx});
+        await publicClient.waitForTransactionReceipt({ hash: tx });
 
         console.log("Registered for event successfully");
       }
@@ -822,6 +824,23 @@ export default function GlobalContextProvider({
   };
 
 
+  const getParticipantByAddress = async (address: string): Promise<any> => {
+    try {
+      if (publicClient) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "getParticipantByAddress",
+          args: [address],
+        });
+
+        console.log(data, "getParticipantByAddress");
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from getParticipantByAddress");
+    }
+  }
 
 
   useEffect(() => {
@@ -832,6 +851,24 @@ export default function GlobalContextProvider({
 
     // fetchAttestations();
   }, [publicClient, loggedInAddress]);
+
+  const getOrgAddressFromSub = async () => {
+    try {
+      if (publicClient) {
+        const data = await publicClient.readContract({
+          address: CONTRACT_ADDRESS,
+          abi: EcoAttestABI,
+          functionName: "getOrgAddressFromSub",
+          args: [loggedInAddress]
+        });
+
+        console.log(data, "from getOrgAddressFromSub");
+        return data;
+      }
+    } catch (error) {
+      console.log(error, "from getOrgAddressFromSub");
+    }
+  }
 
   const getAllEvents = async () => {
     try {
@@ -903,7 +940,7 @@ export default function GlobalContextProvider({
       if (web3auth && web3auth.provider && loggedInAddress) {
         // const SchemaId = "0x1a2";
 
-        const SchemaId = "0x226";
+        const SchemaId = "0x225";
         // const privateKey = ("0x" + process.env.NEXT_PUBLIC_PRIVATE_KEY!) as Hex;
         const privateKey = await web3auth.provider.request({
           method: "eth_private_key",
@@ -923,7 +960,7 @@ export default function GlobalContextProvider({
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
             event: event,
-            score: score,
+            score: score
           };
 
           try {
@@ -950,6 +987,9 @@ export default function GlobalContextProvider({
       console.error(error);
     }
   };
+
+
+
 
   return (
     <GlobalContext.Provider
@@ -988,6 +1028,8 @@ export default function GlobalContextProvider({
         programId,
         storeVotesByOrganisers,
         storeVotesLoading,
+        getParticipantByAddress,
+        getOrgAddressFromSub
       }}
     >
       {children}

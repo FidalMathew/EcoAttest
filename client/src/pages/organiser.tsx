@@ -12,11 +12,11 @@ import {
   Star,
   UsersRound,
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {useRouter} from "next/router";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -25,24 +25,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {ChangeEvent, useCallback, useEffect, useState} from "react";
+import { ChangeEvent, SetStateAction, useCallback, useEffect, useState } from "react";
 import QRX from "@qr-x/react";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
-import {Skeleton} from "@/components/ui/skeleton";
+import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
-import {Field, Form, Formik} from "formik";
-import {ReloadIcon} from "@radix-ui/react-icons";
-import {toast} from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Field, Form, Formik } from "formik";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { toast } from "sonner";
 
 function debounce<F extends (...args: any[]) => any>(func: F, delay: number) {
   let debounceTimer: NodeJS.Timeout;
@@ -72,12 +72,18 @@ export default function Organisers() {
     createEvent,
     isOrganizerState,
     createEventLoading,
+    getParticipantByAddress
   } = useGlobalContextHook();
 
   const [openQr, setOpenQr] = useState(false);
   const [userInfo, setUserInfo] = useState<
     Partial<OpenloginUserInfo> | undefined
   >();
+
+  const [orgEvents, setOrgEvents] = useState<any[]>([]);
+  const [suborganisers, setSuborganisers] = useState<any[]>([]);
+  const [orgAttestations, setOrgAttestations] = useState<any[]>([]);
+
 
   const getUser = async () => {
     if (!getUserInfo) return;
@@ -97,6 +103,9 @@ export default function Organisers() {
         if (getAllEvents) {
           const res = await getAllEvents();
           console.log(res, "getAllEvents");
+
+          res.filter((event: any) => event.organizer === loggedInAddress);
+          setOrgEvents(res);
         }
       } catch (error) {
         console.error(error, "Error logging in");
@@ -132,6 +141,22 @@ export default function Organisers() {
 
     if (loggedInAddress) fetchDetails();
   }, [loggedInAddress]);
+
+
+  useEffect(() => {
+
+    const fetchSubOrganizationDetails = () => {
+
+      // let temp: any[] = [];
+      console.log(organizationDetails, "debug===");
+      if (organizationDetails) {
+        setSuborganisers(organizationDetails?.subOrganizers);
+      }
+    }
+
+    fetchSubOrganizationDetails();
+  }, [organizationDetails])
+
 
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
@@ -173,7 +198,7 @@ export default function Organisers() {
             <DialogTitle>Add Sub Organisers</DialogTitle>
             <DialogDescription>
               <Formik
-                initialValues={{address: ""}}
+                initialValues={{ address: "" }}
                 onSubmit={async (values, _) => {
                   if (addSubOrganizer) await addSubOrganizer(values.address);
                 }}
@@ -189,7 +214,7 @@ export default function Organisers() {
                         type="text"
                         placeholder="0x1234...."
                         className="w-full focus-visible:ring-0 mt-2"
-                        // onChange={(e: any) => handleInputChange(e, formik)}
+                      // onChange={(e: any) => handleInputChange(e, formik)}
                       />
                     </div>
 
@@ -357,7 +382,7 @@ export default function Organisers() {
                     <img
                       src={
                         "https://gateway.pinata.cloud/ipfs/" +
-                          organizationDetails.imageUrl || "/ecosystem.png"
+                        organizationDetails.imageUrl || "/ecosystem.png"
                       }
                       alt={organizationDetails.name || "EcoAttest"}
                     />
@@ -512,21 +537,21 @@ export default function Organisers() {
                       <div className="w-full h-full rounded-xl flex flex-col gap-10 items-end">
                         <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
                           <Avatar className="w-24 h-24">
-                            <AvatarImage src="/man.png" />
+                            <AvatarImage src={value.photo} />
                             <AvatarFallback>CN</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col gap-2">
                             <p className="lg:text-xl max-w-sm lg:max-w-full">
                               {" "}
-                              Sub Organisers Name
+                              {value.name}
                             </p>
                             <p className="lg:text-md max-w-sm lg:max-w-full">
                               {" "}
-                              0x33434...334fe34234
+                              {value.user}
                             </p>
                             <p className="lg:text-sm max-w-sm lg:max-w-full">
                               {" "}
-                              suborganisers@mail.com
+                              {value.email}
                             </p>
                           </div>
                           <Badge
@@ -557,7 +582,7 @@ export default function Organisers() {
                   height: "calc(100vh - 30vh)",
                 }}
               >
-                {[1, 2, 3, 4, 5, 6, 7].map((_, index) => (
+                {orgEvents.map((event, index) => (
                   <div
                     className="w-full h-full rounded-xl flex flex-col gap-10 items-end"
                     key={index}
@@ -565,17 +590,16 @@ export default function Organisers() {
                     <div className="w-full h-[150px] rounded-xl border-2 border-gray-700 flex justify-around items-center">
                       <p className="lg:text-xl max-w-sm lg:max-w-full">
                         {" "}
-                        Car Pooling to Accenture
+                        {event.eventName}
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 === 0
-                            ? index === 2
-                              ? "bg-red-700"
-                              : "bg-green-800"
-                            : "bg-yellow-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
+                          ? index === 2
+                            ? "bg-red-700"
+                            : "bg-green-800"
+                          : "bg-yellow-700"
+                          }`}
                       >
                         {index % 3 === 0
                           ? index === 2
@@ -616,13 +640,12 @@ export default function Organisers() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
-                          index % 3 === 0
-                            ? index === 2
-                              ? "bg-red-700"
-                              : "bg-green-800"
-                            : "bg-yellow-700"
-                        }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
+                          ? index === 2
+                            ? "bg-red-700"
+                            : "bg-green-800"
+                          : "bg-yellow-700"
+                          }`}
                       >
                         {index % 3 === 0
                           ? index === 2
