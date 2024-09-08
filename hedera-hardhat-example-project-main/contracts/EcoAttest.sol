@@ -347,4 +347,18 @@ contract EcoAttest {
     ) public view returns (string[] memory) {
         return t2[pp];
     }
+
+    function updateVoterArrays(
+        address participantAddress,
+        address[] memory aa
+    ) public {
+        t1[participantAddress] = aa;
+    }
+
+    function updateFeedbackArrays(
+        address participantAddress,
+        string[] memory aa
+    ) public {
+        t2[participantAddress] = aa;
+    }
 }

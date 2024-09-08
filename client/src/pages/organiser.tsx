@@ -454,7 +454,7 @@ export default function Organisers() {
                 <span>Sub Organisers</span>
               </div>
 
-              <p>3</p>
+              <p>{organizationDetails?.subOrganizers?.length || 0}</p>
             </div>
             <div className="flex items-center justify-between font-sans font-semibold">
               <div className="flex items-center gap-2">
