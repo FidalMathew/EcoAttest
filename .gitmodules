@@ -1,0 +1,3 @@
+[submodule "python-examples"]
+  path = second-repo
+  url = https://github.com/jaydeepdey03/python-examples.git
