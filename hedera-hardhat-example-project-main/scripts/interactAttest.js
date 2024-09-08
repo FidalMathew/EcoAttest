@@ -5,7 +5,7 @@ async function main() {
 
   console.log(signer0.address, "signer0");
   // Define the contract address and ABI
-  const contractAddress = "0xFe0eD10De27B135dC1A00f25dDedF34c4639833d";
+  const contractAddress = "0xFb129d7A9a6476f30A9a7B84fB98Dad40B6d2276";
   // const contractAddress = "0xa11ff608DB42F526180543260d9eb135a3c30cFe";
   const EcoAttest = await ethers.getContractFactory("EcoAttest");
 
@@ -63,8 +63,8 @@ async function main() {
   // console.log("Organization Details:", organization);
 
   // Example: Fetching all organizations
-  const organizations = await ecoAttest.getAllOrganizations();
-  console.log("All Organizations:", organizations);
+  // const organizations = await ecoAttest.getAllOrganizations();
+  // console.log("All Organizations:", organizations);
 
   // // Example: Creating an event
   // const tx3 = await ecoAttest.createEvent(
@@ -82,15 +82,18 @@ async function main() {
   // const event = await ecoAttest.getEventById(1); // Assuming event ID is 1
   // console.log("Event Details:", event);
 
-  const events = await ecoAttest.getAllEvents();
+  // const events = await ecoAttest.getAllEvents();
 
-  console.log(events, "events");
+  // console.log(events, "events");
 
   // const eventCount = await ecoAttest.events(1)
 
   // console.log(JSON.stringify(eventCount), 'event count')
 
-  // const tx3 = await ecoAttest.createParticipant("jaydeep", "https://lh3.googleusercontent.com/a/ACg8ocKpFYfYlp22RpaC8jETUwDp3y7dXV6GWDMI0AIicTWbGSQphQk=s96-c")
+  // const tx3 = await ecoAttest.createParticipant(
+  //   "jaydeep",
+  //   "https://lh3.googleusercontent.com/a/ACg8ocKpFYfYlp22RpaC8jETUwDp3y7dXV6GWDMI0AIicTWbGSQphQk=s96-c"
+  // );
   // await tx3.wait();
   // console.log("Participant added successfully.");
 
@@ -103,8 +106,25 @@ async function main() {
   // const ispart = await ecoAttest.isParticipant("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A")
   // console.log(ispart, 'ispart')
 
+  const res = await ecoAttest.storeFeedback(
+    "dsa",
+    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  );
+  await res.wait();
+  console.log("stored feedback successfully.");
+
   // const allParticipants = await ecoAttest.fetchAllParticipants();
-  // console.log(allParticipants, 'allParticipants')
+  // console.log(allParticipants, "allParticipants");
+
+  const vv = await ecoAttest.getVoters(
+    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  );
+  console.log(vv, "voters");
+
+  const allFeedbacks = await ecoAttest.getFeedbackStoreIds(
+    "0xecC6E5aA22E2Bb7aDD9296e5E7113E1A44C4D736"
+  );
+  console.log(allFeedbacks, "allFeedbacks");
 
   // const participant = await ecoAttest.getParticipantByAddress("0xdd4dB825306bFEeC56Bb74dcC66FE30C300B6f5A")
   // console.log(participant, 'participant')

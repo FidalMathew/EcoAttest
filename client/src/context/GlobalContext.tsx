@@ -1115,13 +1115,8 @@ export default function GlobalContextProvider({
             orgAddress: orgAddress,
             subOrgAddress: loggedInAddress,
             participantAddress: participantAddress,
-<<<<<<< HEAD
             eventId: eventId,
             score: score
-=======
-            event: event,
-            score: score,
->>>>>>> 49f48770911cb126836920d0d417a75b206e8442
           };
 
           try {

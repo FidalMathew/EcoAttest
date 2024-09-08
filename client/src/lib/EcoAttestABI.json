@@ -324,16 +324,6 @@
             "internalType": "string",
             "name": "programId",
             "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "feedbackStoreIds",
-            "type": "string[]"
-          },
-          {
-            "internalType": "address[]",
-            "name": "subOrganisersSeed",
-            "type": "address[]"
           }
         ],
         "internalType": "struct EcoAttest.Participant[]",
@@ -421,16 +411,6 @@
                 "internalType": "string",
                 "name": "programId",
                 "type": "string"
-              },
-              {
-                "internalType": "string[]",
-                "name": "feedbackStoreIds",
-                "type": "string[]"
-              },
-              {
-                "internalType": "address[]",
-                "name": "subOrganisersSeed",
-                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -493,16 +473,6 @@
                 "internalType": "string",
                 "name": "programId",
                 "type": "string"
-              },
-              {
-                "internalType": "string[]",
-                "name": "feedbackStoreIds",
-                "type": "string[]"
-              },
-              {
-                "internalType": "address[]",
-                "name": "subOrganisersSeed",
-                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -606,16 +576,6 @@
                 "internalType": "string",
                 "name": "programId",
                 "type": "string"
-              },
-              {
-                "internalType": "string[]",
-                "name": "feedbackStoreIds",
-                "type": "string[]"
-              },
-              {
-                "internalType": "address[]",
-                "name": "subOrganisersSeed",
-                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -626,6 +586,25 @@
         "internalType": "struct EcoAttest.Event",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pp",
+        "type": "address"
+      }
+    ],
+    "name": "getFeedbackStoreIds",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
@@ -703,16 +682,6 @@
                 "internalType": "string",
                 "name": "programId",
                 "type": "string"
-              },
-              {
-                "internalType": "string[]",
-                "name": "feedbackStoreIds",
-                "type": "string[]"
-              },
-              {
-                "internalType": "address[]",
-                "name": "subOrganisersSeed",
-                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -764,21 +733,30 @@
             "internalType": "string",
             "name": "programId",
             "type": "string"
-          },
-          {
-            "internalType": "string[]",
-            "name": "feedbackStoreIds",
-            "type": "string[]"
-          },
-          {
-            "internalType": "address[]",
-            "name": "subOrganisersSeed",
-            "type": "address[]"
           }
         ],
         "internalType": "struct EcoAttest.Participant",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pp",
+        "type": "address"
+      }
+    ],
+    "name": "getVoters",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -1019,6 +997,11 @@
         "internalType": "string",
         "name": "_feedbackStoreId",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "participantAddress",
+        "type": "address"
       }
     ],
     "name": "storeFeedback",

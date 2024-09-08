@@ -18,8 +18,6 @@ contract EcoAttest {
         string name;
         string photo;
         string programId;
-        string[] feedbackStoreIds;
-        address[] subOrganisersSeed;
     }
 
     struct Event {
@@ -114,6 +112,8 @@ contract EcoAttest {
         newParticipant.name = _participantName;
         newParticipant.photo = _photo;
         newParticipant.programId = "";
+        // newParticipant.feedbackStoreIds = new string[](0);
+        // newParticipant.subOrganisersSeed = new address[](0);
 
         participantsArray.push(newParticipant);
 
@@ -317,12 +317,34 @@ contract EcoAttest {
         participants[msg.sender].programId = _programId;
     }
 
-    function storeFeedback(string memory _feedbackStoreId) public {
+    mapping(address => address[]) t1;
+    mapping(address => string[]) t2;
+
+    function storeFeedback(
+        string memory _feedbackStoreId,
+        address participantAddress
+    ) public {
         require(
             bytes(_feedbackStoreId).length > 0,
             "Invalid feedback store ID (length is 0)"
         );
-        participants[msg.sender].feedbackStoreIds.push(_feedbackStoreId);
-        participants[msg.sender].subOrganisersSeed.push(msg.sender);
+
+        address[] storage temp = t1[participantAddress];
+        temp.push(msg.sender);
+        t1[participantAddress] = temp;
+
+        string[] storage temp2 = t2[participantAddress];
+        temp2.push(_feedbackStoreId);
+        t2[participantAddress] = temp2;
+    }
+
+    function getVoters(address pp) public view returns (address[] memory) {
+        return t1[pp];
+    }
+
+    function getFeedbackStoreIds(
+        address pp
+    ) public view returns (string[] memory) {
+        return t2[pp];
     }
 }
