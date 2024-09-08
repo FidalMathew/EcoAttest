@@ -43,7 +43,7 @@ export default function App({Component, pageProps}: AppProps) {
       <Head>
         <title>EcoAttest</title>
       </Head>
-      <Toaster />
+      <Toaster richColors />
       <Component {...pageProps} />
     </GlobalContextProvider>
     // </NillionClientProvider>

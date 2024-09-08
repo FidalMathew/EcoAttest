@@ -1,5 +1,5 @@
 import Navbar from "@/components/ui/Navbar";
-import { Input } from "@/components/ui/input";
+import {Input} from "@/components/ui/input";
 import {
   ArrowRight,
   Building,
@@ -10,11 +10,11 @@ import {
   Shrub,
   Star,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/router";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {useRouter} from "next/router";
 import {
   Dialog,
   DialogContent,
@@ -23,21 +23,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 // import Webcam from "react-webcam";
 import useGlobalContextHook from "@/context/useGlobalContextHook";
-import { OpenloginUserInfo } from "@web3auth/openlogin-adapter";
-import { Skeleton } from "@/components/ui/skeleton";
+import {OpenloginUserInfo} from "@web3auth/openlogin-adapter";
+import {Skeleton} from "@/components/ui/skeleton";
 import QrScanner from "qr-scanner";
 import QrFrame from "../../public/qr-frame.svg";
 import QrReader from "@/components/QrReader";
-import { Field, Form, Formik } from "formik";
-import { Label } from "@radix-ui/react-label";
-import {
-  hexToBigInt,
-  sliceHex
-} from "viem";
+import {Field, Form, Formik} from "formik";
+import {Label} from "@radix-ui/react-label";
+import {hexToBigInt, sliceHex} from "viem";
 import axios from "axios";
+import {ReloadIcon} from "@radix-ui/react-icons";
 
 export default function Profile() {
   const router = useRouter();
@@ -62,7 +60,9 @@ export default function Profile() {
     attest,
     getEventById,
     getOrgAddressFromSub,
-    getOrganizationByAddress
+    getOrganizationByAddress,
+    storeVotesByOrganisers,
+    storeVotesLoading,
   } = useGlobalContextHook();
 
   const getUser = async () => {
@@ -82,22 +82,25 @@ export default function Profile() {
         getUser();
         // const res = await getOrgAddressFromSub!();
         // console.log(res, "dsaasdsad");
-
       } catch (error) {
         console.error(error, "Error logging in");
       }
     }
-    if (loggedInAddress)
-      run();
-  }, [walletClient, publicClient, provider, loggedInAddress, router.pathname, status]);
-
+    if (loggedInAddress) run();
+  }, [
+    walletClient,
+    publicClient,
+    provider,
+    loggedInAddress,
+    router.pathname,
+    status,
+  ]);
 
   const [scannedResult, setScannedResult] = useState<string | undefined>("");
-  const [attestations, setAttestations] = useState<any[]>([])
+  const [attestations, setAttestations] = useState<any[]>([]);
 
   const [attestationDetails, setAttestationDetails] = useState<any>({});
   console.log(scannedResult, "Scanned Result");
-
 
   function decodeData(encodedData: string) {
     // Remove '0x' prefix if present
@@ -166,35 +169,28 @@ export default function Profile() {
     return deRows;
   };
 
-
-
   useEffect(() => {
-
     (async () => {
       if (loggedInAddress) {
-        const all = await fetchAttestations()
-        console.log(all, "all attestations")
+        const all = await fetchAttestations();
+        console.log(all, "all attestations");
       }
-    })()
-
-  }, [loggedInAddress])
-
+    })();
+  }, [loggedInAddress]);
 
   useEffect(() => {
     // console.log(scannedResult, "Scanned Result");
     const fetchDetails = async () => {
-
       if (scannedResult) {
         // alert(scannedResult);
-        const scannedObj = JSON.parse(scannedResult)
+        const scannedObj = JSON.parse(scannedResult);
 
-        const { orgAddress, eventId, participant } = scannedObj;
-        console.log({ orgAddress, eventId, participant })
+        const {orgAddress, eventId, participant} = scannedObj;
+        console.log({orgAddress, eventId, participant});
         if (!orgAddress || !eventId || !participant) {
-          console.error("Attestation requirement values incomplete")
+          console.error("Attestation requirement values incomplete");
           return;
         }
-
 
         const res = await getEventById!(eventId);
         console.log(res, "event");
@@ -206,18 +202,14 @@ export default function Profile() {
           eventId: eventId,
           event: res.eventName,
           participantAddress: participant,
-        })
+        });
 
         setOpenAttQr(true);
       }
-    }
+    };
 
-    fetchDetails()
-
-
+    fetchDetails();
   }, [scannedResult]);
-
-
 
   return (
     <div className="min-h-screen w-full">
@@ -252,22 +244,25 @@ export default function Profile() {
           <DialogHeader>
             <DialogTitle>Attest Participant</DialogTitle>
             <DialogDescription className="h-[500px] w-full flex items-center justify-center flex-col gap-4 pt-10">
-              {
-                attestationDetails &&
-                (<>
-
+              {attestationDetails && (
+                <>
                   <Formik
                     initialValues={{
                       orgName: attestationDetails.orgName || "", // Existing organization name field
                       orgAddress: attestationDetails.orgAddress || "", // Fill with the orgAddress
-                      participantAddress: attestationDetails.participantAddress || "", // Fill with participantAddress
+                      participantAddress:
+                        attestationDetails.participantAddress || "", // Fill with participantAddress
                       event: attestationDetails.event || "", // Fill with event
                       score: attestationDetails.score || "", // Fill with score
                     }}
                     onSubmit={async (values, _) => {
                       console.log(values);
-                      attest!(attestationDetails.orgAddress, attestationDetails.participantAddress, attestationDetails.eventId, values.score)
-
+                      attest!(
+                        attestationDetails.orgAddress,
+                        attestationDetails.participantAddress,
+                        attestationDetails.eventId,
+                        values.score
+                      );
                     }}
                   >
                     {(formik) => (
@@ -314,7 +309,9 @@ export default function Profile() {
                           />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="orgAddress">Organization Address</Label>
+                          <Label htmlFor="orgAddress">
+                            Organization Address
+                          </Label>
                           <Field
                             as={Input}
                             id="orgAddress"
@@ -326,7 +323,9 @@ export default function Profile() {
                           />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="participantAddress">Participant Address</Label>
+                          <Label htmlFor="participantAddress">
+                            Participant Address
+                          </Label>
                           <Field
                             as={Input}
                             id="participantAddress"
@@ -379,21 +378,19 @@ export default function Profile() {
                           //     Please wait
                           //   </Button>
                           // ) :
-                          (
-                            <Button
-                              type="submit"
-                              variant={"outline"}
-                              className="w-full border-2 border-gray-700"
-                            >
-                              Attest
-                            </Button>
-                          )}
+                          <Button
+                            type="submit"
+                            variant={"outline"}
+                            className="w-full border-2 border-gray-700"
+                          >
+                            Attest
+                          </Button>
+                        }
                       </Form>
                     )}
                   </Formik>
-
-                </>)
-              }
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -411,12 +408,7 @@ export default function Profile() {
               <div className="bg-white rounded-full border-2 border-green-800 h-[250px] w-[250px] flex overflow-hidden">
                 {userInfo && userInfo.profileImage ? (
                   <>
-                    <img
-                      src={
-                        userInfo.profileImage
-                      }
-                      alt="dp"
-                    />
+                    <img src={userInfo.profileImage} alt="dp" />
                   </>
                 ) : (
                   <Skeleton className="w-[250px] h-[250px] rounded-full bg-gray-300" />
@@ -429,9 +421,7 @@ export default function Profile() {
               </div> */}
               {userInfo && userInfo.name ? (
                 <>
-                  <p className="text-3xl font-normal">
-                    {userInfo.name}
-                  </p>
+                  <p className="text-3xl font-normal">{userInfo.name}</p>
                 </>
               ) : (
                 <Skeleton className="w-3/4 bg-gray-300 h-[30px]" />
@@ -519,12 +509,13 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 === 0
-                          ? index === 2
-                            ? "bg-red-700"
-                            : "bg-green-700"
-                          : "bg-yellow-700"
-                          }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
+                          index % 3 === 0
+                            ? index === 2
+                              ? "bg-red-700"
+                              : "bg-green-700"
+                            : "bg-yellow-700"
+                        }`}
                       >
                         {index % 3 === 0
                           ? index === 2
@@ -565,8 +556,9 @@ export default function Profile() {
                       </p>
                       <Badge
                         variant={"outline"}
-                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${index % 3 ? "bg-yellow-700" : "bg-green-700"
-                          }`}
+                        className={`lg:px-8 lg: text-sm  py-2 border-2 border-gray-700  text-white ${
+                          index % 3 ? "bg-yellow-700" : "bg-green-700"
+                        }`}
                       >
                         {index % 3 == 0 ? "Issued CC" : "Participated"}
                       </Badge>

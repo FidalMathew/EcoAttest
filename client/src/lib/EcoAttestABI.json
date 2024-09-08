@@ -324,6 +324,11 @@
             "internalType": "string[]",
             "name": "feedbackStoreIds",
             "type": "string[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "subOrganisersSeed",
+            "type": "address[]"
           }
         ],
         "internalType": "struct EcoAttest.Participant[]",
@@ -411,6 +416,11 @@
                 "internalType": "string[]",
                 "name": "feedbackStoreIds",
                 "type": "string[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "subOrganisersSeed",
+                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -478,6 +488,11 @@
                 "internalType": "string[]",
                 "name": "feedbackStoreIds",
                 "type": "string[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "subOrganisersSeed",
+                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -581,6 +596,11 @@
                 "internalType": "string[]",
                 "name": "feedbackStoreIds",
                 "type": "string[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "subOrganisersSeed",
+                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -667,6 +687,11 @@
                 "internalType": "string[]",
                 "name": "feedbackStoreIds",
                 "type": "string[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "subOrganisersSeed",
+                "type": "address[]"
               }
             ],
             "internalType": "struct EcoAttest.Participant[]",
@@ -723,6 +748,11 @@
             "internalType": "string[]",
             "name": "feedbackStoreIds",
             "type": "string[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "subOrganisersSeed",
+            "type": "address[]"
           }
         ],
         "internalType": "struct EcoAttest.Participant",

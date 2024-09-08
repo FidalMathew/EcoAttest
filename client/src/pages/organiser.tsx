@@ -521,7 +521,6 @@ export default function Organisers() {
                 )}
               </div>
             </div>
-
             <TabsContent value="suborganisers" className="focus-visible:ring-0">
               <div
                 className="w-full overflow-y-auto flex flex-col gap-4 pr-4 items-end"
